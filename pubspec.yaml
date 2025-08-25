@@ -35,6 +35,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -49,7 +50,11 @@ dev_dependencies:
   provider: ^6.1.2
   badges: ^3.1.2
   flutter_staggered_animations: ^1.1.1
-  shimmer: ^3.0.0
+  flutter_svg: ^2.1.0
+  dio: ^5.8.0+1
+  get_it: ^8.0.3
+  shared_preferences: ^2.3.3
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -60,6 +65,56 @@ flutter:
 
   assets:
     - assets/icons/
+
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Thin.ttf
+          weight: 300
+        - asset: assets/fonts/Poppins-Light.ttf
+          weight: 400
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+          style: italic
+
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/inter_regular.ttf
+          weight: 400
+        - asset: assets/fonts/inter_medium.ttf
+          weight: 500
+        - asset: assets/fonts/inter_thin.ttf
+          weight: 300
+        - asset: assets/fonts/inter_extrabold.ttf
+          weight: 800
+        - asset: assets/fonts/inter_bold.ttf
+          weight: 700
+
+    - family: Reem Kufi
+      fonts:
+        - asset: assets/fonts/ReemKufi-Regular.ttf
+          weight: 400
+
+    - family: Lobster
+      fonts:
+        - asset: assets/fonts/Lobster-Regular.ttf
+          weight: 400
+
+    - family: OleoScriptSwashCaps
+      fonts:
+        - asset: assets/fonts/OleoScriptSwashCaps-Regular.ttf
+          weight: 400
+
+
+
+
+
+
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

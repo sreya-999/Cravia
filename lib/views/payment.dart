@@ -2,45 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart'; // Adjust path as needed
 
-// class PaymentSuccessScreen extends StatelessWidget {
-//   const PaymentSuccessScreen({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//      // backgroundColor: Colors.green.shade50,
-//
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             const Icon(Icons.check_circle, color: Colors.green, size: 100),
-//             const SizedBox(height: 20),
-//             const Text(
-//               'Payment Completed Successfully!',
-//               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-//             ),
-//             const SizedBox(height: 30),
-//             Consumer<CartProvider>(
-//               builder: (context, cartProvider, _) {
-//                 return ElevatedButton(
-//                   onPressed: () {
-//                     cartProvider.clearCart();
-//                     Navigator.popUntil(context, (route) => route.isFirst);
-//                   },
-//                   style: ElevatedButton.styleFrom(
-//                     backgroundColor: Colors.yellow.shade700,
-//                   ),
-//                   child: const Text('Back to Home', style: TextStyle(color: Colors.white)),
-//                 );
-//               },
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 
 import 'home_screen.dart';

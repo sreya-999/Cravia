@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:ravathi_store/home_screen/home_screen.dart';
+
 import 'dart:async';
 
 import 'package:ravathi_store/utlis/App_image.dart';
+
+import 'selection_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -17,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => HomeScreen()
+          builder: (_) => SelectionScreen()
         ),
       );// Navigate after splash
     });
@@ -31,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
         children: [
           Image.asset(
             AppImage.splash,
-            fit: BoxFit.cover, // Makes the image fill the screen
+            fit: BoxFit.cover,
           ),
         ],
       ),
