@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:ravathi_store/utlis/App_image.dart';
 import 'package:ravathi_store/views/view_order_screen.dart';
+import '../models/items_model.dart';
 import '../models/product_model.dart';
 import '../providers/cart_provider.dart';
 import '../providers/category_provider.dart';
@@ -13,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../utlis/App_style.dart';
 import '../utlis/widgets/custom_appbar.dart';
+import '../utlis/widgets/shimmer_loading.dart';
 
 class BuyOneGetOne extends StatefulWidget {
   const BuyOneGetOne({super.key});
@@ -32,15 +34,16 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
       final categoryProvider =
       Provider.of<CategoryProvider>(context, listen: false);
 
-      categoryProvider.getOffer(context, null);
+      categoryProvider.getBuyOneOffer(context, null);
     });
   }
 
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController _controller = TextEditingController();
     final provider = Provider.of<CategoryProvider>(context);
-    final products = provider.selectedCategoryProducts;
+
     final cartProvider = Provider.of<CartProvider>(context);
     double subTotal = cartProvider.subTotal;
     return Scaffold(
@@ -50,7 +53,6 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
     ),
         bottomNavigationBar: Consumer<CartProvider>(
           builder: (context, cartProvider, _) {
-            final totalAmount = cartProvider.getTotalAmount(products);
 
             final double screenWidth = MediaQuery.of(context).size.width;
             final bool isDesktop = screenWidth >= 1024;
@@ -202,20 +204,140 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-           Padding(
-            padding: EdgeInsets.all(15.0),
-            child: SearchCartRow(),
-          ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: Consumer<CategoryProvider>(
-            builder: (context, provider, child) {
-              final products = provider.buyOneGetOne;
-        if (products == null) {
-                       return const Center(child: CircularProgressIndicator());
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  children: [
+
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade50, width: 1),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: TextField(
+                          controller: _controller,
+                          style: const TextStyle(
+                            fontFamily: 'Reem Kufi',
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
+                            color: Colors.black, // ✅ Ensures typed text is visible
+                          ),
+                          decoration: const InputDecoration(
+                            hintText: 'Search',
+                            hintStyle: TextStyle(
+                              fontFamily: 'Reem Kufi',
+                              fontWeight: FontWeight.w400,
+                              fontSize: 14,
+                              color: Colors.grey, // ✅ Make hint different from typed text
+                            ),
+                            prefixIcon: Icon(Icons.search, color: AppColor.primaryColor),
+                            contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+                            border: InputBorder.none,
+                          ),
+                          onChanged: (value) {
+                            print("Search value: $value");
+                            // Provider.of<CategoryProvider>(context, listen: false)
+                            //     .getBuyOneOffer(context, value);
+                            Provider.of<DashboardProvider>(context, listen: false)
+                                .getBuyOneOffer(context,_controller.text,);
+                          },
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColor.primaryColor),
+                        borderRadius: BorderRadius.circular(12),
+                        gradient: const LinearGradient(
+                          colors: [AppColor.secondary, AppColor.primaryColor],
+                          begin: AlignmentDirectional(0.0, -2.0), // top-center
+                          end: AlignmentDirectional(0.0, 1.0), // bottom-center
+
+                          stops: [0.0, 1.0], // smooth gradient
+                          tileMode: TileMode.clamp,
+                        ),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.tune, color: AppColor.whiteColor),
+                        onPressed: () {},
+                      ),
+                    )
+                  ],
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Consumer<CategoryProvider>(
+                  builder: (context, provider, child) {
+                    final size = MediaQuery.of(context).size;
+                    final products = provider.buyOneGetOne;
+                    final badgeSize = size.width * 0.10;
+                    /// 🔹 Show shimmer while loading
+
+                    if (provider.isLoading) {
+
+                      return LayoutBuilder(
+                        builder: (context, constraints) {
+                          double screenWidth = constraints.maxWidth;
+
+                          int crossAxisCount;
+                          double aspectRatio;
+
+                          if (screenWidth >= 1000) {
+                            crossAxisCount = 4;
+                            aspectRatio = 0.95;
+                          } else if (screenWidth >= 700) {
+                            crossAxisCount = 3;
+                            aspectRatio = 0.85;
+                          } else {
+                            crossAxisCount = 2;
+                            aspectRatio = 0.74;
+                          }
+                          final placeholderCount = (products?.isNotEmpty ?? false)
+                              ? products!.length
+                              : 6;
+
+                          return GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: placeholderCount,
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: crossAxisCount,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              childAspectRatio: aspectRatio * 0.9,
+                            ),
+                            itemBuilder: (context, index) {
+                              return ShimmerWidget.rectangular(
+                                width: double.infinity,
+                                height: double.infinity,
+                                borderRadius: BorderRadius.circular(16),
+                              );
+                            },
+                          );
+                        },
+                      );
                     }
-                    if (products.isEmpty) {
-                      return const Center(child: Text("No products available"));
+                    if (products== null) {
+                      return  Center(child: Text("No products available",style: AppStyle.textStyleReemKufi.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: AppColor.greyColor,
+                        fontSize: 18,
+                        height: 1.0, // remove extra line height
+                      ),));
                     }
               return LayoutBuilder(
                 builder: (context, constraints) {
@@ -251,7 +373,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                       childAspectRatio: aspectRatio * 0.9,
                     ),
                     itemBuilder: (context, index) {
-                      final product = products?[index];
+                      final product = products[index];
 
                       return AnimationConfiguration.staggeredGrid(
                         position: index,
@@ -300,7 +422,9 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                         ),
                                         const SizedBox(height: 10),
                                         Text(
-                                          product?.name.toString() ?? '',
+                                          (product.name.isNotEmpty)
+                                              ? product.name[0].toUpperCase() + product.name.substring(1).toLowerCase()
+                                              : '',
                                           style: AppStyle.textStyleReemKufi.copyWith(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 17,
@@ -309,7 +433,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
-                                        product?.description.toString() ?? '',
+                                        product.description.toString() ?? '',
                                           textAlign: TextAlign.center,
                                           style: AppStyle.textStyleReemKufi.copyWith(
                                             fontWeight: FontWeight.normal,
@@ -323,7 +447,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                         Align(
                                           alignment: Alignment.bottomLeft,
                                           child: Text(
-                                            '₹${double.parse(product?.price ?? '0').toStringAsFixed(2)}',
+                                            '₹${double.parse(product.price ?? '0').toStringAsFixed(2)}',
 
                                             style: AppStyle.textStyleReemKufi.copyWith(
                                               fontWeight: FontWeight.bold,
@@ -336,14 +460,21 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                     ),
                                   ),
                                 ),
-
+                                Positioned(
+                                  top: -10,
+                                  left: 5,
+                                  child: Image.asset(
+                                    AppImage.badge,
+                                    width: badgeSize,
+                                  ),
+                                ),
                                 // Add icon exactly in bottom-right corner
                                 Positioned(
                                   bottom: 0,
                                   right: 0,
                                   child: GestureDetector(
                                     onTap: () {
-                                     // showBurgerDialog(context, product);
+                                      showBurgerDialog(context, product);
                                     },
                                     child: Container(
                                       width: 40,
@@ -382,10 +513,9 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
     );
   }
 
-  void showBurgerDialog(BuildContext context, ProductModel product) {
+  void showBurgerDialog(BuildContext context,Item product) {
     final selectedProvider =
     Provider.of<CategoryProvider>(context, listen: false);
-    selectedProvider.setBasePrice(product.price);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isDesktop = screenWidth >= 1024;
@@ -394,7 +524,9 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
     final double priceSize = isDesktop ? 27 : isTablet ? 17 : 17;
     final double description = isDesktop ? 20 : isTablet ? 15 : 15;
     // Set base price
-    selectedProvider.setBasePrice(product.price);
+    selectedProvider.setBasePrice(
+      double.tryParse(product.price ?? '0') ?? 0.0,
+    );
 
     final cartItem = cartProvider.getCartItemById(product.id);
     if (cartItem != null) {
@@ -429,21 +561,17 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                         constraints: BoxConstraints(
                           maxHeight: screenHeight * 0.95,
                         ),
-                        decoration: const BoxDecoration(
+                        decoration:  BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              AppColor.whiteColor,
-                              AppColor.whiteColor,
+                              AppColor.primaryColor,
                               AppColor.whiteColor,
                             ],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            stops: [
-                              0.0,
-                              0.2,
-                              1.0
-                            ], // <- this controls how much of the top is secondary
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            stops: [0.3, 0.25], // 👈 transition from primary → secondary at 70% height
                           ),
+
                           borderRadius:
                           BorderRadius.vertical(top: Radius.circular(30)),
                         ),
@@ -456,11 +584,12 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                               decoration: const BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
+                                    AppColor.primaryColor,
                                     AppColor.secondary,
-                                    AppColor.primaryColor
                                   ],
-                                  begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
+                                  begin: Alignment.topCenter,
+                                  stops: [0.3, 0.9],
                                 ),
                                 borderRadius: const BorderRadius.only(
                                   topLeft: Radius.circular(30),
@@ -477,8 +606,10 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Image.network(
-                                          product.image,
-                                          //fit: BoxFit.cover,
+                                          "${ApiEndpoints.imageBaseUrl}${product.image}", // prepend baseUrl
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) =>
+                                          const Icon(Icons.image_not_supported),
                                         ),
                                       ),
                                     ),
@@ -513,14 +644,16 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                     crossAxisAlignment:
                                     CrossAxisAlignment.start,
                                     children: [
-                                      SizedBox(height: 15,),// Title + Price
+                                      SizedBox(height: 20,),// Title + Price
                                       Row(
                                         mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                         children: [
                                           Flexible(
                                             child: Text(
-                                              product.name,
+                                              (product.name.isNotEmpty)
+                                                  ? product.name[0].toUpperCase() + product.name.substring(1).toLowerCase()
+                                                  : '',
                                               overflow: TextOverflow.ellipsis,
                                               style: AppStyle.textStyleReemKufi
                                                   .copyWith(
@@ -531,7 +664,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                             ),
                                           ),
                                           Text(
-                                            "₹${product.price.toStringAsFixed(2)}",
+                                            "₹${(double.tryParse(product.price ?? '0') ?? 0.0).toStringAsFixed(2)}",
                                             style: AppStyle.textStyleReemKufi
                                                 .copyWith(
                                               color: AppColor.blackColor,
@@ -541,85 +674,47 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                           ),
                                         ],
                                       ),
-                                      SizedBox(height: screenHeight * 0.015),
+                                      SizedBox(height: 4,),
                                       Row(
                                         children: [
                                           Flexible(
                                             child: Text(
-                                              "Tomato, Lettuce, Onions",
+                                              product.description,
                                               style: AppStyle.textStyleReemKufi
                                                   .copyWith(
-                                                  color: AppColor.greyColor,
+                                                  color: AppColor.lightGreyColor,
                                                   fontSize: 15),
                                             ),
                                           ),
-                                          const SizedBox(width: 10),
+                                          const SizedBox(width: 20),
                                           Text(
-                                            "14 mins",
-                                            style: AppStyle.textStyleReemKufi
-                                                .copyWith(
-                                                color: AppColor.greyColor,
-                                                fontSize: 15),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: screenHeight * 0.025),
-
-                                      // 🟡 Size options
-                                      Row(
-                                        mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          Expanded(
-                                            child: _buildOptionBox(
-                                              "Small",
-                                              "₹${product.price.toStringAsFixed(0)}",
-                                              isSelected: context
-                                                  .watch<CategoryProvider>()
-                                                  .selectedSize ==
-                                                  "Small",
-                                              onTap: () {
-                                                context
-                                                    .read<CategoryProvider>()
-                                                    .setSelectedSize("Small");
-                                              },
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: _buildOptionBox(
-                                              "Medium",
-                                              "₹${(product.price + 10).toStringAsFixed(0)}",
-                                              isSelected: context
-                                                  .watch<CategoryProvider>()
-                                                  .selectedSize ==
-                                                  "Medium",
-                                              onTap: () {
-                                                context
-                                                    .read<CategoryProvider>()
-                                                    .setSelectedSize("Medium");
-                                              },
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: _buildOptionBox(
-                                              "Large",
-                                              "₹${(product.price + 20).toStringAsFixed(0)}",
-                                              isSelected: context
-                                                  .watch<CategoryProvider>()
-                                                  .selectedSize ==
-                                                  "Large",
-                                              onTap: () {
-                                                context
-                                                    .read<CategoryProvider>()
-                                                    .setSelectedSize("Large");
-                                              },
+                                            product.time != null ? '${product.time} mins' : '',
+                                            style: AppStyle.textStyleReemKufi.copyWith(
+                                              color: AppColor.greyColor,
+                                              fontSize: 15,
                                             ),
                                           ),
                                         ],
                                       ),
+                                      if (product.childCategory != null && product.childCategory.isNotEmpty) ...[
+                                        SizedBox(height: screenHeight * 0.025),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: product.childCategory.map((child) {
+                                            final selectedChild = context.watch<CategoryProvider>().selectedChildCategory;
+                                            return _buildOptionBox(
+                                              child.name,
+                                              "₹${(child.price ?? 0).toStringAsFixed(0)}",
+                                              isSelected: selectedChild?.id == child.id,
+                                              onTap: () {
+                                                context.read<CategoryProvider>().setSelectedChildCategory(child);
+                                              },
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ],
                                       SizedBox(height: screenHeight * 0.025),
 
-                                      // 🟡 Spicy + Portion
                                       Row(
                                         children: [
                                           Expanded(
@@ -717,7 +812,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                         fontSize: buttonFontSize,
                                                       ),
                                                     ),
-                                                    SizedBox(
+                                                    const SizedBox(
                                                       height: 10,
                                                     ),
                                                     Row(
@@ -732,16 +827,18 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                         }),
                                                         const SizedBox(
                                                             width: 12),
-                                                        Text(
-                                                          "${selectedProvider.quantity}",
-                                                          style: AppStyle
-                                                              .textStyleReemKufi
-                                                              .copyWith(
-                                                            fontWeight:
-                                                            FontWeight.w600,
-                                                            fontSize: 20,
-                                                          ),
+                                                        Consumer<CategoryProvider>(
+                                                          builder: (context, provider, child) {
+                                                            return Text(
+                                                              "${provider.quantity}",
+                                                              style: AppStyle.textStyleReemKufi.copyWith(
+                                                                fontWeight: FontWeight.w600,
+                                                                fontSize: 20,
+                                                              ),
+                                                            );
+                                                          },
                                                         ),
+
                                                         const SizedBox(
                                                             width: 12),
                                                         _buildIconButton(
@@ -766,7 +863,6 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                               ),
                             ),
 
-                            // 🟡 Footer: Total Price + Add to Cart
                             Container(
                               padding: EdgeInsets.symmetric(
                                 horizontal: screenWidth * 0.04,
@@ -815,22 +911,42 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                 fontWeight: FontWeight.w700,
                                               )),
                                         ),
-                                        ShaderMask(
-                                          shaderCallback: (bounds) =>
-                                              const LinearGradient(colors: [
-                                                AppColor.primaryColor,
-                                                AppColor.primaryColor
-                                              ]).createShader(Rect.fromLTWH(0, 0,
-                                                  bounds.width, bounds.height)),
-                                          child: Text(
-                                              '₹${selectedProvider.totalPrice.toStringAsFixed(2)}',
-                                              style: AppStyle.textStyleReemKufi
-                                                  .copyWith(
-                                                color: Colors.white,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                              )),
-                                        )
+                                        Selector<CategoryProvider, double>(
+                                          selector: (_, provider) => provider.totalPrice,
+                                          builder: (context, totalPrice, child) {
+                                            return ShaderMask(
+                                              shaderCallback: (bounds) =>
+                                                  const LinearGradient(colors: [
+                                                    AppColor.primaryColor,
+                                                    AppColor.primaryColor
+                                                  ]).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+                                              child: Text(
+                                                '₹${totalPrice.toStringAsFixed(2)}',
+                                                style: AppStyle.textStyleReemKufi.copyWith(
+                                                  color: Colors.white,
+                                                  fontSize: isDesktop ? 17 : 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                        // ShaderMask(
+                                        //   shaderCallback: (bounds) =>
+                                        //       const LinearGradient(colors: [
+                                        //         AppColor.primaryColor,
+                                        //         AppColor.primaryColor
+                                        //       ]).createShader(Rect.fromLTWH(0, 0,
+                                        //           bounds.width, bounds.height)),
+                                        //   child: Text(
+                                        //       '₹${selectedProvider.totalPrice.toStringAsFixed(2)}',
+                                        //       style: AppStyle.textStyleReemKufi
+                                        //           .copyWith(
+                                        //         color: Colors.white,
+                                        //         fontSize: 16,
+                                        //         fontWeight: FontWeight.bold,
+                                        //       )),
+                                        // )
                                       ],
                                     ),
                                   ),
@@ -846,6 +962,8 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                       ),
                                       child: ElevatedButton(
                                         onPressed: () {
+                                          final selectedChild = context.read<CategoryProvider>().selectedChildCategory; // ✅ use read
+
                                           final cartProvider =
                                           Provider.of<CartProvider>(context,
                                               listen: false);
@@ -857,13 +975,18 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                             price:
                                             selectedProvider.selectedPrice,
                                             quantity: selectedProvider.quantity,
-                                            isCombo: false
+                                            isCombo: false,
+                                            takeAwayPrice: selectedChild?.takeAwayPrice,
+                                            subCategoryId: selectedChild?.subCategoryId ?? 0,
+                                            childCategoryId: selectedChild?.id.toString(),      // 👈 pass child id if selected
+                                            childCategoryName: selectedChild?.name,
                                           );
                                           cartProvider.addToCart(cartItem);
                                           Navigator.of(context).pop();
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.transparent,
+                                          backgroundColor: AppColor.whiteColor,
+                                          foregroundColor: AppColor.whiteColor,
                                           elevation: 0,
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 28, vertical: 14),
@@ -1065,7 +1188,9 @@ class _HeatLevelSelectorState extends State<HeatLevelSelector> {
               activeTrackColor:
               AppColor.primaryColor, // Hide default active track color
               inactiveTrackColor:
-              Colors.grey, // Hide default inactive track color
+              Colors.grey,
+              valueIndicatorColor: AppColor.primaryColor,
+// Hide default inactive track color
 
               thumbColor: AppColor.primaryColor),
           child: Slider(
@@ -1084,6 +1209,167 @@ class _HeatLevelSelectorState extends State<HeatLevelSelector> {
       ],
     );
   }
+
+  void showSortByDialog(BuildContext context) {
+    String selectedOption = 'Popular';
+    List<String> options = [
+      'Popular',
+      'Newest',
+      'Price: Lowest to high',
+      'Price: Highest to low',
+    ];
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: "Sort By",
+      pageBuilder: (context, anim1, anim2) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Center(
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.only(top: 16,bottom: 16),
+                  decoration: const BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppColor.secondary, AppColor.primaryColor],
+                      begin: AlignmentDirectional(0.0, -1.0), // top-center
+                      end: AlignmentDirectional(0.0, 1.0), // bottom-center
+
+                      stops: [0.0, 1.0], // smooth gradient
+                      tileMode: TileMode.clamp,
+                    ),
+                    borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20), bottom: Radius.circular(20)),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8,bottom: 16,left: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Sort By',
+                              style: AppStyle.textStyleReemKufi.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: AppColor.whiteColor,
+                                fontSize: 20,
+                              ),
+                            ),
+                            Spacer(),
+                            IconButton(
+                              icon: const Icon(Icons.close,color: Colors.white,),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const Divider(color: Colors.white54),
+                      const SizedBox(height: 10),
+                      ...options.map((option) {
+                        bool isSelected = selectedOption == option;
+                        return Container(
+                          width: double.infinity,
+                          color: isSelected ? Colors.white : Colors.transparent, // selected background
+                          child: ListTile(
+                            title: Text(
+                              option,
+                              style: AppStyle.textStyleReemKufi.copyWith(
+                                fontWeight: FontWeight.w500,
+                                color: isSelected ? AppColor.primaryColor : AppColor.whiteColor, // text color
+                                fontSize: 15,
+                              ),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                selectedOption = option;
+                              });
+                            },
+                          ),
+                        );
+                      }).toList(),
+
+                      const SizedBox(height: 10),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.4, // 40% of screen width
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    selectedOption = '';
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Clear',
+                                  style: AppStyle.textStyleReemKufi.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColor.primaryColor,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.4, // 40% of screen width
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context, selectedOption);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Done',
+                                  style: AppStyle.textStyleReemKufi.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColor.primaryColor,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+      transitionBuilder: (context, anim1, anim2, child) {
+        return SlideTransition(
+          position:
+          Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim1),
+          child: child,
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 300),
+    );
+  }
 }
 
 class SearchCartRow extends StatelessWidget {
@@ -1096,64 +1382,7 @@ class SearchCartRow extends StatelessWidget {
     return Row(
       children: [
         // Search Box
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade50, width: 1),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.3),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: const Offset(0, 3), // changes position of shadow
-                ),
-              ],
-            ),
-            child:  TextField(
-              controller: _controller,
-              decoration: const InputDecoration(
-                hintText: 'Search',
-                hintStyle: TextStyle(
-                  fontFamily: 'Reem Kufi',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
-                prefixIcon: Icon(Icons.search, color: AppColor.primaryColor),
-                contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
-                border: InputBorder.none, // Disable TextField's internal border
-              ),
-              onChanged: (value) {
-                Provider.of<CategoryProvider>(context, listen: false)
-                    .getOffer(context,_controller.text);
-              },
-            ),
-          ),
-        ),
 
-
-        const SizedBox(width: 8),
-
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: AppColor.primaryColor),
-            borderRadius: BorderRadius.circular(12),
-            gradient: const LinearGradient(
-              colors: [
-                AppColor.secondary,
-                AppColor.primaryColor,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.tune, color: AppColor.whiteColor),
-            onPressed: () {},
-          ),
-        ),
         const SizedBox(width: 8),
       ],
     );

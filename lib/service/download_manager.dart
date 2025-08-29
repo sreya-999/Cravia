@@ -74,13 +74,27 @@ class DownloadManager {
   }
 
   /// searchText
-  Future<List<Item>?> searchText(BuildContext context, String? searchText) async {
+  Future<List<Item>?> searchText(BuildContext context, String? searchText, int? categoryId) async {
     try {
-      final response = await apiManager.dio.get(
-        '${ApiEndpoints.baseUrl}${ApiEndpoints.dashBoard}',
-        queryParameters: searchText != null ? {'search': searchText} : null,
-      );
+      final params = {
+        if (searchText != null && searchText.isNotEmpty) 'search': searchText,
+        if (categoryId != null && categoryId != -1) 'category_id': categoryId,
+      };
 
+
+      final url = '${ApiEndpoints.baseUrl}${ApiEndpoints.dashBoard}';
+
+      // 👇 Convert params to query string
+      final queryString = params.entries.map((e) => "${e.key}=${e.value}").join("&");
+      final fullUrl = queryString.isNotEmpty ? "$url?$queryString" : url;
+
+      // Print final URL
+      print("Request URL: $fullUrl");
+
+      final response = await apiManager.dio.get(
+        url,
+        queryParameters: params,
+      );
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.data;
         if (data['data'] != null && data['data']['items'] != null) {
@@ -126,13 +140,67 @@ class DownloadManager {
     }
   }
 
+  // Future<List<Item>?> bugOneGetOne(BuildContext context, String? searchText) async {
+  //   try {
+  //     final params = {
+  //       if (searchText != null && searchText.isNotEmpty) 'search': searchText,
+  //     };
+  //
+  //
+  //     final url = '${ApiEndpoints.baseUrl}${ApiEndpoints.buyOneGetOne}';
+  //
+  //     // 👇 Convert params to query string
+  //     final queryString = params.entries.map((e) => "${e.key}=${e.value}").join("&");
+  //     final fullUrl = queryString.isNotEmpty ? "$url?$queryString" : url;
+  //
+  //     // Print final URL
+  //     print("Request URL: $fullUrl");
+  //
+  //     print("🔗 Base URL: $url");
+  //     final response = await apiManager.dio.get(
+  //       url,
+  //       queryParameters: params,
+  //     );
+  //     if (response.statusCode == 200 || response.statusCode == 201) {
+  //       final data = response.data;
+  //       if (data['data'] != null && data['data']['items'] != null) {
+  //         final List itemsJson = data['data']['items'] as List;
+  //         return itemsJson.map((json) => Item.fromJson(json)).toList();
+  //       } else {
+  //         debugPrint('No items found in response');
+  //         return [];
+  //       }
+  //     } else {
+  //       debugPrint('Unexpected status code: ${response.statusCode}');
+  //       return null;
+  //     }
+  //   } catch (e) {
+  //     ErrorHandler.handleError(context, e);
+  //     return null;
+  //   }
+  // }
+
   Future<List<Item>?> bugOneGetOne(BuildContext context, String? searchText) async {
     try {
-      final response = await apiManager.dio.get(
-        '${ApiEndpoints.baseUrl}${ApiEndpoints.buyOneGetOne}',
-        queryParameters: searchText != null ? {'search': searchText} : null,
-      );
+      final params = {
+        if (searchText != null && searchText.isNotEmpty) 'search': searchText,
+      //  if (categoryId != null && categoryId != -1) 'category_id': categoryId,
+      };
 
+
+      final url = '${ApiEndpoints.baseUrl}${ApiEndpoints.buyOneGetOne}';
+
+      // 👇 Convert params to query string
+      final queryString = params.entries.map((e) => "${e.key}=${e.value}").join("&");
+      final fullUrl = queryString.isNotEmpty ? "$url?$queryString" : url;
+
+      // Print final URL
+      print("Request URL: $fullUrl");
+
+      final response = await apiManager.dio.get(
+        url,
+        queryParameters: params,
+      );
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.data;
         if (data['data'] != null && data['data']['items'] != null) {
@@ -152,7 +220,7 @@ class DownloadManager {
     }
   }
 
-  Future<List<Item>?> getComboOffer(BuildContext context, String? searchText) async {
+  Future<List<ComboProductModel>?> getComboOffer(BuildContext context, String? searchText) async {
     try {
       final response = await apiManager.dio.get(
         '${ApiEndpoints.baseUrl}${ApiEndpoints.combo}',
@@ -163,7 +231,7 @@ class DownloadManager {
         final data = response.data;
         if (data['data'] != null && data['data']['items'] != null) {
           final List itemsJson = data['data']['items'] as List;
-          return itemsJson.map((json) => Item.fromJson(json)).toList();
+          return itemsJson.map((json) => ComboProductModel.fromJson(json)).toList();
         } else {
           debugPrint('No items found in response');
           return [];

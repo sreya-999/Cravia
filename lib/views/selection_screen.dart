@@ -40,11 +40,12 @@ class _SelectionScreenState extends State<SelectionScreen> {
               Positioned.fill(
                 child: Container(
                   decoration: const BoxDecoration(
-                    gradient:  LinearGradient(
+                    gradient: const LinearGradient(
                       colors: [AppColor.secondary, AppColor.primaryColor],
-                      begin: AlignmentDirectional(3.0, 0.1), // top-center
-                      end: AlignmentDirectional(0.0, 2.0),   // bottom-center
-                      stops: [0.0, 1.0],                     // smooth gradient
+                      begin: AlignmentDirectional(0.0, -2.0), // top-center
+                      end: AlignmentDirectional(0.0, 1.0), // bottom-center
+
+                      stops: [0.0, 1.0], // smooth gradient
                       tileMode: TileMode.clamp,
                     ),
                   ),

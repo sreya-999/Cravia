@@ -43,18 +43,75 @@ class ComboProductModel {
   final String name;
   final List<String> images; // Changed from single image to list
   final int price;
+  final String? time;
+  final String? disountPercent;
+  final String? discountPrice;
   final int categoryId;
+  final String description;
   final bool? isCombo;
+  final CategoryModel? category;
+  final List<String> subCategoryIds;   // ✅ Added
+  final List<String> childCategoryIds; // ✅ Added
+  final List<ChildCategory> childCategory;
+
 
   ComboProductModel({
     required this.id,
     required this.name,
     required this.images,
     required this.price,
+    this.time,
+    this.discountPrice,
+    this.disountPercent,
     required this.categoryId,
-    this.isCombo
+    required this.description,
+    this.isCombo,
+    this.category,
+    required this.childCategory,
+    required this.subCategoryIds,
+    required this.childCategoryIds,
   });
+
+  factory ComboProductModel.fromJson(Map<String, dynamic> json) {
+    return ComboProductModel(
+      id: json['id'] ?? 0,
+      name: json['name'] ?? '',
+      description: json['description'] ?? '',
+      disountPercent: json['discount_percent'] ?? '',
+      discountPrice: json['discount_price'] ?? '',
+      images: (json['images'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList() ??
+          [],
+      price: json['price'] is int
+          ? json['price']
+          : int.tryParse(json['price'].toString()) ?? 0,
+      time: json['preparing_time'] ?? '',
+      categoryId: json['categoryId'] ?? 0,
+      isCombo: json['isCombo'],
+      category: json['category'] != null
+          ? CategoryModel.fromJson(json['category'])
+          : null,
+      childCategory: (json['childCategory'] as List<dynamic>?)
+          ?.map((e) => ChildCategory.fromJson(e))
+          .toList() ??
+          [],
+      subCategoryIds: json['sub_category_id'] != null
+          ? List<String>.from(
+          (json['sub_category_id'] as String).replaceAll('[', '').replaceAll(']', '').replaceAll('"', '').split(',')
+      )
+          : [],
+      childCategoryIds: json['child_category_id'] != null
+          ? List<String>.from(
+          (json['child_category_id'] as String).replaceAll('[', '').replaceAll(']', '').replaceAll('"', '').split(',')
+      )
+          : [],
+    );
+  }
+
 }
+
+
 
 class CartItemModel {
   final int id;
@@ -63,6 +120,7 @@ class CartItemModel {
   final int? categoryId;
   final double price;
   int quantity;
+  //final List<int>? subCategoryIds;
   final int? subCategoryId;   // 👈 new
   final String? childCategoryId;  // 👈 new
   final String? childCategoryName; // 👈 new// Mutable for cart updates

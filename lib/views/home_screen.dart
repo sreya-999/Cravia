@@ -48,15 +48,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
       Provider.of<DashboardProvider>(context, listen: false)
           .getCategorys(context);
+    // FocusScope.of(context).requestFocus(_searchFocusNode);
     });
   }
+
+  @override
+  @override
+  void dispose() {
+    _controller.dispose();
+    FocusScope.of(context).unfocus(); // clear focus on screen dispose
+    super.dispose();
+  }
+
+
   final TextEditingController _controller = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   @override
   Widget build(BuildContext context) {
 
     final provider = Provider.of<CategoryProvider>(context);
-    final categories = provider.categories;
-    final products = provider.selectedCategoryProducts;
+
+
     final cartProvider = Provider.of<CartProvider>(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final bool isDesktop = screenWidth >= 1024;
@@ -151,6 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Expanded(
                               child: TextField(
                                 controller: _controller,
+                                focusNode: _searchFocusNode,
                                 textAlign: TextAlign.start,
                                 style: AppStyle.textStyleReemKufi.copyWith(
                                   fontWeight: FontWeight.normal,
@@ -171,8 +184,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       EdgeInsets.zero, // remove extra padding
                                 ),
                                 onChanged: (value) {
+                                  final provider = Provider.of<DashboardProvider>(context, listen: false);
                                   Provider.of<DashboardProvider>(context, listen: false)
-                                      .getSearchProduct(context,_controller.text);
+                                      .getSearchProduct(context,_controller.text,provider.selectedCategoryId,);
                                 },
                               ),
                             ),
@@ -190,12 +204,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         border: Border.all(color: AppColor.primaryColor),
                         borderRadius: BorderRadius.circular(12),
                         gradient: const LinearGradient(
-                          colors: [
-                            AppColor.secondary,
-                            AppColor.primaryColor,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomCenter,
+                          colors: [AppColor.secondary, AppColor.primaryColor],
+                          begin: AlignmentDirectional(0.0, -2.0), // top-center
+                          end: AlignmentDirectional(0.0, 1.0), // bottom-center
+
+                          stops: [0.0, 1.0], // smooth gradient
+                          tileMode: TileMode.clamp,
                         ),
                       ),
                       child: IconButton(
@@ -205,6 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: AppColor.whiteColor,
                         ),
                         onPressed: () {
+                          showSortByDialog(context);
                           // Filter action here
                         },
                       ),
@@ -220,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (cartProvider.items.isEmpty) {
                   return const SizedBox.shrink(); // empty widget
                 }
-                final totalAmount = cartProvider.getTotalAmount(products);
+
 
                 final double screenWidth = MediaQuery.of(context).size.width;
                 final bool isDesktop = screenWidth >= 1024;
@@ -432,7 +447,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             context: context,
                             onTap: () {
                               print("buyonegetone");
-                              Future.delayed(Duration.zero, () {
+                              FocusScope.of(context).unfocus();
+                              Future.microtask(() {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(builder: (_) => BuyOneGetOne()),
                                 );
@@ -447,11 +463,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 'https://img.pikbest.com/origin/09/17/77/71vpIkbEsTIN8.png!sw800',
                             context: context,
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => const Combo()),
-                              );
+                              FocusScope.of(context).unfocus();
+                              Future.microtask(() {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => ComboOfferScreen()),
+                                );
+                              });
                             },
                           ),
                         ],
@@ -462,38 +480,27 @@ class _HomeScreenState extends State<HomeScreen> {
                   Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                    child: Consumer<DashboardProvider>(
-                      builder: (context, provider, child) {
-                        // Determine the number of placeholders
-                        final placeholderCount = provider.categoryList?.length ?? 6;
+                    child:Selector<DashboardProvider, MapEntry<List<CategoryModel>?, int?>>(
+                      selector: (_, provider) => MapEntry(provider.categoryList, provider.selectedCategoryId),
+                      builder: (context, entry, child) {
+                        final categories = entry.key ?? [];
+                        final selectedCategoryId = entry.value;
 
-                        if (provider.isLoading) {
-                          return SizedBox(
-                            height: 100,
-                            child: ListView.builder(
-                              itemCount: placeholderCount,
-                              itemBuilder: (context, index) => Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                child: ShimmerWidget.rectangular(
-                                  width: double.infinity,
-                                  height: 80, // Match your category card height
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                          );
+                        if (categories.isEmpty) {
+                          return  Center(child: Text("No categories found",style: AppStyle.textStyleReemKufi.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: AppColor.greyColor,
+                            fontSize: 15,
+                            height: 1.0, // remove extra line height
+                          ),));
                         }
 
-                        final data = provider.categoryList;
-
-                        if (data == null || data.isEmpty) {
-                          return const Center(child: Text("No categories found"));
-                        }
-
-                        return buildCategoryList(categories: data);
+                        return buildCategoryList(
+                          categories: categories,
+                          selectedCategoryId: selectedCategoryId,
+                        );
                       },
-                    )
-
+                    ),
                   ),
                   const SizedBox(
                     height: 10,
@@ -506,7 +513,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         builder: (context, products, child) {
                        // final products = provider.items ?? [];
                         if (provider.isLoading) {
-                          // Show shimmer placeholders
+
                           return LayoutBuilder(
                             builder: (context, constraints) {
                               double screenWidth = constraints.maxWidth;
@@ -550,7 +557,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         }
 
                         if (products.isEmpty) {
-                          return const Center(child: Text("No products found"));
+                          return  Center(child: Text("No products found",style: AppStyle.textStyleReemKufi.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: AppColor.greyColor,
+                            fontSize: 15,
+                            height: 1.0, // remove extra line height
+                          ),));
                         }
 
                         return LayoutBuilder(
@@ -633,7 +645,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   ),
                                                   const SizedBox(height: 10),
                                                   Text(
-                                                    product.name,
+                                                    (product.name.isNotEmpty)
+                                                        ? product.name[0].toUpperCase() + product.name.substring(1).toLowerCase()
+                                                        : '',
                                                     style: AppStyle.textStyleReemKufi.copyWith(
                                                       fontWeight: FontWeight.bold,
                                                       fontSize: 17,
@@ -670,7 +684,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                               ),
                                             ),
                                           ),
-
                                           // Add icon in bottom-right corner
                                           Positioned(
                                             bottom: 0,
@@ -683,6 +696,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 width: 40,
                                                 height: 40,
                                                 decoration: const BoxDecoration(
+
                                                   gradient: LinearGradient(
                                                     colors: [
                                                       AppColor.secondary,
@@ -725,10 +739,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
-
-
-
   Widget _buildPromoCard({
     required String badgeText,
     required String title,
@@ -749,7 +759,7 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [AppColor.secondary, AppColor.primaryColor],
-            begin: AlignmentDirectional(0.0, -1.0), // top-center
+            begin: AlignmentDirectional(0.0, -2.0), // top-center
             end: AlignmentDirectional(0.0, 1.0), // bottom-center
       
             stops: [0.0, 1.0], // smooth gradient
@@ -907,8 +917,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [AppColor.secondary, AppColor.primaryColor],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                    begin: AlignmentDirectional(0.0, -2.0), // top-center
+                    end: AlignmentDirectional(0.0, 1.0), // bottom-center
+
+                    stops: [0.0, 1.0], // smooth gradient
+                    tileMode: TileMode.clamp,
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -943,8 +956,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [AppColor.secondary, AppColor.primaryColor],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                    begin: AlignmentDirectional(0.0, -2.0), // top-center
+                    end: AlignmentDirectional(0.0, 1.0), // bottom-center
+
+                    stops: [0.0, 1.0], // smooth gradient
+                    tileMode: TileMode.clamp,
                   ),
                   borderRadius:
                       BorderRadius.circular(14), // slightly bigger for border
@@ -988,16 +1004,17 @@ class _HomeScreenState extends State<HomeScreen> {
     final selectedProvider =
         Provider.of<CategoryProvider>(context, listen: false);
    // selectedProvider.setBasePrice(product.price);
-
+    selectedProvider.setQuantity(1);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
 
-    // Set base price
-    //selectedProvider.setBasePrice(product.price);
     selectedProvider.setBasePrice(
-      double.tryParse(product.price ?? '0') ?? 0.0,
+      (product.price != null && product.price!.isNotEmpty)
+          ? double.tryParse(product.price!) ?? 0.0
+          : 0.0,
     );
+
     selectedProvider.setSelectedChildCategory(null);
-    selectedProvider.setQuantity(1); // reset quantity
+
     // Check if product is already in cart and get current quantity
     final cartItem = cartProvider.getCartItemById(product.id);
     if (cartItem != null) {
@@ -1049,23 +1066,19 @@ class _HomeScreenState extends State<HomeScreen> {
                         constraints: BoxConstraints(
                           maxHeight: screenHeight * 0.95,
                         ),
-                        decoration: const BoxDecoration(
+                        decoration:  const BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              AppColor.whiteColor,
-                              AppColor.whiteColor,
+                              AppColor.primaryColor,
                               AppColor.whiteColor,
                             ],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            stops: [
-                              0.0,
-                              0.2,
-                              1.0
-                            ], // <- this controls how much of the top is secondary
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            stops: [0.3, 0.25], // 👈 transition from primary → secondary at 70% height
                           ),
+
                           borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(30)),
+                          BorderRadius.vertical(top: Radius.circular(30)),
                         ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -1076,16 +1089,18 @@ class _HomeScreenState extends State<HomeScreen> {
                               decoration: const BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
+                                    AppColor.primaryColor,
                                     AppColor.secondary,
-                                    AppColor.primaryColor
                                   ],
-                                  begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
+                                  begin: Alignment.topCenter,
+                                  stops: [0.3, 0.9],
                                 ),
                                 borderRadius: const BorderRadius.only(
                                   topLeft: Radius.circular(30),
                                   topRight: Radius.circular(30),
                                 ),
+
                               ),
                               child: Stack(
                                 children: [
@@ -1134,8 +1149,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      SizedBox(
-                                        height: 15,
+                                      const SizedBox(
+                                        height: 20,
                                       ),
                                       Row(
                                         mainAxisAlignment:
@@ -1143,7 +1158,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                         children: [
                                           Flexible(
                                             child: Text(
-                                              product.name,
+                                              (product.name.isNotEmpty)
+                                                  ? product.name[0].toUpperCase() + product.name.substring(1).toLowerCase()
+                                                  : '',
                                               overflow: TextOverflow.ellipsis,
                                               style: AppStyle.textStyleReemKufi
                                                   .copyWith(
@@ -1165,7 +1182,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                         ],
                                       ),
-                                      SizedBox(height: screenHeight * 0.015),
+                                      SizedBox(height: 4,),
                                       Row(
                                         children: [
                                           Flexible(
@@ -1188,101 +1205,129 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                         ],
                                       ),
-                                      SizedBox(height: screenHeight * 0.025),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: product.childCategory?.map((child) {
-                                        //  final selectedSize =context.watch<CategoryProvider>().selectedSize;
-                                          final selectedChild = context.watch<CategoryProvider>().selectedChildCategory;
-                                          return _buildOptionBox(
-                                            child.name, // 👈 dynamic name from API
-                                            "₹${(child.price ?? 0).toStringAsFixed(0)}", // 👈 dynamic price from API
-                                            isSelected: selectedChild?.id == child.id,
-                                            onTap: () {
-                                              context.read<CategoryProvider>().setSelectedChildCategory(child);
-                                            },
-                                          );
-                                        }).toList() ?? [],
-                                      ),
-                                      SizedBox(height: screenHeight * 0.025),
 
-                                      // 🟡 Spicy + Portion
+                                      // Row(
+                                      //   mainAxisAlignment: MainAxisAlignment.start,
+                                      //   children: product.childCategory?.map((child) {
+                                      //   //  final selectedSize =context.watch<CategoryProvider>().selectedSize;
+                                      //     final selectedChild = context.watch<CategoryProvider>().selectedChildCategory;
+                                      //     return _buildOptionBox(
+                                      //       child.name, // 👈 dynamic name from API
+                                      //       "₹${(child.price ?? 0).toStringAsFixed(0)}",
+                                      //       isSelected: selectedChild?.id == child.id,
+                                      //       onTap: () {
+                                      //         context.read<CategoryProvider>().setSelectedChildCategory(child);
+                                      //       },
+                                      //     );
+                                      //   }).toList() ?? [],
+                                      // ),
+                                      if (product.childCategory != null && product.childCategory.isNotEmpty) ...[
+                                        SizedBox(height: screenHeight * 0.025),
+
+                                        // 🟡 Size options
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: product.childCategory.map((child) {
+                                            final provider = context.watch<CategoryProvider>();
+                                            var selectedChild = provider.selectedChildCategory;
+
+                                            if (selectedChild == null && product.childCategory!.isNotEmpty) {
+                                              selectedChild = product.childCategory!.first;
+                                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                                context.read<CategoryProvider>().setSelectedChildCategory(selectedChild!);
+                                              });
+                                            }
+                                            return _buildOptionBox(
+                                              child.name,
+                                              "₹${(child.price ?? 0).toStringAsFixed(0)}",
+                                              isSelected: selectedChild?.id == child.id,
+                                              onTap: () {
+                                                context.read<CategoryProvider>().setSelectedChildCategory(child);
+                                              },
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ],
+                                      SizedBox(height: screenHeight * 0.025),
                                       Row(
                                         children: [
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                // Spicy Label with left padding
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 15.0),
-                                                  child: Text(
-                                                    "Spicy",
-                                                    style: AppStyle
-                                                        .textStyleReemKufi
-                                                        .copyWith(
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      fontSize: buttonFontSize,
+                                          Visibility(
+                                            visible: product.spicy == "0",
+                                            child: Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  // Spicy Label with left padding
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 15.0),
+                                                    child: Text(
+                                                      "Spicy",
+                                                      style: AppStyle
+                                                          .textStyleReemKufi
+                                                          .copyWith(
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontSize: buttonFontSize,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                                const SizedBox(height: 5),
-                                                // HeatLevelSelector fills width but no left padding here
-                                                HeatLevelSelector(),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 16.0,
-                                                          right: 18),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Text(
-                                                        "Mild",
-                                                        style: AppStyle
-                                                            .textStyleReemKufi
-                                                            .copyWith(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontSize: description,
-                                                          color: AppColor
-                                                              .primaryColor,
+                                                  const SizedBox(height: 5),
+                                                  // HeatLevelSelector fills width but no left padding here
+                                                  HeatLevelSelector(),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 16.0,
+                                                            right: 18),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Text(
+                                                          "Mild",
+                                                          style: AppStyle
+                                                              .textStyleReemKufi
+                                                              .copyWith(
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            fontSize: description,
+                                                            color: AppColor
+                                                                .primaryColor,
+                                                          ),
                                                         ),
-                                                      ),
-                                                      Text(
-                                                        "Medium",
-                                                        style: AppStyle
-                                                            .textStyleReemKufi
-                                                            .copyWith(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontSize: description,
-                                                          color: AppColor
-                                                              .primaryColor,
+                                                        Text(
+                                                          "Medium",
+                                                          style: AppStyle
+                                                              .textStyleReemKufi
+                                                              .copyWith(
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            fontSize: description,
+                                                            color: AppColor
+                                                                .primaryColor,
+                                                          ),
                                                         ),
-                                                      ),
-                                                      Text(
-                                                        "Hot",
-                                                        style: AppStyle
-                                                            .textStyleReemKufi
-                                                            .copyWith(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontSize: description,
-                                                          color: AppColor
-                                                              .primaryColor,
+                                                        Text(
+                                                          "Hot",
+                                                          style: AppStyle
+                                                              .textStyleReemKufi
+                                                              .copyWith(
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            fontSize: description,
+                                                            color: AppColor
+                                                                .primaryColor,
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ],
+                                                      ],
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
                                           ),
                                           Expanded(
@@ -1320,15 +1365,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         }),
                                                         const SizedBox(
                                                             width: 12),
-                                                        Text(
-                                                          "${selectedProvider.quantity}",
-                                                          style: AppStyle
-                                                              .textStyleReemKufi
-                                                              .copyWith(
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            fontSize: 20,
-                                                          ),
+                                                        Consumer<CategoryProvider>(
+                                                          builder: (context, provider, child) {
+                                                            return Text(
+                                                              "${provider.quantity}",
+                                                              style: AppStyle.textStyleReemKufi.copyWith(
+                                                                fontWeight: FontWeight.w600,
+                                                                fontSize: 20,
+                                                              ),
+                                                            );
+                                                          },
                                                         ),
                                                         const SizedBox(
                                                             width: 12),
@@ -1403,22 +1449,27 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 fontWeight: FontWeight.w700,
                                               )),
                                         ),
-                                        ShaderMask(
-                                          shaderCallback: (bounds) =>
-                                              const LinearGradient(colors: [
-                                            AppColor.primaryColor,
-                                            AppColor.primaryColor
-                                          ]).createShader(Rect.fromLTWH(0, 0,
-                                                  bounds.width, bounds.height)),
-                                          child: Text(
-                                              '₹${selectedProvider.totalPrice.toStringAsFixed(2)}',
-                                              style: AppStyle.textStyleReemKufi
-                                                  .copyWith(
-                                                color: Colors.white,
-                                                fontSize: isDesktop ? 17 : 16,
-                                                fontWeight: FontWeight.bold,
-                                              )),
-                                        )
+                                        Selector<CategoryProvider, double>(
+                                          selector: (_, provider) => provider.totalPrice,
+                                          builder: (context, totalPrice, child) {
+                                            return ShaderMask(
+                                              shaderCallback: (bounds) =>
+                                                  const LinearGradient(colors: [
+                                                    AppColor.primaryColor,
+                                                    AppColor.primaryColor
+                                                  ]).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+                                              child: Text(
+                                                '₹${totalPrice.toStringAsFixed(2)}',
+                                                style: AppStyle.textStyleReemKufi.copyWith(
+                                                  color: Colors.white,
+                                                  fontSize: isDesktop ? 17 : 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+
                                       ],
                                     ),
                                   ),
@@ -1539,11 +1590,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget buildCategoryList({
     required List<CategoryModel> categories,
+    required int? selectedCategoryId,   // 👈 added
   }) {
-
-
     final allCategories = [
-      CategoryModel(id: -1, name: 'All', image: ''), // empty image for placeholder
+      CategoryModel(id: -1, name: 'All', image: 'https://img.pikbest.com/png-images/20250218/delicious-cheese-burger-_11536406.png!w700wp'), // empty image for placeholder
       ...categories,
     ];
 
@@ -1561,6 +1611,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 return _buildCategoryItem(
                   context,
                   allCategories[index],
+                  selectedCategoryId: selectedCategoryId,
                 );
               },
             ),
@@ -1571,13 +1622,12 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Wrap(
               spacing: 16,
               runSpacing: 16,
-              children: allCategories
-                  .map((cat) => _buildCategoryItem(
+              children: allCategories.map((cat) => _buildCategoryItem(
                 context,
                 cat,
                 fixedSize: 90,
-              ))
-                  .toList(),
+                selectedCategoryId: selectedCategoryId,
+              )).toList(),
             ),
           );
         }
@@ -1587,20 +1637,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
 
+
   Widget _buildCategoryItem(
       BuildContext context,
       CategoryModel cat, {
         double? fixedSize,
+        required int? selectedCategoryId,   // 👈 added
       }) {
     final provider = Provider.of<DashboardProvider>(context, listen: false);
-    final isSelected = provider.selectedCategoryId == cat.id;
-    return GestureDetector(
+    final isSelected = selectedCategoryId == cat.id;   // 👈 check selection
 
+    return GestureDetector(
       onTap: () async {
         provider.selectCategory(cat.id);
         await provider.getCategoryBasedItems(
           context,
-           cat.id == -1 ? null : cat.id, // null for "All"
+          cat.id == -1 ? null : cat.id,
         );
       },
       child: Padding(
@@ -1614,14 +1666,13 @@ class _HomeScreenState extends State<HomeScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 gradient: isSelected
-                    ? LinearGradient(
-                  colors: [
-                    AppColor.secondary.withOpacity(0.7),
-                    AppColor.primaryColor,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  stops: [0.1, 0.6],
+                    ?   LinearGradient(
+                  colors: [AppColor.secondary, AppColor.primaryColor],
+                  begin: AlignmentDirectional(0.0, -1.0), // top-center
+                  end: AlignmentDirectional(0.0, 1.0), // bottom-center
+
+                  stops: [0.0, 1.0], // smooth gradient
+                  tileMode: TileMode.clamp,
                 )
                     : null,
                 color: isSelected ? null : Colors.grey.shade200,
@@ -1629,16 +1680,21 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.all(8),
               child: ClipOval(
                 child: Image.network(
-                  "${ApiEndpoints.imageBaseUrl}${cat.image}", // ✅ prepend baseUrl
+                  cat.image.startsWith("https")
+                      ? cat.image // already a full URL (like for "All")
+                      : "${ApiEndpoints.imageBaseUrl}${cat.image}", // prepend base URL for others
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) =>
                   const Icon(Icons.image_not_supported),
                 ),
               ),
+
             ),
             const SizedBox(height: 6),
             Text(
-              cat.name,
+              (cat.name.isNotEmpty)
+                  ? cat.name[0].toUpperCase() + cat.name.substring(1).toLowerCase()
+                  : '',
               style: AppStyle.textStyleReemKufi.copyWith(
                 color: isSelected ? AppColor.primaryColor : Colors.black87,
                 fontWeight: FontWeight.w500,
@@ -1650,6 +1706,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
 
 
 // Widget buildCategoryList({
@@ -1760,67 +1817,6 @@ class _HomeScreenState extends State<HomeScreen> {
   // }
 }
 
-class SearchCartRow extends StatelessWidget {
-  final int cartItemCount;
-
-  const SearchCartRow({super.key, this.cartItemCount = 4});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        // Search Box
-        Expanded(
-          child: TextField(
-            decoration: InputDecoration(
-              hintText: 'Search your favourite here..',
-              hintStyle: const TextStyle(
-                fontFamily: 'Reem Kufi',
-                fontWeight: FontWeight.w400,
-                fontSize: 14,
-                color: Colors.grey,
-              ),
-              prefixIcon:
-                  const Icon(Icons.search, color: AppColor.primaryColor),
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColor.lightGreyColor),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    BorderSide(color: AppColor.lightGreyColor, width: 1.5),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: AppColor.primaryColor),
-            borderRadius: BorderRadius.circular(12),
-            gradient: const LinearGradient(
-              colors: [
-                AppColor.secondary,
-                AppColor.primaryColor,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.tune, color: AppColor.whiteColor),
-            onPressed: () {},
-          ),
-        ),
-        const SizedBox(width: 8),
-      ],
-    );
-  }
-}
 
 class HeatLevelSelector extends StatefulWidget {
   @override
@@ -1923,3 +1919,165 @@ Future<bool> showExitDialog(BuildContext context) async {
 
   return shouldExit ?? false;
 }
+
+void showSortByDialog(BuildContext context) {
+  String selectedOption = 'Popular';
+  List<String> options = [
+    'Popular',
+    'Newest',
+    'Price: Lowest to high',
+    'Price: Highest to low',
+  ];
+
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: "Sort By",
+    pageBuilder: (context, anim1, anim2) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return Center(
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.only(top: 16,bottom: 16),
+                decoration: const BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColor.secondary, AppColor.primaryColor],
+                    begin: AlignmentDirectional(0.0, -2.0), // top-center
+                    end: AlignmentDirectional(0.0, 1.0), // bottom-center
+
+                    stops: [0.0, 1.0], // smooth gradient
+                    tileMode: TileMode.clamp,
+                  ),
+                  borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20), bottom: Radius.circular(20)),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8,bottom: 16,left: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                           Text(
+                            'Sort By',
+                            style: AppStyle.textStyleReemKufi.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: AppColor.whiteColor,
+                              fontSize: 20,
+                            ),
+                           ),
+                          Spacer(),
+                          IconButton(
+                            icon: const Icon(Icons.close,color: Colors.white,),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const Divider(color: Colors.white54),
+                    const SizedBox(height: 10),
+                    ...options.map((option) {
+                      bool isSelected = selectedOption == option;
+                      return Container(
+                        width: double.infinity,
+                        color: isSelected ? Colors.white : Colors.transparent, // selected background
+                        child: ListTile(
+                          title: Text(
+                            option,
+                            style: AppStyle.textStyleReemKufi.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: isSelected ? AppColor.primaryColor : AppColor.whiteColor, // text color
+                              fontSize: 15,
+                            ),
+                          ),
+                          onTap: () {
+                            setState(() {
+                              selectedOption = option;
+                            });
+                          },
+                        ),
+                      );
+                    }).toList(),
+
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.4, // 40% of screen width
+                            child: ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  selectedOption = '';
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Text(
+                                'Clear',
+                                style: AppStyle.textStyleReemKufi.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColor.primaryColor,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.4, // 40% of screen width
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context, selectedOption);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Text(
+                                'Done',
+                                style: AppStyle.textStyleReemKufi.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColor.primaryColor,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    },
+    transitionBuilder: (context, anim1, anim2, child) {
+      return SlideTransition(
+        position:
+        Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim1),
+        child: child,
+      );
+    },
+    transitionDuration: const Duration(milliseconds: 300),
+  );
+}
+

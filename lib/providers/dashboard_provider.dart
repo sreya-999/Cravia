@@ -31,6 +31,12 @@ class DashboardProvider extends ChangeNotifier {
   int _selectedCategoryId = -1; // -1 for "All"
   int get selectedCategoryId => _selectedCategoryId;
 
+  List<Item>? _buyOneGetOne;
+  List<Item>? get buyOneGetOne => _buyOneGetOne;
+
+  List<ComboProductModel>? _comboProduct;
+  List<ComboProductModel>? get comboProduct => _comboProduct;
+
   void selectCategory(int categoryId) {
     _selectedCategoryId = categoryId;
     notifyListeners();
@@ -57,9 +63,23 @@ class DashboardProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getSearchProduct(BuildContext context,String? searchText,) async {
+  Future<void> getSearchProduct(BuildContext context,String? searchText,int? categoryId) async {
     setLoading(true);
-    _items = await DownloadManager().searchText(context,searchText);
+    _items = await DownloadManager().searchText(context,searchText,categoryId);
+    setLoading(false);
+    notifyListeners();
+  }
+
+  Future<void> getBuyOneOffer(BuildContext context,String? searchText) async {
+    setLoading(true);
+    _buyOneGetOne = await DownloadManager().bugOneGetOne(context,searchText);
+    setLoading(false);
+    notifyListeners();
+  }
+
+  Future<void> getComboProduct(BuildContext context,String? searchText) async {
+    setLoading(true);
+    _comboProduct = await DownloadManager().getComboOffer(context,searchText);
     setLoading(false);
     notifyListeners();
   }

@@ -27,8 +27,16 @@ class ViewOrderScreen extends StatelessWidget {
     final bool isDesktop = screenWidth >= 1024;
     final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
     final bool isMobile = screenWidth < 600;
-    final double buttonPaddingH = isDesktop ? 36 : isTablet ? 32 : 28;
-    final double buttonPaddingV = isDesktop ? 18 : isTablet ? 16 : 14;
+    final double buttonPaddingH = isDesktop
+        ? 36
+        : isTablet
+            ? 32
+            : 28;
+    final double buttonPaddingV = isDesktop
+        ? 18
+        : isTablet
+            ? 16
+            : 14;
 
     return Scaffold(
       backgroundColor: AppColor.whiteColor,
@@ -45,18 +53,21 @@ class ViewOrderScreen extends StatelessWidget {
           //double packingCharge = 10;
           double total = subTotal;
           String estimatedTime = "30-40 mins";
-          final double buttonFontSize = isDesktop ? 22 : isTablet ? 17 : 16;
+          final double buttonFontSize = isDesktop
+              ? 22
+              : isTablet
+                  ? 17
+                  : 16;
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColor.secondary,
-                  AppColor.primaryColor,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomCenter,
-                stops: [0, 0.7],
+              gradient: const LinearGradient(
+                colors: [AppColor.secondary, AppColor.primaryColor],
+                begin: AlignmentDirectional(0.0, -3.0), // top-center
+                end: AlignmentDirectional(0.0, 1.0), // bottom-center
+
+                stops: [0.0, 1.0], // smooth gradient
+                tileMode: TileMode.clamp,
               ),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(20),
@@ -117,7 +128,7 @@ class ViewOrderScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 // Place Order button
                 SizedBox(
-                  height: 60,
+                  // height: 60,
                   child: ElevatedButton(
                     onPressed: () {
                       showLoginSheet(context);
@@ -148,7 +159,16 @@ class ViewOrderScreen extends StatelessWidget {
         },
       ),
       body: orderedItems.isEmpty
-          ? const Center(child: Text('No items ordered.'))
+          ? Center(
+              child: Text(
+              'No items ordered.',
+              style: AppStyle.textStyleReemKufi.copyWith(
+                fontWeight: FontWeight.w500,
+                color: AppColor.greyColor,
+                fontSize: 18,
+                height: 1.0, // remove extra line height
+              ),
+            ))
           : ListView.builder(
               itemCount: orderedItems.length,
               itemBuilder: (context, index) {
@@ -235,7 +255,8 @@ class ViewOrderScreen extends StatelessWidget {
                                                       child: Image.network(
                                                         "${ApiEndpoints.imageBaseUrl}${item.images[i]}",
                                                         fit: BoxFit.cover,
-                                                        errorBuilder: (context, error, stackTrace) {
+                                                        errorBuilder: (context,
+                                                            error, stackTrace) {
                                                           return const Icon(
                                                             Icons.broken_image,
                                                             size: 50,
@@ -286,7 +307,8 @@ class ViewOrderScreen extends StatelessWidget {
                                                     child: Image.network(
                                                       "${ApiEndpoints.imageBaseUrl}${item.images[i]}",
                                                       fit: BoxFit.cover,
-                                                      errorBuilder: (context, error, stackTrace) {
+                                                      errorBuilder: (context,
+                                                          error, stackTrace) {
                                                         return const Icon(
                                                           Icons.broken_image,
                                                           size: 50,
@@ -294,7 +316,6 @@ class ViewOrderScreen extends StatelessWidget {
                                                         );
                                                       },
                                                     ),
-
                                                   ),
                                                   if (i <
                                                       item.images.length - 1)
@@ -341,59 +362,88 @@ class ViewOrderScreen extends StatelessWidget {
                                                   color: AppColor.primaryColor,
                                                   size: 20,
                                                 ),
-                                                padding: EdgeInsets.zero, // remove default padding
-                                                constraints: const BoxConstraints(
+                                                padding: EdgeInsets
+                                                    .zero, // remove default padding
+                                                constraints:
+                                                    const BoxConstraints(
                                                   minWidth: 20,
                                                   minHeight: 20,
                                                 ),
                                                 onPressed: () async {
-                                                  final confirm = await showDialog<bool>(
+                                                  final confirm =
+                                                      await showDialog<bool>(
                                                     context: context,
-                                                    builder: (BuildContext context) {
+                                                    builder:
+                                                        (BuildContext context) {
                                                       return AlertDialog(
-                                                        title:  Text("Confirm Delete", style: AppStyle
-                                                            .textStyleReemKufi
-                                                            .copyWith(
-                                                          fontWeight: FontWeight.w500,
-                                                          color: AppColor.primaryColor,
-                                                          fontSize: 18,
-                                                          height:
-                                                          1.0, // remove extra line height
-                                                        ),),
-                                                        content:  Text("Are you sure you want to delete this item?",style: AppStyle
-                                                            .textStyleReemKufi
-                                                            .copyWith(
-                                                          fontWeight: FontWeight.w300,
-                                                          color: AppColor.blackColor,
-                                                          fontSize: 18,
-                                                          height:
-                                                          1.0, // remove extra line height
-                                                        )),
-                                                        actions: [
-                                                          TextButton(
-                                                            onPressed: () => Navigator.of(context).pop(false),
-                                                            child:  Text("Cancel",style: AppStyle
+                                                        title: Text(
+                                                          "Confirm Delete",
+                                                          style: AppStyle
+                                                              .textStyleReemKufi
+                                                              .copyWith(
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            color: AppColor
+                                                                .primaryColor,
+                                                            fontSize: 18,
+                                                            height:
+                                                                1.0, // remove extra line height
+                                                          ),
+                                                        ),
+                                                        content: Text(
+                                                            "Are you sure you want to delete this item?",
+                                                            style: AppStyle
                                                                 .textStyleReemKufi
                                                                 .copyWith(
-                                                              fontWeight: FontWeight.w300,
-                                                              color: AppColor.blackColor,
-                                                              fontSize: 14,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w300,
+                                                              color: AppColor
+                                                                  .blackColor,
+                                                              fontSize: 18,
                                                               height:
-                                                              1.0, // remove extra line height
-                                                            ),),
+                                                                  1.0, // remove extra line height
+                                                            )),
+                                                        actions: [
+                                                          TextButton(
+                                                            onPressed: () =>
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop(false),
+                                                            child: Text(
+                                                              "Cancel",
+                                                              style: AppStyle
+                                                                  .textStyleReemKufi
+                                                                  .copyWith(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w300,
+                                                                color: AppColor
+                                                                    .blackColor,
+                                                                fontSize: 14,
+                                                                height:
+                                                                    1.0, // remove extra line height
+                                                              ),
+                                                            ),
                                                           ),
                                                           TextButton(
-                                                            onPressed: () => Navigator.of(context).pop(true),
-                                                            child:  Text(
+                                                            onPressed: () =>
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop(true),
+                                                            child: Text(
                                                               "Delete",
                                                               style: AppStyle
                                                                   .textStyleReemKufi
                                                                   .copyWith(
-                                                                fontWeight: FontWeight.w300,
-                                                                color: AppColor.primaryColor,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w300,
+                                                                color: AppColor
+                                                                    .primaryColor,
                                                                 fontSize: 14,
                                                                 height:
-                                                                1.0, // remove extra line height
+                                                                    1.0, // remove extra line height
                                                               ),
                                                             ),
                                                           ),
@@ -403,11 +453,11 @@ class ViewOrderScreen extends StatelessWidget {
                                                   );
 
                                                   if (confirm == true) {
-                                                    cartProvider.removeItem(item.id);
+                                                    cartProvider
+                                                        .removeItem(item.id);
                                                   }
                                                 },
                                               ),
-
                                             ],
                                           ),
 
@@ -422,12 +472,16 @@ class ViewOrderScreen extends StatelessWidget {
                                                   1.0, // remove extra line height
                                             ),
                                           ),
-                                          if (item.childCategoryName != null && item.childCategoryName!.isNotEmpty)
+                                          if (item.childCategoryName != null &&
+                                              item.childCategoryName!
+                                                  .isNotEmpty)
                                             Row(
                                               children: [
                                                 Text(
                                                   "Type : ",
-                                                  style: AppStyle.textStyleReemKufi.copyWith(
+                                                  style: AppStyle
+                                                      .textStyleReemKufi
+                                                      .copyWith(
                                                     fontWeight: FontWeight.w400,
                                                     color: AppColor.greyColor,
                                                     fontSize: 14,
@@ -435,7 +489,9 @@ class ViewOrderScreen extends StatelessWidget {
                                                 ),
                                                 Text(
                                                   item.childCategoryName!,
-                                                  style: AppStyle.textStyleReemKufi.copyWith(
+                                                  style: AppStyle
+                                                      .textStyleReemKufi
+                                                      .copyWith(
                                                     fontWeight: FontWeight.w500,
                                                     color: AppColor.blackColor,
                                                     fontSize: 14,
@@ -443,7 +499,6 @@ class ViewOrderScreen extends StatelessWidget {
                                                 ),
                                               ],
                                             ),
-
 
                                           const SizedBox(
                                               height:
@@ -563,6 +618,7 @@ class ViewOrderScreen extends StatelessWidget {
   void showLoginSheet(BuildContext context) {
     final TextEditingController phoneController = TextEditingController();
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final ValueNotifier<bool> isLoading = ValueNotifier(false);
     final screenWidth = MediaQuery.of(context).size.width;
     showGeneralDialog(
       context: context,
@@ -580,14 +636,13 @@ class ViewOrderScreen extends StatelessWidget {
                 width: MediaQuery.of(context).size.width,
                 height: screenHeight * 0.5,
                 decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColor.secondary,
-                      AppColor.primaryColor,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomCenter,
-                    stops: [0, 0.7],
+                  gradient: const LinearGradient(
+                    colors: [AppColor.secondary, AppColor.primaryColor],
+                    begin: AlignmentDirectional(0.0, -2.0), // top-center
+                    end: AlignmentDirectional(0.0, 1.0), // bottom-center
+
+                    stops: [0.0, 1.0], // smooth gradient
+                    tileMode: TileMode.clamp,
                   ),
                   borderRadius: BorderRadius.vertical(
                       top: Radius.circular(20), bottom: Radius.circular(20)),
@@ -597,7 +652,7 @@ class ViewOrderScreen extends StatelessWidget {
                   key: _formKey,
                   child: Column(
                     mainAxisAlignment:
-                    MainAxisAlignment.center, // centers content vertically
+                        MainAxisAlignment.center, // centers content vertically
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
@@ -624,9 +679,10 @@ class ViewOrderScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 20),
-                  
+
                       // Country code + mobile input
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -658,7 +714,19 @@ class ViewOrderScreen extends StatelessWidget {
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
+                                errorStyle: const TextStyle(
+                                    fontSize: 12,
+                                    height: 1.2,
+                                    color: Colors.grey),
+                                helperText:
+                                    " ", // reserve space for error message
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                  horizontal: 12,
+                                ),
                               ),
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return "Please enter your mobile number";
@@ -671,33 +739,98 @@ class ViewOrderScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                  
                       const SizedBox(height: 20),
+                      // SizedBox(
+                      //   width: double.infinity,
+                      //   height: 45,
+                      //   child: ElevatedButton(
+                      //     onPressed: () async {
+                      //       if (_formKey.currentState!.validate()) {
+                      //         // form is valid
+                      //         final otp = await SyncManager.login(
+                      //           context,
+                      //           phoneController.text,
+                      //         );
+                      //
+                      //         if (otp != null) {
+                      //           showOtpDialog(
+                      //             context,
+                      //             otp.toString(),
+                      //             phoneController.text,
+                      //           );}
+                      //       }
+                      //     },
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: Colors.white,
+                      //       shape: RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.circular(12),
+                      //       ),
+                      //     ),
+                      //     child: Text(
+                      //       'Get OTP',
+                      //       style: AppStyle.textStyleReemKufi.copyWith(
+                      //         fontWeight: FontWeight.w600,
+                      //         color: AppColor.primaryColor,
+                      //         fontSize: 16,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                       SizedBox(
                         width: double.infinity,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            final otp = await SyncManager.login(context, phoneController.text);
-                  
-                            if (otp != null) {
-                              showOtpDialog(context, otp.toString(),phoneController.text); // ✅ Pass OTP
-                            }
+                        height: 45,
+                        child: ValueListenableBuilder<bool>(
+                          valueListenable: isLoading,
+                          builder: (_, loading, __) {
+                            return ElevatedButton(
+                              onPressed: loading
+                                  ? null
+                                  : () async {
+                                      if (_formKey.currentState!.validate()) {
+                                        isLoading.value = true; // start loading
+                                        final otp = await SyncManager.login(
+                                          context,
+                                          phoneController.text,
+                                        );
+                                        isLoading.value = false; // stop loading
+
+                                        if (otp != null) {
+                                          showOtpDialog(
+                                            context,
+                                            otp.toString(),
+                                            phoneController.text,
+                                          );
+                                        }
+                                      }
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: AppColor.primaryColor,
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: loading
+                                  ? const SizedBox(
+                                      height: 22,
+                                      width: 22,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColor.primaryColor,
+                                      ),
+                                    )
+                                  : Text(
+                                      'Get OTP',
+                                      style:
+                                          AppStyle.textStyleReemKufi.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColor.primaryColor,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                            );
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: Text(
-                            'Get OTP',
-                            style: AppStyle.textStyleReemKufi.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: AppColor.primaryColor,
-                              fontSize: 16,
-                            ),
-                          ),
                         ),
                       ),
                       const SizedBox(height: 30),
@@ -715,9 +848,12 @@ class ViewOrderScreen extends StatelessWidget {
   void showOtpDialog(BuildContext context, String? otp, String phoneNumber) {
     final screenWidth = MediaQuery.of(context).size.width;
     List<TextEditingController> controllers =
-    List.generate(4, (_) => TextEditingController());
+        List.generate(4, (_) => TextEditingController());
+    final ValueNotifier<bool> isLoading = ValueNotifier(false);
+
     List<FocusNode> focusNodes = List.generate(4, (_) => FocusNode());
-    final ValueNotifier<String?> errorNotifier = ValueNotifier(null); // ✅ error state
+    final ValueNotifier<String?> errorNotifier =
+        ValueNotifier(null); // ✅ error state
 
     if (otp != null) {
       for (int i = 0; i < controllers.length && i < otp.length; i++) {
@@ -742,14 +878,13 @@ class ViewOrderScreen extends StatelessWidget {
                 height: screenHeight * 0.5,
                 padding: const EdgeInsets.all(16),
                 decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColor.secondary,
-                      AppColor.primaryColor,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomCenter,
-                    stops: [0, 0.7],
+                  gradient: const LinearGradient(
+                    colors: [AppColor.secondary, AppColor.primaryColor],
+                    begin: AlignmentDirectional(0.0, -2.0), // top-center
+                    end: AlignmentDirectional(0.0, 1.0), // bottom-center
+
+                    stops: [0.0, 1.0], // smooth gradient
+                    tileMode: TileMode.clamp,
                   ),
                   borderRadius: BorderRadius.vertical(
                     top: Radius.circular(20),
@@ -814,11 +949,12 @@ class ViewOrderScreen extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(8),
                                         borderSide: BorderSide(
                                           color: error != null
-                                              ? Colors.red
+                                              ? Colors.grey
                                               : Colors.grey.shade400,
                                         ),
                                       ),
-                                      contentPadding: const EdgeInsets.symmetric(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
                                         vertical: 12,
                                       ),
                                     ),
@@ -831,8 +967,8 @@ class ViewOrderScreen extends StatelessWidget {
                                           FocusScope.of(context).unfocus();
                                         }
                                       } else if (value.isEmpty && index > 0) {
-                                        FocusScope.of(context)
-                                            .requestFocus(focusNodes[index - 1]);
+                                        FocusScope.of(context).requestFocus(
+                                            focusNodes[index - 1]);
                                       }
                                     },
                                   );
@@ -854,7 +990,7 @@ class ViewOrderScreen extends StatelessWidget {
                           child: Text(
                             error,
                             style: const TextStyle(
-                              color: Colors.red,
+                              color: Colors.grey,
                               fontSize: 14,
                             ),
                           ),
@@ -865,75 +1001,198 @@ class ViewOrderScreen extends StatelessWidget {
                     const SizedBox(height: 20),
 
                     // Verify Button
+                    // SizedBox(
+                    //   width: double.infinity,
+                    //   height: 45,
+                    //   child: ElevatedButton(
+                    //     onPressed: () async {
+                    //       final enteredOtp =
+                    //       controllers.map((c) => c.text).join();
+                    //
+                    //       if (enteredOtp.length != 4) {
+                    //         errorNotifier.value = "Please enter 4-digit OTP"; // ✅ validation
+                    //         return;
+                    //       }
+                    //
+                    //       errorNotifier.value = null; // clear error
+                    //
+                    //       final userId = await SyncManager.verifyOtp(
+                    //         context,
+                    //         phoneNumber,
+                    //         int.tryParse(enteredOtp),
+                    //       );
+                    //
+                    //       final cartProvider =
+                    //       Provider.of<CartProvider>(context, listen: false);
+                    //       final subTotal = cartProvider.subTotal;
+                    //       final total = subTotal;
+                    //       final orderedItems = cartProvider.items;
+                    //
+                    //       final order = await SyncManager.placeOrder(
+                    //         context,
+                    //         userId,
+                    //         total,
+                    //         orderedItems,
+                    //       );
+                    //       if (order != null) {
+                    //         showSuccessDialog(context, order);
+                    //         Navigator.pop(context); // Close OTP dialog
+                    //       }
+                    //     },
+                    //     style: ElevatedButton.styleFrom(
+                    //       backgroundColor: Colors.white,
+                    //       shape: RoundedRectangleBorder(
+                    //         borderRadius: BorderRadius.circular(12),
+                    //       ),
+                    //     ),
+                    //     child: Text(
+                    //       'Verify',
+                    //       style: AppStyle.textStyleReemKufi.copyWith(
+                    //         fontWeight: FontWeight.w600,
+                    //         color: AppColor.primaryColor,
+                    //         fontSize: 16,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                     SizedBox(
                       width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          final enteredOtp =
-                          controllers.map((c) => c.text).join();
+                      height: 45,
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: isLoading,
+                        builder: (_, loading, __) {
+                          return ElevatedButton(
+                            onPressed: loading
+                                ? null // disable when loading
+                                : () async {
+                                    final enteredOtp =
+                                        controllers.map((c) => c.text).join();
 
-                          if (enteredOtp.length != 4) {
-                            errorNotifier.value = "Please enter 4-digit OTP"; // ✅ validation
-                            return;
-                          }
+                                    if (enteredOtp.length != 4) {
+                                      errorNotifier.value =
+                                          "Please enter 4-digit OTP";
+                                      return;
+                                    }
 
-                          errorNotifier.value = null; // clear error
+                                    errorNotifier.value = null;
+                                    isLoading.value = true; // start loading ✅
 
-                          final userId = await SyncManager.verifyOtp(
-                            context,
-                            phoneNumber,
-                            int.tryParse(enteredOtp),
+                                    final userId = await SyncManager.verifyOtp(
+                                      context,
+                                      phoneNumber,
+                                      int.tryParse(enteredOtp),
+                                    );
+
+                                    final cartProvider =
+                                        Provider.of<CartProvider>(context,
+                                            listen: false);
+                                    final subTotal = cartProvider.subTotal;
+                                    final total = subTotal;
+                                    final orderedItems = cartProvider.items;
+
+                                    final order = await SyncManager.placeOrder(
+                                      context,
+                                      userId,
+                                      total,
+                                      orderedItems,
+                                    );
+
+                                    isLoading.value = false; // stop loading ✅
+
+                                    if (order != null) {
+                                    //  context.read<CartProvider>().clearCart();
+                                      showSuccessDialog(context, order);
+                                      Navigator.pop(context);
+                                    }
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: AppColor.primaryColor,
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: loading
+                                ? const SizedBox(
+                                    height: 22,
+                                    width: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppColor.primaryColor,
+                                    ),
+                                  )
+                                : Text(
+                                    'Verify',
+                                    style: AppStyle.textStyleReemKufi.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColor.primaryColor,
+                                      fontSize: 16,
+                                    ),
+                                  ),
                           );
-
-                          final cartProvider =
-                          Provider.of<CartProvider>(context, listen: false);
-                          final subTotal = cartProvider.subTotal;
-                          final total = subTotal;
-                          final orderedItems = cartProvider.items;
-
-                          final order = await SyncManager.placeOrder(
-                            context,
-                            userId,
-                            total,
-                            orderedItems,
-                          );
-                          if (order != null) {
-                            showSuccessDialog(context, order);
-                            Navigator.pop(context); // Close OTP dialog
-                          }
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          'Verify',
-                          style: AppStyle.textStyleReemKufi.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: AppColor.primaryColor,
-                            fontSize: 16,
-                          ),
-                        ),
                       ),
                     ),
 
                     const SizedBox(height: 20),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.end,
+                    //   children: [
+                    //     Text(
+                    //       'Resend',
+                    //       style: AppStyle.textStyleReemKufi.copyWith(
+                    //         fontWeight: FontWeight.w200,
+                    //         color: AppColor.whiteColor,
+                    //         fontSize: 15,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text(
-                          'Resend',
-                          style: AppStyle.textStyleReemKufi.copyWith(
-                            fontWeight: FontWeight.w200,
-                            color: AppColor.whiteColor,
-                            fontSize: 15,
+                        GestureDetector(
+                          onTap: () async {
+                            final newOtpInt =
+                                await SyncManager.login(context, phoneNumber);
+
+                            if (newOtpInt != null) {
+                              final newOtp = newOtpInt
+                                  .toString()
+                                  .padLeft(4, '0'); // ensure 4 digits
+
+                              // Wrap in setState to update the UI
+                              (context as Element)
+                                  .markNeedsBuild(); // ensures rebuild in StatefulBuilder
+                              for (int i = 0;
+                                  i < controllers.length && i < newOtp.length;
+                                  i++) {
+                                controllers[i].text = newOtp[i];
+                              }
+
+                              errorNotifier.value =
+                                  null; // clear any previous error
+                            } else {
+                              // Optionally show an error if OTP is null
+                              errorNotifier.value =
+                                  "Failed to resend OTP. Try again.";
+                            }
+                          },
+                          child: Text(
+                            'Resend',
+                            style: AppStyle.textStyleReemKufi.copyWith(
+                              fontWeight: FontWeight.w200,
+                              color: AppColor.whiteColor,
+                              fontSize: 15,
+                              decoration: TextDecoration.underline,
+                              decorationColor:
+                                  AppColor.whiteColor, // underline color
+                            ),
                           ),
                         ),
                       ],
-                    ),
+                    )
                   ],
                 ),
               ),
@@ -943,7 +1202,8 @@ class ViewOrderScreen extends StatelessWidget {
       },
       transitionBuilder: (_, anim, __, child) {
         return SlideTransition(
-          position: Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim),
+          position:
+              Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim),
           child: child,
         );
       },
@@ -1168,7 +1428,6 @@ class ViewOrderScreen extends StatelessWidget {
   // }
 
   void showSuccessDialog(BuildContext context, OrderModel order) {
-
     Future.delayed(Duration.zero, () {
       showGeneralDialog(
         context: context,
@@ -1182,29 +1441,29 @@ class ViewOrderScreen extends StatelessWidget {
             child: Material(
               color: Colors.transparent,
               child: Padding(
-                padding: EdgeInsets.all(screenWidth * 0.04), // 4% of screen width
+                padding:
+                    EdgeInsets.all(screenWidth * 0.04), // 4% of screen width
                 child: Container(
                   width: screenWidth,
                   height: screenHeight * 0.5,
                   padding: const EdgeInsets.all(16),
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [
-                        AppColor.secondary,
-                        AppColor.primaryColor,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomCenter,
-                      stops: [0, 0.7],
-                    ),
+                        colors: [AppColor.secondary, AppColor.primaryColor],
+                        begin: AlignmentDirectional(0.0, -2.0), // top-center
+                        end: AlignmentDirectional(0.0, 1.0), // bottom-center
+                        stops: [0.0, 1.0], // smooth gradient
+                        tileMode: TileMode.clamp),
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(20),
                       bottom: Radius.circular(20),
                     ),
                   ),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center, // Center vertically
-                    crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
+                    mainAxisAlignment:
+                        MainAxisAlignment.center, // Center vertically
+                    crossAxisAlignment:
+                        CrossAxisAlignment.center, // Center horizontally
                     children: [
                       const Icon(Icons.check_circle,
                           size: 60, color: Colors.white),
@@ -1227,8 +1486,8 @@ class ViewOrderScreen extends StatelessWidget {
         },
         transitionBuilder: (_, anim, __, child) {
           return SlideTransition(
-            position:
-            Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim),
+            position: Tween(begin: const Offset(0, 1), end: Offset.zero)
+                .animate(anim),
             child: child,
           );
         },
@@ -1239,10 +1498,12 @@ class ViewOrderScreen extends StatelessWidget {
         Navigator.pop(context); // close success dialog
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) =>  PaymentScreen(order: order,)),
+          MaterialPageRoute(
+              builder: (_) => PaymentScreen(
+                    order: order,
+                  )),
         );
       });
     });
   }
-
 }

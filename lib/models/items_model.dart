@@ -8,6 +8,7 @@ class Item {
   final String name;
   final String description;
   final String? price;
+  final String? spicy;
   final String? time;
   final String image;
   final String createdAt;
@@ -21,6 +22,7 @@ class Item {
     required this.name,
     required this.description,
     this.price,
+    this.spicy,
     this.time,
     required this.image,
     required this.createdAt,
@@ -37,6 +39,7 @@ class Item {
       description: json['description'] ?? '',
       time: json['preparing_time'] ?? '',
       price: json['price']?.toString(),
+      spicy: json['spicy_level']?.toString(),
       image: json['image'] ?? '',
       createdAt: json['created_at'] ?? '',
       updatedAt: json['updated_at'] ?? '',

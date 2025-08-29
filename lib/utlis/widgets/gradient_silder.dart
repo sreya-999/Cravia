@@ -1,4 +1,4 @@
-git import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import 'package:ravathi_store/utlis/App_color.dart';
 
 class GradientSliderTrackShape extends SliderTrackShape with BaseSliderTrackShape {

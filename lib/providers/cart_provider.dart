@@ -66,20 +66,8 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // void addToCart(CartItemModel item) {
-  //   // If already exists, update quantity instead of adding duplicate
-  //   final existingIndex = _items.indexWhere((e) => e.id == item.id);
-  //   if (existingIndex != -1) {
-  //     _items[existingIndex] = item;
-  //   } else {
-  //     _items.add(item);
-  //   }
-  //
-  //   // ✅ Update quantities map
-  //   _quantities[item.id] = item.quantity;
-  //
-  //   notifyListeners();
-  // }
+
+
   double get subTotal {
     double total = 0;
     for (var item in _items) {
@@ -102,13 +90,6 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // CartItemModel? getCartItemById(int productId) {
-  //   try {
-  //     return _items.firstWhere((item) => item.id == productId);
-  //   } catch (e) {
-  //     return null;
-  //   }
-  // }
 
   String? _selectedTable;
 
@@ -128,12 +109,9 @@ class CartProvider with ChangeNotifier {
     return items.fold(0, (sum, item) => sum + (item.price * item.quantity));
   }
 
-  double packingCharge = 10; // You can make this dynamic if needed
+  double packingCharge = 10;
 
   double get total {
     return subTotals;
   }
-
-
-
 }

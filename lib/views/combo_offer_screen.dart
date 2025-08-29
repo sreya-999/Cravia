@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ravathi_store/providers/dashboard_provider.dart';
+import 'package:ravathi_store/urls/api_endpoints.dart';
 import 'package:ravathi_store/views/view_order_screen.dart';
 
 
@@ -10,23 +12,34 @@ import '../utlis/App_color.dart';
 import '../utlis/App_image.dart';
 import '../utlis/App_style.dart';
 import '../utlis/widgets/custom_appbar.dart';
-import 'buy_one_get_one.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
-class ComboOfferScreen extends StatelessWidget {
+import '../utlis/widgets/shimmer_loading.dart';
+
+class ComboOfferScreen extends StatefulWidget {
   const ComboOfferScreen({super.key});
 
   @override
+  State<ComboOfferScreen> createState() => _ComboOfferScreenState();
+}
 
-  Widget build(BuildContext context) {
+class _ComboOfferScreenState extends State<ComboOfferScreen> {
+  @override
+  @override
+  void initState() {
+    super.initState();
     Future.microtask(() {
       Provider.of<CategoryProvider>(context, listen: false)
-          .getComboProduct(context,null);
+          .getComboProduct(context, null);
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
 
     final provider = Provider.of<CategoryProvider>(context);
-    final products = provider.selectedCategoryProducts;
+
     final cartProvider = Provider.of<CartProvider>(context);
     double subTotal = cartProvider.subTotal;
     return Scaffold(
@@ -36,7 +49,7 @@ class ComboOfferScreen extends StatelessWidget {
       ),
       bottomNavigationBar: Consumer<CartProvider>(
         builder: (context, cartProvider, _) {
-          final totalAmount = cartProvider.getTotalAmount(products);
+
 
           final double screenWidth = MediaQuery.of(context).size.width;
           final bool isDesktop = screenWidth >= 1024;
@@ -236,14 +249,66 @@ class ComboOfferScreen extends StatelessWidget {
                 final size = MediaQuery.of(context).size;
                 final imageSize = size.width * 0.15;
                 final badgeSize = size.width * 0.10;
+                if (provider.isLoading) {
 
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      double screenWidth = constraints.maxWidth;
+
+                      int crossAxisCount;
+                      double aspectRatio;
+
+                      if (screenWidth >= 1000) {
+                        crossAxisCount = 4;
+                        aspectRatio = 0.95;
+                      } else if (screenWidth >= 700) {
+                        crossAxisCount = 3;
+                        aspectRatio = 0.85;
+                      } else {
+                        crossAxisCount = 2;
+                        aspectRatio = 0.74;
+                      }
+                      final placeholderCount = (products?.isNotEmpty ?? false)
+                          ? products!.length
+                          : 6;
+
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: placeholderCount,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: aspectRatio * 0.9,
+                        ),
+                        itemBuilder: (context, index) {
+                          return ShimmerWidget.rectangular(
+                            width: double.infinity,
+                            height: double.infinity,
+                            borderRadius: BorderRadius.circular(16),
+                          );
+                        },
+                      );
+                    },
+                  );
+                }
+                if (products== null) {
+                  return  Center(child: Text("No products available",style: AppStyle.textStyleReemKufi.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: AppColor.greyColor,
+                    fontSize: 18,
+                    height: 1.0, // remove extra line height
+                  ),));
+                }
                 return ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   key: ValueKey(provider.selectedCategoryId),
-                  itemCount: products?.length,
+                  itemCount: products.length,
                   itemBuilder: (context, index) {
-                    final product = products?[index];
+                    final product = products[index];
+
                    // final quantity = cartProvider.getQuantity(product.id);
 
                     return AnimationConfiguration.staggeredList(
@@ -293,14 +358,67 @@ class ComboOfferScreen extends StatelessWidget {
                                               color: Colors.black,
                                             ),
                                           ),
-                                          Text(
-                                            "SAVE 30%",
-                                            style: AppStyle.textStyleLobster
-                                                .copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 12,
-                                              foreground: Paint()
-                                                ..shader = const LinearGradient(
+                                          if (product.disountPercent != null && product.disountPercent.toString().isNotEmpty)
+                                            Text(
+                                              "SAVE ${product.disountPercent}%",
+                                              style: AppStyle.textStyleLobster.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                                foreground: Paint()
+                                                  ..shader = const LinearGradient(
+                                                    colors: [
+                                                      AppColor.secondary,
+                                                      AppColor.primaryColor,
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ).createShader(
+                                                    const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0),
+                                                  ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+
+
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: List.generate(
+                                        product.images.length * 2 - 1,
+                                        (i) {
+                                          if (i.isEven) {
+                                            final img = product.images[i ~/ 2];
+                                            return Container(
+                                              height: imageSize,
+                                              width: imageSize,
+                                              margin:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 4),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                border: Border.all(
+                                                  color: Colors.grey.shade300,
+                                                  width: 1.5,
+                                                ),
+                                                image: DecorationImage(
+                                                  image:  NetworkImage('${ApiEndpoints.imageBaseUrl}$img'),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            );
+                                          } else {
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 4),
+                                              child: ShaderMask(
+                                                shaderCallback: (bounds) =>
+                                                    const LinearGradient(
                                                   colors: [
                                                     AppColor.secondary,
                                                     AppColor.primaryColor,
@@ -308,89 +426,67 @@ class ComboOfferScreen extends StatelessWidget {
                                                   begin: Alignment.topLeft,
                                                   end: Alignment.bottomRight,
                                                 ).createShader(
-                                                  const Rect.fromLTWH(
-                                                      0.0, 0.0, 200.0, 70.0),
+                                                  Rect.fromLTWH(
+                                                      0,
+                                                      0,
+                                                      bounds.width,
+                                                      bounds.height),
                                                 ),
-                                            ),
-                                          )
-                                        ],
+                                                child: const Icon(
+                                                  Icons.add,
+                                                  size: 35,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        },
                                       ),
                                     ),
-                                    const SizedBox(height: 16),
-
-                                    // Images Row
-                                    // Row(
-                                    //   mainAxisAlignment:
-                                    //       MainAxisAlignment.center,
-                                    //   children: List.generate(
-                                    //     product?.images.length * 2 - 1,
-                                    //     (i) {
-                                    //       if (i.isEven) {
-                                    //         final img = product.images[i ~/ 2];
-                                    //         return Container(
-                                    //           height: imageSize,
-                                    //           width: imageSize,
-                                    //           margin:
-                                    //               const EdgeInsets.symmetric(
-                                    //                   horizontal: 4),
-                                    //           decoration: BoxDecoration(
-                                    //             color: Colors.white,
-                                    //             borderRadius:
-                                    //                 BorderRadius.circular(20),
-                                    //             border: Border.all(
-                                    //               color: Colors.grey.shade300,
-                                    //               width: 1.5,
-                                    //             ),
-                                    //             image: DecorationImage(
-                                    //               image: NetworkImage(img),
-                                    //               fit: BoxFit.cover,
-                                    //             ),
-                                    //           ),
-                                    //         );
-                                    //       } else {
-                                    //         return Padding(
-                                    //           padding:
-                                    //               const EdgeInsets.symmetric(
-                                    //                   horizontal: 4),
-                                    //           child: ShaderMask(
-                                    //             shaderCallback: (bounds) =>
-                                    //                 const LinearGradient(
-                                    //               colors: [
-                                    //                 AppColor.secondary,
-                                    //                 AppColor.primaryColor,
-                                    //               ],
-                                    //               begin: Alignment.topLeft,
-                                    //               end: Alignment.bottomRight,
-                                    //             ).createShader(
-                                    //               Rect.fromLTWH(
-                                    //                   0,
-                                    //                   0,
-                                    //                   bounds.width,
-                                    //                   bounds.height),
-                                    //             ),
-                                    //             child: const Icon(
-                                    //               Icons.add,
-                                    //               size: 35,
-                                    //               color: Colors.white,
-                                    //             ),
-                                    //           ),
-                                    //         );
-                                    //       }
-                                    //     },
-                                    //   ),
-                                    // ),
 
                                     const SizedBox(height: 10),
-                                    Text(
-                                      '₹${double.parse(product?.price ?? '0').toStringAsFixed(2)}',
-
-                                      style:
-                                          AppStyle.textStyleReemKufi.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                        color: AppColor.blackColor,
-                                      ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          (product.name.isNotEmpty)
+                                              ? product.name[0].toUpperCase() + product.name.substring(1).toLowerCase()
+                                              : '',
+                                          overflow: TextOverflow.ellipsis,
+                                          style: AppStyle.textStyleReemKufi
+                                              .copyWith(
+                                            color: AppColor.blackColor,
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
                                     ),
+                                    Row(
+                                      children: [
+                                        // Original Price with Strikethrough
+
+                                        // Discounted Price
+                                        Text(
+                                          '₹${product.discountPrice?.toString()}',
+                                          style: AppStyle.textStyleReemKufi.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                            color: AppColor.blackColor,
+                                          ),
+                                        ),
+                                        Text(
+                                          '  ₹${product?.price.toStringAsFixed(2)}',
+                                          style: AppStyle.textStyleReemKufi.copyWith(
+                                            fontSize: 16,
+                                            color: AppColor.greyColor, // make it a little faded
+                                            decoration: TextDecoration.lineThrough, // strikethrough
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8), // space between prices
+
+                                      ],
+                                    )
+
                                   ],
                                 ),
                               ),
@@ -408,7 +504,7 @@ class ComboOfferScreen extends StatelessWidget {
                                 right: 0,
                                 child: GestureDetector(
                                   onTap: () {
-                                   // showBurgerDialog(context, product);
+                                    showBurgerDialog(context,product);
                                   },
                                   child: Container(
                                     width: 40,
@@ -494,23 +590,19 @@ class ComboOfferScreen extends StatelessWidget {
                         constraints: BoxConstraints(
                           maxHeight: screenHeight * 0.95,
                         ),
-                        decoration: const BoxDecoration(
+                        decoration:  BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              AppColor.whiteColor,
-                              AppColor.whiteColor,
+                              AppColor.primaryColor,
                               AppColor.whiteColor,
                             ],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            stops: [
-                              0.0,
-                              0.2,
-                              1.0
-                            ], // <- this controls how much of the top is secondary
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            stops: [0.3, 0.25], // 👈 transition from primary → secondary at 70% height
                           ),
+
                           borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(30)),
+                          BorderRadius.vertical(top: Radius.circular(30)),
                         ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -550,9 +642,13 @@ class ComboOfferScreen extends StatelessWidget {
                                     width: double.infinity,
                                     decoration: const BoxDecoration(
                                       gradient: LinearGradient(
-                                        colors: [AppColor.secondary, AppColor.primaryColor],
-                                        begin: Alignment.topCenter,
+                                        colors: [
+                                          AppColor.primaryColor,
+                                          AppColor.secondary,
+                                        ],
                                         end: Alignment.bottomRight,
+                                        begin: Alignment.topCenter,
+                                        stops: [0.3, 0.9],
                                       ),
                                       borderRadius: BorderRadius.only(
                                         topLeft: Radius.circular(30),
@@ -569,6 +665,7 @@ class ComboOfferScreen extends StatelessWidget {
                                               children: List.generate(totalItems, (index) {
                                                 if (index.isEven) {
                                                   final img = product.images[index ~/ 2];
+                                                  final imageUrl = ApiEndpoints.imageBaseUrl + img;
                                                   return Container(
                                                     width: imageSize,
                                                     height: imageSize,
@@ -576,7 +673,7 @@ class ComboOfferScreen extends StatelessWidget {
                                                     decoration: BoxDecoration(
                                                       borderRadius: BorderRadius.circular(20),
                                                       image: DecorationImage(
-                                                        image: NetworkImage(img),
+                                                        image: NetworkImage(imageUrl),
                                                         fit: BoxFit.cover,
                                                       ),
                                                     ),
@@ -622,23 +719,25 @@ class ComboOfferScreen extends StatelessWidget {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                     SizedBox(height: 10,),
+                                     SizedBox(height: 20,),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Flexible(
                                             child: Text(
-                                              product.name,
+                                              (product.name != null && product.name!.isNotEmpty)
+                                                  ? product.name![0].toUpperCase() + product.name!.substring(1).toLowerCase()
+                                                  : '',
                                               overflow: TextOverflow.ellipsis,
-                                              style: AppStyle.textStyleReemKufi
-                                                  .copyWith(
+                                              style: AppStyle.textStyleReemKufi.copyWith(
                                                 color: AppColor.blackColor,
                                                 fontSize: priceSize,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                           ),
+
                                           Text(
                                             "₹${product.price.toStringAsFixed(2)}",
                                             style: AppStyle.textStyleReemKufi
@@ -650,12 +749,12 @@ class ComboOfferScreen extends StatelessWidget {
                                           ),
                                         ],
                                       ),
-                                      SizedBox(height: screenHeight * 0.015),
+                                      const SizedBox(height: 4,),
                                       Row(
                                         children: [
                                           Flexible(
                                             child: Text(
-                                              "Tomato, Lettuce, Onions",
+                                      product.description,
                                               style: AppStyle.textStyleReemKufi
                                                   .copyWith(
                                                       color: AppColor.greyColor,
@@ -664,7 +763,7 @@ class ComboOfferScreen extends StatelessWidget {
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
-                                            "14 mins",
+                                            product.time != null ? '${product.time} mins' : '',
                                             style: AppStyle.textStyleReemKufi
                                                 .copyWith(
                                                     color: AppColor.greyColor,
@@ -672,9 +771,7 @@ class ComboOfferScreen extends StatelessWidget {
                                           ),
                                         ],
                                       ),
-
                                       SizedBox(height: screenHeight * 0.025),
-
                                       // 🟡 Spicy + Portion
                                       Row(
                                         children: [
@@ -788,15 +885,16 @@ class ComboOfferScreen extends StatelessWidget {
                                                         }),
                                                         const SizedBox(
                                                             width: 12),
-                                                        Text(
-                                                          "${selectedProvider.quantity}",
-                                                          style: AppStyle
-                                                              .textStyleReemKufi
-                                                              .copyWith(
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            fontSize: 20,
-                                                          ),
+                                                        Consumer<CategoryProvider>(
+                                                          builder: (context, provider, child) {
+                                                            return Text(
+                                                              "${provider.quantity}",
+                                                              style: AppStyle.textStyleReemKufi.copyWith(
+                                                                fontWeight: FontWeight.w600,
+                                                                fontSize: 20,
+                                                              ),
+                                                            );
+                                                          },
                                                         ),
                                                         const SizedBox(
                                                             width: 12),
@@ -871,22 +969,26 @@ class ComboOfferScreen extends StatelessWidget {
                                                 fontWeight: FontWeight.w700,
                                               )),
                                         ),
-                                        ShaderMask(
-                                          shaderCallback: (bounds) =>
-                                              const LinearGradient(colors: [
-                                            AppColor.primaryColor,
-                                            AppColor.primaryColor
-                                          ]).createShader(Rect.fromLTWH(0, 0,
-                                                  bounds.width, bounds.height)),
-                                          child: Text(
-                                              '₹${selectedProvider.totalPrice.toStringAsFixed(2)}',
-                                              style: AppStyle.textStyleReemKufi
-                                                  .copyWith(
-                                                color: Colors.white,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                              )),
-                                        )
+                                        Selector<CategoryProvider, double>(
+                                          selector: (_, provider) => provider.totalPrice,
+                                          builder: (context, totalPrice, child) {
+                                            return ShaderMask(
+                                              shaderCallback: (bounds) =>
+                                                  const LinearGradient(colors: [
+                                                    AppColor.primaryColor,
+                                                    AppColor.primaryColor
+                                                  ]).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+                                              child: Text(
+                                                '₹${totalPrice.toStringAsFixed(2)}',
+                                                style: AppStyle.textStyleReemKufi.copyWith(
+                                                  color: Colors.white,
+                                                  fontSize: isDesktop ? 17 : 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -922,7 +1024,8 @@ class ComboOfferScreen extends StatelessWidget {
                                           Navigator.of(context).pop();
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.transparent,
+                                          backgroundColor: AppColor.whiteColor,
+                                          foregroundColor: AppColor.whiteColor,
                                           elevation: 0,
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 28, vertical: 14),
@@ -980,8 +1083,6 @@ class ComboOfferScreen extends StatelessWidget {
       },
     );
   }
-
-
 
   Widget _buildIconButton(IconData icon, VoidCallback onPressed) {
     return Container(
@@ -1085,7 +1186,7 @@ class SearchCartRow extends StatelessWidget {
                 border: InputBorder.none, // Disable TextField's internal border
               ),
               onChanged: (value) {
-                Provider.of<CategoryProvider>(context, listen: false)
+                Provider.of<DashboardProvider>(context, listen: false)
                     .getComboProduct(context,_controller.text);
               },
             ),
