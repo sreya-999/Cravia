@@ -108,7 +108,6 @@ class ComboProductModel {
           : [],
     );
   }
-
 }
 
 
@@ -121,11 +120,12 @@ class CartItemModel {
   final double price;
   int quantity;
   //final List<int>? subCategoryIds;
-  final int? subCategoryId;   // 👈 new
-  final String? childCategoryId;  // 👈 new
-  final String? childCategoryName; // 👈 new// Mutable for cart updates
+  final int? subCategoryId;
+  final String? childCategoryId;
+  final String? childCategoryName;
   final bool? isCombo;
-   double? takeAwayPrice;// To differentiate between normal and combo products
+   double? takeAwayPrice;
+   String? heatLevel;
 
   CartItemModel({
     required this.id,
@@ -135,10 +135,11 @@ class CartItemModel {
     this.subCategoryId,
     required this.price,
     this.quantity = 1,
-    this.childCategoryId,   // 👈 optional
-    this.childCategoryName, // 👈 optional
+    this.childCategoryId,
+    this.childCategoryName,
     this.isCombo,
      this.takeAwayPrice,
+    this.heatLevel
   });
 
   // Factory constructor from ProductModel
@@ -151,6 +152,7 @@ class CartItemModel {
       price: product.price,
       quantity: quantity,
       isCombo: product.isCombo,
+
     );
   }
   Map<String, dynamic> toJson() {

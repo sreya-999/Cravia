@@ -15,7 +15,13 @@ class DashboardProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  String _selectedSort = 'Popular'; // default
+  String get selectedSort => _selectedSort;
 
+  void setSortOption(String sort) {
+    _selectedSort = sort;
+    notifyListeners();
+  }
   void setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
@@ -49,9 +55,9 @@ class DashboardProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getCategoryBasedItems(BuildContext context,int? categoryId) async {
+  Future<void> getCategoryBasedItems(BuildContext context,int? categoryId, String? sortBy) async {
     setLoading(true);
-    _items = await DownloadManager().getCategoryItems(context,categoryId);
+    _items = await DownloadManager().getCategoryItems(context,categoryId,sortBy);
     setLoading(false);
     notifyListeners();
   }
@@ -70,16 +76,16 @@ class DashboardProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getBuyOneOffer(BuildContext context,String? searchText) async {
+  Future<void> getBuyOneOffer(BuildContext context,String? searchText,String? sortBy) async {
     setLoading(true);
-    _buyOneGetOne = await DownloadManager().bugOneGetOne(context,searchText);
+    _buyOneGetOne = await DownloadManager().bugOneGetOne(context,searchText,sortBy);
     setLoading(false);
     notifyListeners();
   }
 
-  Future<void> getComboProduct(BuildContext context,String? searchText) async {
+  Future<void> getComboProduct(BuildContext context,String? searchText,String sortBy) async {
     setLoading(true);
-    _comboProduct = await DownloadManager().getComboOffer(context,searchText);
+    _comboProduct = await DownloadManager().getComboOffer(context,searchText,sortBy);
     setLoading(false);
     notifyListeners();
   }

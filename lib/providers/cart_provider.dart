@@ -13,7 +13,7 @@ class CartProvider with ChangeNotifier {
   void increment(int productId) {
     final index = _items.indexWhere((item) => item.id == productId);
     if (index != -1) {
-      _items[index].quantity += 1;  // update quantity directly
+      _items[index].quantity += 1;
     } else {
 
     }
@@ -39,8 +39,8 @@ class CartProvider with ChangeNotifier {
   }
 
   void removeItem(int productId) {
-    _items.removeWhere((item) => item.id == productId); // remove from cart list
-    _quantities.remove(productId); // also remove from quantities map
+    _items.removeWhere((item) => item.id == productId);
+    _quantities.remove(productId);
     notifyListeners();
   }
 
@@ -50,16 +50,16 @@ class CartProvider with ChangeNotifier {
   List<CartItemModel> get items => _items;
 
   void addToCart(CartItemModel item) {
-    // Look for same product *with same subcategory*
+
     final existingIndex = _items.indexWhere(
           (e) => e.id == item.id && e.childCategoryId == item.childCategoryId,
     );
 
     if (existingIndex != -1) {
-      // If exact product+subcategory already exists → increase quantity
+
       _items[existingIndex].quantity += item.quantity;
     } else {
-      // Otherwise → add as a new line item
+
       _items.add(item);
     }
 

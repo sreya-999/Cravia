@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:ravathi_store/utlis/App_image.dart';
+import 'package:ravathi_store/views/home_screen.dart';
 import 'package:ravathi_store/views/view_order_screen.dart';
 import '../models/items_model.dart';
 import '../models/product_model.dart';
@@ -34,7 +35,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
       final categoryProvider =
       Provider.of<CategoryProvider>(context, listen: false);
 
-      categoryProvider.getBuyOneOffer(context, null);
+      categoryProvider.getBuyOneOffer(context, null,"");
     });
   }
 
@@ -249,7 +250,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                             // Provider.of<CategoryProvider>(context, listen: false)
                             //     .getBuyOneOffer(context, value);
                             Provider.of<DashboardProvider>(context, listen: false)
-                                .getBuyOneOffer(context,_controller.text,);
+                                .getBuyOneOffer(context,_controller.text,null);
                           },
                         ),
                       ),
@@ -271,7 +272,9 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                       ),
                       child: IconButton(
                         icon: const Icon(Icons.tune, color: AppColor.whiteColor),
-                        onPressed: () {},
+                        onPressed: () {
+                          _openSortDialog(context);
+                        },
                       ),
                     )
                   ],
@@ -336,8 +339,9 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                         fontWeight: FontWeight.w500,
                         color: AppColor.greyColor,
                         fontSize: 18,
-                        height: 1.0, // remove extra line height
-                      ),));
+                      ),
+                        textAlign: TextAlign.center,
+                      ));
                     }
               return LayoutBuilder(
                 builder: (context, constraints) {
@@ -511,6 +515,198 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
         ]),
       ),
     );
+  }
+
+  Future<String?> showSortByDialog(BuildContext context,String currentSort) {
+    String selectedOption = 'Popular';
+    List<String> options = [
+      'Popular',
+      'Newest',
+      'Price: Lowest to high',
+      'Price: Highest to low',
+    ];
+
+    return showGeneralDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: "Sort By",
+      pageBuilder: (context, anim1, anim2) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Center(
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.only(top: 16, bottom: 16),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppColor.secondary, AppColor.primaryColor],
+                      begin: AlignmentDirectional(0.0, -2.0),
+                      end: AlignmentDirectional(0.0, 1.0),
+                      stops: [0.0, 1.0],
+                      tileMode: TileMode.clamp,
+                    ),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                      bottom: Radius.circular(20),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 8, bottom: 16, left: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Sort By',
+                              style: AppStyle.textStyleReemKufi.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: AppColor.whiteColor,
+                                fontSize: 20,
+                              ),
+                            ),
+                            const Spacer(),
+                            IconButton(
+                              icon: const Icon(Icons.close, color: Colors.white),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Divider(color: Colors.white54),
+                      const SizedBox(height: 10),
+                      ...options.map((option) {
+                        bool isSelected = selectedOption == option;
+                        return Container(
+                          width: double.infinity,
+                          color: isSelected
+                              ? Colors.white
+                              : Colors.transparent,
+                          child: ListTile(
+                            title: Text(
+                              option,
+                              style: AppStyle.textStyleReemKufi.copyWith(
+                                fontWeight: FontWeight.w500,
+                                color: isSelected
+                                    ? AppColor.primaryColor
+                                    : AppColor.whiteColor,
+                                fontSize: 15,
+                              ),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                selectedOption = option;
+                              });
+                            },
+                          ),
+                        );
+                      }).toList(),
+                      const SizedBox(height: 10),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    selectedOption = '';
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  padding:
+                                  const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Clear',
+                                  style: AppStyle.textStyleReemKufi.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColor.primaryColor,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context, selectedOption); // ✅ return
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  padding:
+                                  const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Done',
+                                  style: AppStyle.textStyleReemKufi.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColor.primaryColor,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+      transitionBuilder: (context, anim1, anim2, child) {
+        return SlideTransition(
+          position: Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim1),
+          child: child,
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 300),
+    );
+  }
+
+
+  void _openSortDialog(BuildContext context) async {
+    final provider = Provider.of<DashboardProvider>(context, listen: false);
+    final selectedOption = await showSortByDialog(context, provider.selectedSort);
+
+    if (selectedOption != null && selectedOption.isNotEmpty) {
+      provider.setSortOption(selectedOption);
+
+
+      switch (selectedOption) {
+        case 'Popular':
+          provider.getBuyOneOffer(context,"",'popular');
+          break;
+        case 'Newest':
+          provider.getBuyOneOffer(context,"",'newest');
+          break;
+        case 'Price: Lowest to high':
+          provider.getBuyOneOffer(context, "", 'price_asc');
+          break;
+        case 'Price: Highest to low':
+          provider.getBuyOneOffer(context, "", 'pce_desc');
+          break;
+      }
+    }
   }
 
   void showBurgerDialog(BuildContext context,Item product) {
@@ -884,7 +1080,13 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                               ),
                               child: Row(
                                 children: [
-                                  // Price box
+                                  Container(
+                                    padding:const EdgeInsets.symmetric(horizontal: 12,vertical:6),
+                                    decoration: BoxDecoration(
+                                      color: AppColor.primaryColor,
+                                     borderRadius: BorderRadius.circular(2)
+                                    ),
+                                  ),
                                   Container(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 12, vertical: 6),
@@ -1210,6 +1412,7 @@ class _HeatLevelSelectorState extends State<HeatLevelSelector> {
     );
   }
 
+
   void showSortByDialog(BuildContext context) {
     String selectedOption = 'Popular';
     List<String> options = [
@@ -1235,7 +1438,7 @@ class _HeatLevelSelectorState extends State<HeatLevelSelector> {
                   decoration: const BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [AppColor.secondary, AppColor.primaryColor],
-                      begin: AlignmentDirectional(0.0, -1.0), // top-center
+                      begin: AlignmentDirectional(0.0, -2.0), // top-center
                       end: AlignmentDirectional(0.0, 1.0), // bottom-center
 
                       stops: [0.0, 1.0], // smooth gradient
@@ -1372,19 +1575,4 @@ class _HeatLevelSelectorState extends State<HeatLevelSelector> {
   }
 }
 
-class SearchCartRow extends StatelessWidget {
-  final int cartItemCount;
 
-   SearchCartRow({super.key, this.cartItemCount = 4});
-  final TextEditingController _controller = TextEditingController();
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        // Search Box
-
-        const SizedBox(width: 8),
-      ],
-    );
-  }
-}

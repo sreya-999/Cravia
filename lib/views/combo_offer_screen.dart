@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ravathi_store/providers/dashboard_provider.dart';
 import 'package:ravathi_store/urls/api_endpoints.dart';
+import 'package:ravathi_store/views/home_screen.dart';
 import 'package:ravathi_store/views/view_order_screen.dart';
 
 
@@ -25,13 +26,13 @@ class ComboOfferScreen extends StatefulWidget {
 }
 
 class _ComboOfferScreenState extends State<ComboOfferScreen> {
-  @override
+
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
       Provider.of<CategoryProvider>(context, listen: false)
-          .getComboProduct(context, null);
+          .getComboProduct(context, null,"");
     });
   }
 
@@ -1084,6 +1085,167 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
     );
   }
 
+  void showSortByDialog(BuildContext context) {
+    String selectedOption = 'Popular';
+    List<String> options = [
+      'Popular',
+      'Newest',
+      'Price: Lowest to high',
+      'Price: Highest to low',
+    ];
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: "Sort By",
+      pageBuilder: (context, anim1, anim2) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Center(
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.only(top: 16,bottom: 16),
+                  decoration: const BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppColor.secondary, AppColor.primaryColor],
+                      begin: AlignmentDirectional(0.0, -2.0), // top-center
+                      end: AlignmentDirectional(0.0, 1.0), // bottom-center
+
+                      stops: [0.0, 1.0], // smooth gradient
+                      tileMode: TileMode.clamp,
+                    ),
+                    borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20), bottom: Radius.circular(20)),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8,bottom: 16,left: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Sort By',
+                              style: AppStyle.textStyleReemKufi.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: AppColor.whiteColor,
+                                fontSize: 20,
+                              ),
+                            ),
+                            Spacer(),
+                            IconButton(
+                              icon: const Icon(Icons.close,color: Colors.white,),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const Divider(color: Colors.white54),
+                      const SizedBox(height: 10),
+                      ...options.map((option) {
+                        bool isSelected = selectedOption == option;
+                        return Container(
+                          width: double.infinity,
+                          color: isSelected ? Colors.white : Colors.transparent, // selected background
+                          child: ListTile(
+                            title: Text(
+                              option,
+                              style: AppStyle.textStyleReemKufi.copyWith(
+                                fontWeight: FontWeight.w500,
+                                color: isSelected ? AppColor.primaryColor : AppColor.whiteColor, // text color
+                                fontSize: 15,
+                              ),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                selectedOption = option;
+                              });
+                            },
+                          ),
+                        );
+                      }).toList(),
+
+                      const SizedBox(height: 10),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.4, // 40% of screen width
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    selectedOption = '';
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Clear',
+                                  style: AppStyle.textStyleReemKufi.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColor.primaryColor,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.4, // 40% of screen width
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context, selectedOption);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Done',
+                                  style: AppStyle.textStyleReemKufi.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColor.primaryColor,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+      transitionBuilder: (context, anim1, anim2, child) {
+        return SlideTransition(
+          position:
+          Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim1),
+          child: child,
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 300),
+    );
+  }
+
   Widget _buildIconButton(IconData icon, VoidCallback onPressed) {
     return Container(
       decoration: BoxDecoration(
@@ -1173,7 +1335,7 @@ class SearchCartRow extends StatelessWidget {
             ),
             child:  TextField(
               controller: _controller,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Search',
                 hintStyle: TextStyle(
                   fontFamily: 'Reem Kufi',
@@ -1183,11 +1345,11 @@ class SearchCartRow extends StatelessWidget {
                 ),
                 prefixIcon: Icon(Icons.search, color: AppColor.primaryColor),
                 contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
-                border: InputBorder.none, // Disable TextField's internal border
+                border: InputBorder.none,
               ),
               onChanged: (value) {
                 Provider.of<DashboardProvider>(context, listen: false)
-                    .getComboProduct(context,_controller.text);
+                    .getComboProduct(context,_controller.text,"");
               },
             ),
           ),
@@ -1211,11 +1373,206 @@ class SearchCartRow extends StatelessWidget {
           ),
           child: IconButton(
             icon: const Icon(Icons.tune, color: AppColor.whiteColor),
-            onPressed: () {},
+            onPressed: () {
+             _openSortDialog(context);
+            },
           ),
         ),
         const SizedBox(width: 8),
       ],
     );
+  }
+
+
+  Future<String?> showSortByDialog(BuildContext context, String currentSort) {
+    String selectedOption = 'Popular';
+    List<String> options = [
+      'Popular',
+      'Newest',
+      'Price: Lowest to high',
+      'Price: Highest to low',
+    ];
+
+    return showGeneralDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: "Sort By",
+      pageBuilder: (context, anim1, anim2) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Center(
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.only(top: 16, bottom: 16),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppColor.secondary, AppColor.primaryColor],
+                      begin: AlignmentDirectional(0.0, -2.0),
+                      end: AlignmentDirectional(0.0, 1.0),
+                      stops: [0.0, 1.0],
+                      tileMode: TileMode.clamp,
+                    ),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                      bottom: Radius.circular(20),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 8, bottom: 16, left: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Sort By',
+                              style: AppStyle.textStyleReemKufi.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: AppColor.whiteColor,
+                                fontSize: 20,
+                              ),
+                            ),
+                            const Spacer(),
+                            IconButton(
+                              icon: const Icon(Icons.close, color: Colors.white),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Divider(color: Colors.white54),
+                      const SizedBox(height: 10),
+                      ...options.map((option) {
+                        bool isSelected = selectedOption == option;
+                        return Container(
+                          width: double.infinity,
+                          color: isSelected
+                              ? Colors.white
+                              : Colors.transparent,
+                          child: ListTile(
+                            title: Text(
+                              option,
+                              style: AppStyle.textStyleReemKufi.copyWith(
+                                fontWeight: FontWeight.w500,
+                                color: isSelected
+                                    ? AppColor.primaryColor
+                                    : AppColor.whiteColor,
+                                fontSize: 15,
+                              ),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                selectedOption = option;
+                              });
+                            },
+                          ),
+                        );
+                      }).toList(),
+                      const SizedBox(height: 10),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    selectedOption = '';
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  padding:
+                                  const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Clear',
+                                  style: AppStyle.textStyleReemKufi.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColor.primaryColor,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context, selectedOption); // ✅ return
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  padding:
+                                  const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Done',
+                                  style: AppStyle.textStyleReemKufi.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColor.primaryColor,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+      transitionBuilder: (context, anim1, anim2, child) {
+        return SlideTransition(
+          position: Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim1),
+          child: child,
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 300),
+    );
+  }
+
+
+  void _openSortDialog(BuildContext context) async {
+    final provider = Provider.of<DashboardProvider>(context, listen: false);
+    final selectedOption = await showSortByDialog(context, provider.selectedSort);
+
+    if (selectedOption != null && selectedOption.isNotEmpty) {
+      provider.setSortOption(selectedOption);
+
+
+      switch (selectedOption) {
+        case 'Popular':
+          provider.getComboProduct(context,"" ,'popular');
+          break;
+        case 'Newest':
+          provider.getComboProduct(context, "",'newest');
+          break;
+        case 'Price: Lowest to high':
+          provider.getComboProduct(context, "", 'price_asc');
+          break;
+        case 'Price: Highest to low':
+          provider.getComboProduct(context, "", 'pce_desc');
+          break;
+      }
+    }
   }
 }

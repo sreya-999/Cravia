@@ -7,6 +7,7 @@ import 'package:ravathi_store/utlis/App_color.dart';
 import 'package:ravathi_store/utlis/App_image.dart';
 import 'package:ravathi_store/views/selection_screen.dart';
 import 'package:ravathi_store/views/view_order_screen.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../models/category_models.dart';
 import '../models/items_model.dart';
@@ -32,19 +33,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   @override
   void initState() {
     super.initState();
     print("sreya");
     final provider = Provider.of<DashboardProvider>(context, listen: false);
     provider.selectCategory(-1); // preselect All
-    provider.getCategoryBasedItems(context, null); // load all items initially
+    provider.getCategoryBasedItems(context, null,null); // load all items initially
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<DashboardProvider>(context, listen: false)
           .getBannerImage(context);
 
       Provider.of<DashboardProvider>(context, listen: false)
-          .getCategoryBasedItems(context,null);
+          .getCategoryBasedItems(context,null,null);
 
       Provider.of<DashboardProvider>(context, listen: false)
           .getCategorys(context);
@@ -53,16 +56,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
-  @override
   void dispose() {
-    _controller.dispose();
-    FocusScope.of(context).unfocus(); // clear focus on screen dispose
+    _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
-
-  final TextEditingController _controller = TextEditingController();
-  final FocusNode _searchFocusNode = FocusNode();
   @override
   Widget build(BuildContext context) {
 
@@ -162,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(width: 10),
                             Expanded(
                               child: TextField(
-                                controller: _controller,
+                                controller: _searchController,
                                 focusNode: _searchFocusNode,
                                 textAlign: TextAlign.start,
                                 style: AppStyle.textStyleReemKufi.copyWith(
@@ -186,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onChanged: (value) {
                                   final provider = Provider.of<DashboardProvider>(context, listen: false);
                                   Provider.of<DashboardProvider>(context, listen: false)
-                                      .getSearchProduct(context,_controller.text,provider.selectedCategoryId,);
+                                      .getSearchProduct(context,_searchController.text,provider.selectedCategoryId,);
                                 },
                               ),
                             ),
@@ -219,7 +218,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: AppColor.whiteColor,
                         ),
                         onPressed: () {
-                          showSortByDialog(context);
+                          _openSortDialog(context);
+                         // showSortByDialog(context);
                           // Filter action here
                         },
                       ),
@@ -447,7 +447,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             context: context,
                             onTap: () {
                               print("buyonegetone");
-                              FocusScope.of(context).unfocus();
+                              _searchFocusNode.unfocus();
+                              _searchController.clear();
+
                               Future.microtask(() {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(builder: (_) => BuyOneGetOne()),
@@ -463,7 +465,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 'https://img.pikbest.com/origin/09/17/77/71vpIkbEsTIN8.png!sw800',
                             context: context,
                             onTap: () {
-                              FocusScope.of(context).unfocus();
+                              _searchFocusNode.unfocus();
+                              _searchController.clear();
+
                               Future.microtask(() {
                                 Navigator.push(
                                   context,
@@ -487,12 +491,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         final selectedCategoryId = entry.value;
 
                         if (categories.isEmpty) {
-                          return  Center(child: Text("No categories found",style: AppStyle.textStyleReemKufi.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: AppColor.greyColor,
-                            fontSize: 15,
-                            height: 1.0, // remove extra line height
-                          ),));
+                          return buildCategoryShimmer();
                         }
 
                         return buildCategoryList(
@@ -508,11 +507,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Product Grid
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: Selector<DashboardProvider, List<Item>>(
-                          selector: (_, provider) => provider.items ?? [],
-                        builder: (context, products, child) {
+                    child: Selector<DashboardProvider, MapEntry<List<Item>, bool>>(
+                      selector: (_, provider) => MapEntry(provider.items ?? [], provider.isLoading),
+                      builder: (context, entry, child) {
+                        final products = entry.key;
+                        final isLoading = entry.value;
                        // final products = provider.items ?? [];
-                        if (provider.isLoading) {
+                        if (isLoading) {
 
                           return LayoutBuilder(
                             builder: (context, constraints) {
@@ -684,7 +685,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               ),
                                             ),
                                           ),
-                                          // Add icon in bottom-right corner
+
                                           Positioned(
                                             bottom: 0,
                                             right: 0,
@@ -1132,7 +1133,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
 
-                            // 🟡 BODY (Scrollable)
                             Expanded(
                               child: Container(
                                 decoration: const BoxDecoration(
@@ -1392,7 +1392,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                         ],
                                       ),
-
                                       SizedBox(height: screenHeight * 0.02),
                                     ],
                                   ),
@@ -1400,7 +1399,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
 
-                            // 🟡 Footer: Total Price + Add to Cart
+
                             Container(
                               padding: EdgeInsets.symmetric(
                                 horizontal: screenWidth * 0.04,
@@ -1485,10 +1484,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          final selectedChild = context.read<CategoryProvider>().selectedChildCategory; // ✅ use read
+                                          final selectedChild = context.read<CategoryProvider>().selectedChildCategory;
 
-                                          final cartProvider = context.read<CartProvider>(); // ✅ same here
-                                          final selectedProvider = context.read<CategoryProvider>(); // or your actual provider
+                                          final cartProvider = context.read<CartProvider>();
+                                          final selectedProvider = context.read<CategoryProvider>();
 
                                           final cartItem = CartItemModel(
                                             id: product.id,
@@ -1500,9 +1499,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                             quantity: selectedProvider.quantity,
                                             takeAwayPrice: selectedChild?.takeAwayPrice,
                                             subCategoryId: selectedChild?.subCategoryId ?? 0,
-                                            childCategoryId: selectedChild?.id.toString(),      // 👈 pass child id if selected
-                                            childCategoryName: selectedChild?.name,  // 👈 pass child name if selected
+                                            childCategoryId: selectedChild?.id.toString(),
+                                            childCategoryName: selectedChild?.name,
                                             isCombo: null,
+                                            heatLevel: selectedProvider.selectedHeatLabel,
                                           );
                                           cartProvider.addToCart(cartItem);
                                           Navigator.of(context).pop();
@@ -1587,10 +1587,113 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget buildCategoryShimmer({int itemCount = 7}) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double screenWidth = constraints.maxWidth;
+        final isMobile = screenWidth < 600;
+
+        if (isMobile) {
+          return SizedBox(
+            height: 120,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: itemCount,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey.shade300,
+                    highlightColor: Colors.grey.shade100,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // rounded square with circular image placeholder
+                        Container(
+                          width: 70,
+                          height: 70,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            color: Colors.white,
+                          ),
+                          padding: const EdgeInsets.all(8),
+                          child: Container(
+                            // inner circular placeholder to mimic ClipOval Image
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.grey.shade300,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        // short text bar
+                        Container(
+                          width: 60,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(6),
+                            color: Colors.grey.shade300,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        } else {
+          // Larger screen: show wrap of placeholders
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: List.generate(itemCount, (index) {
+                return Shimmer.fromColors(
+                  baseColor: Colors.grey.shade300,
+                  highlightColor: Colors.grey.shade100,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 90,
+                        height: 90,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: Colors.white,
+                        ),
+                        padding: const EdgeInsets.all(8),
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Container(
+                        width: 70,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6),
+                          color: Colors.grey.shade300,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ),
+          );
+        }
+      },
+    );
+  }
 
   Widget buildCategoryList({
     required List<CategoryModel> categories,
-    required int? selectedCategoryId,   // 👈 added
+    required int? selectedCategoryId,
   }) {
     final allCategories = [
       CategoryModel(id: -1, name: 'All', image: 'https://img.pikbest.com/png-images/20250218/delicious-cheese-burger-_11536406.png!w700wp'), // empty image for placeholder
@@ -1642,17 +1745,17 @@ class _HomeScreenState extends State<HomeScreen> {
       BuildContext context,
       CategoryModel cat, {
         double? fixedSize,
-        required int? selectedCategoryId,   // 👈 added
+        required int? selectedCategoryId,
       }) {
     final provider = Provider.of<DashboardProvider>(context, listen: false);
-    final isSelected = selectedCategoryId == cat.id;   // 👈 check selection
+    final isSelected = selectedCategoryId == cat.id;
 
     return GestureDetector(
       onTap: () async {
         provider.selectCategory(cat.id);
         await provider.getCategoryBasedItems(
           context,
-          cat.id == -1 ? null : cat.id,
+          cat.id == -1 ? null : cat.id,null
         );
       },
       child: Padding(
@@ -1666,12 +1769,12 @@ class _HomeScreenState extends State<HomeScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 gradient: isSelected
-                    ?   LinearGradient(
+                    ?   const LinearGradient(
                   colors: [AppColor.secondary, AppColor.primaryColor],
-                  begin: AlignmentDirectional(0.0, -1.0), // top-center
-                  end: AlignmentDirectional(0.0, 1.0), // bottom-center
+                  begin: AlignmentDirectional(0.0, -1.0),
+                  end: AlignmentDirectional(0.0, 1.0),
 
-                  stops: [0.0, 1.0], // smooth gradient
+                  stops: [0.0, 1.0],
                   tileMode: TileMode.clamp,
                 )
                     : null,
@@ -1681,8 +1784,8 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ClipOval(
                 child: Image.network(
                   cat.image.startsWith("https")
-                      ? cat.image // already a full URL (like for "All")
-                      : "${ApiEndpoints.imageBaseUrl}${cat.image}", // prepend base URL for others
+                      ? cat.image
+                      : "${ApiEndpoints.imageBaseUrl}${cat.image}",
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) =>
                   const Icon(Icons.image_not_supported),
@@ -1830,6 +1933,8 @@ class _HeatLevelSelectorState extends State<HeatLevelSelector> {
 
   @override
   Widget build(BuildContext context) {
+    final heatProvider = context.watch<CategoryProvider>();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1843,15 +1948,18 @@ class _HeatLevelSelectorState extends State<HeatLevelSelector> {
 
               thumbColor: AppColor.primaryColor),
           child: Slider(
-            value: _selectedHeat.toDouble(),
+            value: heatProvider.selectedHeatLevel.toDouble(),
+            //value: _selectedHeat.toDouble(),
             min: 0,
             max: 2,
             divisions: 2,
-            label: heatLabels[_selectedHeat],
+            label: heatLabels[heatProvider.selectedHeatLevel],
+           // label: heatLabels[_selectedHeat],
             onChanged: (double value) {
-              setState(() {
-                _selectedHeat = value.round();
-              });
+              heatProvider.setHeatLevel(value.round());
+              // setState(() {
+              //   _selectedHeat = value.round();
+              // });
             },
           ),
         ),
@@ -1916,11 +2024,10 @@ Future<bool> showExitDialog(BuildContext context) async {
       ],
     ),
   );
-
   return shouldExit ?? false;
 }
 
-void showSortByDialog(BuildContext context) {
+Future<String?> showSortByDialog(BuildContext context, String currentSort) {
   String selectedOption = 'Popular';
   List<String> options = [
     'Popular',
@@ -1929,7 +2036,7 @@ void showSortByDialog(BuildContext context) {
     'Price: Highest to low',
   ];
 
-  showGeneralDialog(
+  return showGeneralDialog<String>(
     context: context,
     barrierDismissible: true,
     barrierLabel: "Sort By",
@@ -1941,57 +2048,62 @@ void showSortByDialog(BuildContext context) {
               color: Colors.transparent,
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.only(top: 16,bottom: 16),
+                padding: const EdgeInsets.only(top: 16, bottom: 16),
                 decoration: const BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     colors: [AppColor.secondary, AppColor.primaryColor],
-                    begin: AlignmentDirectional(0.0, -2.0), // top-center
-                    end: AlignmentDirectional(0.0, 1.0), // bottom-center
-
-                    stops: [0.0, 1.0], // smooth gradient
+                    begin: AlignmentDirectional(0.0, -2.0),
+                    end: AlignmentDirectional(0.0, 1.0),
+                    stops: [0.0, 1.0],
                     tileMode: TileMode.clamp,
                   ),
                   borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(20), bottom: Radius.circular(20)),
+                    top: Radius.circular(20),
+                    bottom: Radius.circular(20),
+                  ),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 8,bottom: 16,left: 16),
+                      padding: const EdgeInsets.only(
+                          top: 8, bottom: 16, left: 16),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                           Text(
+                          Text(
                             'Sort By',
                             style: AppStyle.textStyleReemKufi.copyWith(
                               fontWeight: FontWeight.w800,
                               color: AppColor.whiteColor,
                               fontSize: 20,
                             ),
-                           ),
-                          Spacer(),
+                          ),
+                          const Spacer(),
                           IconButton(
-                            icon: const Icon(Icons.close,color: Colors.white,),
+                            icon: const Icon(Icons.close, color: Colors.white),
                             onPressed: () => Navigator.pop(context),
                           ),
                         ],
                       ),
                     ),
-
                     const Divider(color: Colors.white54),
                     const SizedBox(height: 10),
                     ...options.map((option) {
                       bool isSelected = selectedOption == option;
                       return Container(
                         width: double.infinity,
-                        color: isSelected ? Colors.white : Colors.transparent, // selected background
+                        color: isSelected
+                            ? Colors.white
+                            : Colors.transparent,
                         child: ListTile(
                           title: Text(
                             option,
                             style: AppStyle.textStyleReemKufi.copyWith(
                               fontWeight: FontWeight.w500,
-                              color: isSelected ? AppColor.primaryColor : AppColor.whiteColor, // text color
+                              color: isSelected
+                                  ? AppColor.primaryColor
+                                  : AppColor.whiteColor,
                               fontSize: 15,
                             ),
                           ),
@@ -2003,14 +2115,14 @@ void showSortByDialog(BuildContext context) {
                         ),
                       );
                     }).toList(),
-
                     const SizedBox(height: 10),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
                       child: Row(
                         children: [
                           SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.4, // 40% of screen width
+                            width: MediaQuery.of(context).size.width * 0.4,
                             child: ElevatedButton(
                               onPressed: () {
                                 setState(() {
@@ -2019,7 +2131,8 @@ void showSortByDialog(BuildContext context) {
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                padding:
+                                const EdgeInsets.symmetric(vertical: 12),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -2036,14 +2149,15 @@ void showSortByDialog(BuildContext context) {
                           ),
                           const Spacer(),
                           SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.4, // 40% of screen width
+                            width: MediaQuery.of(context).size.width * 0.4,
                             child: ElevatedButton(
                               onPressed: () {
-                                Navigator.pop(context, selectedOption);
+                                Navigator.pop(context, selectedOption); // ✅ return
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                padding:
+                                const EdgeInsets.symmetric(vertical: 12),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -2061,7 +2175,6 @@ void showSortByDialog(BuildContext context) {
                         ],
                       ),
                     ),
-
                   ],
                 ),
               ),
@@ -2072,12 +2185,38 @@ void showSortByDialog(BuildContext context) {
     },
     transitionBuilder: (context, anim1, anim2, child) {
       return SlideTransition(
-        position:
-        Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim1),
+        position: Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim1),
         child: child,
       );
     },
     transitionDuration: const Duration(milliseconds: 300),
   );
 }
+
+
+void _openSortDialog(BuildContext context) async {
+  final provider = Provider.of<DashboardProvider>(context, listen: false);
+  final selectedOption = await showSortByDialog(context, provider.selectedSort);
+
+  if (selectedOption != null && selectedOption.isNotEmpty) {
+    provider.setSortOption(selectedOption);
+
+
+    switch (selectedOption) {
+      case 'Popular':
+        provider.getCategoryBasedItems(context, 1,'popular');
+        break;
+      case 'Newest':
+        provider.getCategoryBasedItems(context, null,'newest');
+        break;
+      case 'Price: Lowest to high':
+        provider.getCategoryBasedItems(context, null, 'price_asc');
+        break;
+      case 'Price: Highest to low':
+        provider.getCategoryBasedItems(context, null, 'pce_desc');
+        break;
+    }
+  }
+}
+
 

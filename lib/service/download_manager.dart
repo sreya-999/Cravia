@@ -46,13 +46,24 @@ class DownloadManager {
   }
 
   /// getCategoryItems
-  Future<List<Item>?> getCategoryItems(BuildContext context, int? categoryId) async {
+  Future<List<Item>?> getCategoryItems(BuildContext context, int? categoryId, String? sortBy) async {
     try {
-      final response = await apiManager.dio.get(
-        '${ApiEndpoints.baseUrl}${ApiEndpoints.dashBoard}',
-        queryParameters: categoryId != null ? {'category_id': categoryId} : null,
-      );
+      final queryParams = <String, dynamic>{};
 
+      if (categoryId != null) {
+        queryParams['category_id'] = categoryId;
+      }
+      if (sortBy != null && sortBy.isNotEmpty) {
+        queryParams['sort_by'] = sortBy;
+      }
+      final url = '${ApiEndpoints.baseUrl}${ApiEndpoints.dashBoard}';
+      print('➡️ Base URL: $url');
+      print('➡️ Query Params: $queryParams'); // prints categoryId + sortBy if set
+
+      final response = await apiManager.dio.get(
+        url,
+        queryParameters: queryParams.isNotEmpty ? queryParams : null,
+      );
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.data; // Already a decoded Map
         if (data['data'] != null && data['data']['items'] != null) {
@@ -180,11 +191,11 @@ class DownloadManager {
   //   }
   // }
 
-  Future<List<Item>?> bugOneGetOne(BuildContext context, String? searchText) async {
+  Future<List<Item>?> bugOneGetOne(BuildContext context, String? searchText,String? sortBy) async {
     try {
       final params = {
         if (searchText != null && searchText.isNotEmpty) 'search': searchText,
-      //  if (categoryId != null && categoryId != -1) 'category_id': categoryId,
+        if(sortBy != null && sortBy.isNotEmpty)'sortBy':sortBy
       };
 
 
@@ -220,11 +231,21 @@ class DownloadManager {
     }
   }
 
-  Future<List<ComboProductModel>?> getComboOffer(BuildContext context, String? searchText) async {
+  Future<List<ComboProductModel>?> getComboOffer(BuildContext context, String? searchText,String? sortBy) async {
     try {
+      final Map<String, dynamic> queryParams = {};
+
+      if (searchText != null && searchText.isNotEmpty) {
+        queryParams['search'] = searchText;
+      }
+
+      if (sortBy != null && sortBy.isNotEmpty) {
+        queryParams['sort_by'] = sortBy;
+      }
+
       final response = await apiManager.dio.get(
         '${ApiEndpoints.baseUrl}${ApiEndpoints.combo}',
-        queryParameters: searchText != null ? {'search': searchText} : null,
+        queryParameters: queryParams.isNotEmpty ? queryParams : null,
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {

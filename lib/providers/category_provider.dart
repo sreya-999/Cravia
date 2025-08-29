@@ -16,6 +16,22 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  int _selectedHeatLevel = 0; // 0 - Mild, 1 - Medium, 2 - Hot
+  String _selectedHeatLabel = "Mild"; // default
+
+  int get selectedHeatLevel => _selectedHeatLevel;
+  String get selectedHeatLabel => _selectedHeatLabel;
+
+  void setHeatLevel(int level) {
+    _selectedHeatLevel = level;
+
+    // map index -> label
+    final heatLabels = ['Mild', 'Medium', 'Hot'];
+    _selectedHeatLabel = heatLabels[level];
+
+    notifyListeners();
+  }
+
   // List<ProductModel> get selectedCategoryProducts =>
   //     _products.where((p) => p.categoryId == _selectedCategoryId).toList();
 
@@ -23,6 +39,13 @@ class CategoryProvider with ChangeNotifier {
 
   String get selectedSize => _selectedSize;
 
+  String _selectedSort = 'Popular'; // default
+  String get selectedSort => _selectedSort;
+
+  void setSortOption(String sort) {
+    _selectedSort = sort;
+    notifyListeners();
+  }
 
   void setSelectedSize(String size) {
     _selectedSize = size;
@@ -54,16 +77,16 @@ class CategoryProvider with ChangeNotifier {
   List<Item>? _buyOneGetOne;
   List<Item>? get buyOneGetOne => _buyOneGetOne;
 
-  Future<void> getComboProduct(BuildContext context,String? searchText) async {
+  Future<void> getComboProduct(BuildContext context,String? searchText,String? sortBy) async {
     setLoading(true);
-    _comboProduct = await DownloadManager().getComboOffer(context,searchText);
+    _comboProduct = await DownloadManager().getComboOffer(context,searchText,sortBy);
     setLoading(false);
     notifyListeners();
   }
 
-  Future<void> getBuyOneOffer(BuildContext context,String? searchText) async {
+  Future<void> getBuyOneOffer(BuildContext context,String? searchText,String sortBy) async {
     setLoading(true);
-    _buyOneGetOne = await DownloadManager().bugOneGetOne(context,searchText);
+    _buyOneGetOne = await DownloadManager().bugOneGetOne(context,searchText,sortBy);
     setLoading(false);
     notifyListeners();
   }
@@ -84,14 +107,14 @@ class CategoryProvider with ChangeNotifier {
 
   void increaseQuantity() {
     _quantity++;
-    print("Quantity increased: $_quantity"); // 👈 print here
+    print("Quantity increased: $_quantity");
     notifyListeners();
   }
 
   void decreaseQuantity() {
     if (_quantity > 1) {
       _quantity--;
-      print("Quantity decreased: $_quantity"); // 👈 print here
+      print("Quantity decreased: $_quantity");
       notifyListeners();
     }
   }
