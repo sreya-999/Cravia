@@ -31,7 +31,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
-          double logoHeight = screenHeight * 0.25;
+          double logoHeight = screenHeight * 0.30;
           double spacing = screenHeight * 0.05;
 
           return Stack(
@@ -60,7 +60,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
                     children: [
                       SizedBox(height: spacing * 0.8,),
 
-                      Image.asset(AppImage.logo3, height: logoHeight,),
+                      Image.asset(AppImage.logo2, height: logoHeight,),
                       SizedBox(height: spacing * 1.2),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -77,14 +77,17 @@ class _SelectionScreenState extends State<SelectionScreen> {
                                 key: StorageKey.dineInOption,
                                 value: "dinein",
                               );
+                              await getIt<SharedPreferenceHelper>().storeBoolData(
+                                key: StorageKey.isTakeAway,
+                                value: false,
+                              );
+
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (_) => const HomeScreen()),
                               );
-
                             },
                           ),
-
                           SizedBox(width: screenWidth * 0.05),
                           _buildOption(
                             context: context,
@@ -98,6 +101,11 @@ class _SelectionScreenState extends State<SelectionScreen> {
                               await getIt<SharedPreferenceHelper>().storeStringData(
                               key: StorageKey.dineInOption,
                               value: "takeaway",
+                              );
+
+                              await getIt<SharedPreferenceHelper>().storeBoolData(
+                                key: StorageKey.isTakeAway,
+                                value: true,
                               );
 
                               Navigator.push(

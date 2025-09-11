@@ -34,6 +34,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           //   context,
           //   MaterialPageRoute(builder: (_) => TableSelectionScreen()),
           // );
+          context.read<CartProvider>().clearCart();
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => OrderSuccessScreen(order: widget.order,)),

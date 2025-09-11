@@ -15,13 +15,60 @@ class DashboardProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  String _selectedSort = 'Popular'; // default
-  String get selectedSort => _selectedSort;
+  String _selectedSort = '';        // API value
+  String _selectedSortLabel = '';   // UI value
 
-  void setSortOption(String sort) {
-    _selectedSort = sort;
+  String get selectedSort => _selectedSort;
+  String get selectedSortLabel => _selectedSortLabel;
+
+  void setSortOption(String apiSort, String label) {
+    _selectedSort = apiSort;
+    _selectedSortLabel = label;
     notifyListeners();
   }
+
+  void clearSort() {
+    _selectedSort = '';
+    _selectedSortLabel = '';
+    notifyListeners();
+  }
+  String _comboSelectedSort = '';
+  String _comboSelectedSortLabel = '';
+
+  String get comboSelectedSort => _comboSelectedSort;
+  String get comboSelectedSortLabel => _comboSelectedSortLabel;
+
+  void setComboSortOption(String apiSort, String label) {
+    _comboSelectedSort = apiSort;
+    _comboSelectedSortLabel = label;
+    notifyListeners();
+  }
+
+  void clearComboSort() {
+    _comboSelectedSort = '';
+    _comboSelectedSortLabel = '';
+    notifyListeners();
+  }
+
+  // 🔸 Offer products
+  String _offerSelectedSort = '';
+  String _offerSelectedSortLabel = '';
+
+  String get offerSelectedSort => _offerSelectedSort;
+  String get offerSelectedSortLabel => _offerSelectedSortLabel;
+
+  void setOfferSortOption(String apiSort, String label) {
+    _offerSelectedSort = apiSort;
+    _offerSelectedSortLabel = label;
+    notifyListeners();
+  }
+
+  void clearOfferSort() {
+    _offerSelectedSort = '';
+    _offerSelectedSortLabel = '';
+    notifyListeners();
+  }
+
   void setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
@@ -79,6 +126,13 @@ class DashboardProvider extends ChangeNotifier {
   Future<void> getBuyOneOffer(BuildContext context,String? searchText,String? sortBy) async {
     setLoading(true);
     _buyOneGetOne = await DownloadManager().bugOneGetOne(context,searchText,sortBy);
+    setLoading(false);
+    notifyListeners();
+  }
+
+  Future<void> bugOneGetOneOfferSearch(BuildContext context,String? searchText,) async {
+    setLoading(true);
+    _buyOneGetOne = await DownloadManager().bugOneGetOneOfferSearch(context,searchText);
     setLoading(false);
     notifyListeners();
   }

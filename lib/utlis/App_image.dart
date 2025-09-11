@@ -18,5 +18,6 @@ class AppImage{
   static const String badge1 ='assets/icons/combobadge.png';
   static const String qrCode ='assets/icons/qrcode.png';
   static const String logo3='assets/icons/logo3.png';
-
+  static const String logo2='assets/icons/logo5.png';
+  static const String cross ='assets/icons/cross.svg';
 }

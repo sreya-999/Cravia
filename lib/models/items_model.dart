@@ -13,8 +13,11 @@ class Item {
   final String image;
   final String createdAt;
   final String updatedAt;
+  String? takeAwayPrice;
   final CategoryModel? category;
   final List<ChildCategory> childCategory;
+  String? prepareTime;
+
 
   Item({
     required this.id,
@@ -27,8 +30,10 @@ class Item {
     required this.image,
     required this.createdAt,
     required this.updatedAt,
+    this.takeAwayPrice,
     this.category,
     required this.childCategory,
+    this.prepareTime
   });
 
   factory Item.fromJson(Map<String, dynamic> json) {
@@ -43,6 +48,7 @@ class Item {
       image: json['image'] ?? '',
       createdAt: json['created_at'] ?? '',
       updatedAt: json['updated_at'] ?? '',
+      takeAwayPrice: json['take_away_price'],
       category:
       json['category'] != null
           ? CategoryModel.fromJson(json['category'])

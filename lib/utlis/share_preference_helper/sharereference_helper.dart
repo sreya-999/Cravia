@@ -81,6 +81,8 @@ class SharedPreferenceHelper {
         return 'isLoggedIn';
       case StorageKey.dineInOption:
         return 'dineInOption';
+      case StorageKey.isTakeAway:
+        return "isTakeAway";
     }
   }
 
@@ -95,5 +97,6 @@ enum StorageKey {
   loginToken,
   isIntroSeen,
   isLoggedIn,
-  dineInOption
+  dineInOption,
+  isTakeAway,
 }

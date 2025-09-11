@@ -25,6 +25,7 @@ class ProductModel {
   final int? categoryId;
   final double price;
   final bool? isCombo;// <-- Add this
+  String? prepareTime;
 
   ProductModel({
     required this.id,
@@ -32,7 +33,8 @@ class ProductModel {
     required this.image,
      this.categoryId,
     required this.price,
-    this.isCombo// <-- Add this
+    this.isCombo,
+    this.prepareTime// <-- Add this
   });
 
 
@@ -49,6 +51,7 @@ class ComboProductModel {
   final int categoryId;
   final String description;
   final bool? isCombo;
+  String? takeAwayPrice;
   final CategoryModel? category;
   final List<String> subCategoryIds;   // ✅ Added
   final List<String> childCategoryIds; // ✅ Added
@@ -67,6 +70,7 @@ class ComboProductModel {
     required this.description,
     this.isCombo,
     this.category,
+    this.takeAwayPrice,
     required this.childCategory,
     required this.subCategoryIds,
     required this.childCategoryIds,
@@ -89,6 +93,7 @@ class ComboProductModel {
       time: json['preparing_time'] ?? '',
       categoryId: json['categoryId'] ?? 0,
       isCombo: json['isCombo'],
+      takeAwayPrice: json['take_away_price'],
       category: json['category'] != null
           ? CategoryModel.fromJson(json['category'])
           : null,
@@ -126,6 +131,10 @@ class CartItemModel {
   final bool? isCombo;
    double? takeAwayPrice;
    String? heatLevel;
+  final String? type;     // type of cart item (e.g., normal, offer, etc.)
+  final int? comboId;
+  final int? totalDeliveryTime;
+  String? prepareTime;
 
   CartItemModel({
     required this.id,
@@ -139,7 +148,12 @@ class CartItemModel {
     this.childCategoryName,
     this.isCombo,
      this.takeAwayPrice,
-    this.heatLevel
+    this.heatLevel,
+   this.type,
+    this.comboId,
+    this.totalDeliveryTime,
+    this.prepareTime
+
   });
 
   // Factory constructor from ProductModel
@@ -152,7 +166,7 @@ class CartItemModel {
       price: product.price,
       quantity: quantity,
       isCombo: product.isCombo,
-
+      prepareTime: product.prepareTime,
     );
   }
   Map<String, dynamic> toJson() {
@@ -165,7 +179,9 @@ class CartItemModel {
       'quantity': quantity,
       'child_category_id': childCategoryId,
    //   'childcategoryName': childCategoryName,
-      'take_away_price':takeAwayPrice
+      'take_away_price':takeAwayPrice,
+      "type":type,
+      "combo_id":comboId
     };
   }
   // Factory constructor from ComboProductModel

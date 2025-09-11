@@ -24,16 +24,12 @@ class CategoryProvider with ChangeNotifier {
 
   void setHeatLevel(int level) {
     _selectedHeatLevel = level;
-
-    // map index -> label
     final heatLabels = ['Mild', 'Medium', 'Hot'];
     _selectedHeatLabel = heatLabels[level];
 
     notifyListeners();
   }
 
-  // List<ProductModel> get selectedCategoryProducts =>
-  //     _products.where((p) => p.categoryId == _selectedCategoryId).toList();
 
   String _selectedSize = 'Small';
 
@@ -84,21 +80,118 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getBuyOneOffer(BuildContext context,String? searchText,String sortBy) async {
-    setLoading(true);
-    _buyOneGetOne = await DownloadManager().bugOneGetOne(context,searchText,sortBy);
-    setLoading(false);
-    notifyListeners();
-  }
+
 
   double _basePrice = 0.0;
   int _quantity = 1;
   ChildCategory? _selectedChildCategory;
 
+  void clearSelectedChildCategory() {
+    _selectedChildCategory = null;
+    notifyListeners();
+  }
+
   void setBasePrice(double price) {
     _basePrice = price;
     notifyListeners();
   }
+  /// include childCategoryTakeawayPrice
+//   void setBasePriceWithTakeAway(Item product) {
+//     double base = 0.0;
+//
+//     // 1️⃣ Always start with the main product price
+//     if (product.price != null && product.price!.isNotEmpty) {
+//       base = double.tryParse(product.price!) ?? 0.0;
+//     }
+//
+//     // 2️⃣ If a child category is selected → use its takeAwayPrice (if available)
+//     if (_selectedChildCategory != null) {
+//       if (_selectedChildCategory!.takeAwayPrice != null) {
+//         base += _selectedChildCategory!.takeAwayPrice!.toDouble();
+//       }
+//     }
+//     // 3️⃣ If no child selected, but child categories exist → use the first child's takeAwayPrice (if available)
+//     else if (product.childCategory.isNotEmpty) {
+//       final firstChild = product.childCategory.first;
+//       if (firstChild.takeAwayPrice != null) {
+//         base += firstChild.takeAwayPrice!.toDouble();
+//       }
+//     }
+//     // 4️⃣ If there are NO child categories → fallback to product-level takeAwayPrice
+//     else if (product.takeAwayPrice != null && product.takeAwayPrice!.isNotEmpty) {
+//       base += double.tryParse(product.takeAwayPrice!) ?? 0.0;
+//     }
+//
+//     _basePrice = base;
+//     notifyListeners();
+//   }
+  void setBasePriceWithTakeAway(Item product) {
+    double base = 0.0;
+
+    // 1️⃣ Always start with the main product price
+    if (product.price != null && product.price!.isNotEmpty) {
+      base = double.tryParse(product.price!) ?? 0.0;
+    }
+
+    // 2️⃣ Use only product-level takeAwayPrice (ignore child category)
+    if (product.takeAwayPrice != null && product.takeAwayPrice!.isNotEmpty) {
+      base += double.tryParse(product.takeAwayPrice!) ?? 0.0;
+    }
+
+    _basePrice = base;
+    notifyListeners();
+  }
+
+  void setBasePriceWithTakeAwayCombo(ComboProductModel product) {
+    double base = 0.0;
+
+    // 1️⃣ Always start with the main product price
+    if (product.discountPrice != null && product.discountPrice!.isNotEmpty) {
+      base = double.tryParse(product.discountPrice!) ?? product.price.toDouble();
+    } else {
+      base = product.price.toDouble();
+    }
+
+    // 2️⃣ If a child category is selected → use its takeAwayPrice (if available)
+    if (_selectedChildCategory != null) {
+      if (_selectedChildCategory!.takeAwayPrice != null) {
+        base += _selectedChildCategory!.takeAwayPrice!.toDouble();
+      }
+    }
+    // 3️⃣ If no child selected, but child categories exist → use the first child's takeAwayPrice (if available)
+    else if (product.childCategory.isNotEmpty) {
+      final firstChild = product.childCategory.first;
+      if (firstChild.takeAwayPrice != null) {
+        base += firstChild.takeAwayPrice!.toDouble();
+      }
+    }
+    // 4️⃣ If there are NO child categories → fallback to product-level takeAwayPrice
+    else if (product.takeAwayPrice != null && product.takeAwayPrice!.isNotEmpty) {
+      base += double.tryParse(product.takeAwayPrice!) ?? 0.0;
+    }
+
+    _basePrice = base;
+    notifyListeners();
+  }
+
+
+  void setTakeAwayPrice(double price) {
+    _takeAwayPrice = price;
+    notifyListeners();
+  }
+
+
+  int _totalTime = 0;
+
+  int get totalTime => _totalTime;
+
+  void setTotalTime(int time) {
+    _totalTime = time;
+    notifyListeners();
+  }
+
+
+  // Optional: If you want to update quantity and total time together
 
   void setQuantity(int qty) {
     _quantity = qty;
@@ -124,24 +217,49 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // double get selectedPrice {
-  //
-  //   if (_selectedChildCategory != null) {
-  //     return (_selectedChildCategory!.price ?? _basePrice).toDouble();
-  //   }
-  //
-  //   return _basePrice;
-  // }
-
-  double get selectedPrice {
+  double get selectedPrices {
     if (_selectedChildCategory != null && _selectedChildCategory!.price != null) {
-      return _selectedChildCategory!.price!.toDouble();
+      return _selectedChildCategory!.price.toDouble();
     }
     return _basePrice; // ✅ Always fallback correctly
   }
 
-  double get totalPrice => selectedPrice * _quantity;
+  double get selectedPrice {
+    double price = _basePrice; // Start with base product price
+
+    if (_selectedChildCategory != null) {
+      // Add child category price
+      price = (_selectedChildCategory!.price.toDouble() ?? 0.0)
+          + (_selectedChildCategory!.takeAwayPrice.toDouble() ?? 0.0);
+    }
+
+    return price;
+  }
+
+  double get totalPrices => selectedPrices * _quantity;
+  double get totalPrice => selectedPrices * _quantity;
+
 
   int get quantity => _quantity;
   ChildCategory? get selectedChildCategory => _selectedChildCategory;
+
+
+  double _takeAwayPrice = 0.0;
+
+  double get grandTotalPrice {
+    double takeAway = 0.0;
+
+    // ✅ First check child category takeAwayPrice
+    if (_selectedChildCategory != null && _selectedChildCategory!.takeAwayPrice != null) {
+      takeAway = _selectedChildCategory!.takeAwayPrice!.toDouble();
+    }
+    // ✅ Fallback to product-level takeAwayPrice if child category doesn't have it
+    else if (_takeAwayPrice > 0) {
+      takeAway = _takeAwayPrice;
+    }
+
+    // ✅ Add base price + takeaway price, then multiply by quantity
+    return (selectedPrice + takeAway) * _quantity;
+  }
+
 }
