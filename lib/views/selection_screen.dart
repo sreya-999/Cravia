@@ -36,15 +36,14 @@ class _SelectionScreenState extends State<SelectionScreen> {
 
           return Stack(
             children: [
-              // Background gradient
+              /// Background gradient
               Positioned.fill(
                 child: Container(
                   decoration: const BoxDecoration(
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       colors: [AppColor.secondary, AppColor.primaryColor],
                       begin: AlignmentDirectional(0.0, -2.0), // top-center
                       end: AlignmentDirectional(0.0, 1.0), // bottom-center
-
                       stops: [0.0, 1.0], // smooth gradient
                       tileMode: TileMode.clamp,
                     ),
@@ -52,74 +51,88 @@ class _SelectionScreenState extends State<SelectionScreen> {
                 ),
               ),
 
-              // Foreground UI
+              /// Foreground UI
               SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 28.0),
                   child: Column(
                     children: [
-                      SizedBox(height: spacing * 0.8,),
+                      /// Scrollable main content
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              SizedBox(height: spacing * 0.8),
 
-                      Image.asset(AppImage.logo2, height: logoHeight,),
-                      SizedBox(height: spacing * 1.2),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildOption(
-                            context: context,
-                            label: 'Dine-In',
-                            svgAssetPath: AppImage.dinein,
-                            isSelected: selectedOption == 'dinein',
-                            onTap: () async {
-                              Provider.of<CategoryProvider>(context, listen: false).setDineIn(true);
-                              setState(() => selectedOption = 'dinein');
-                              await getIt<SharedPreferenceHelper>().storeStringData(
-                                key: StorageKey.dineInOption,
-                                value: "dinein",
-                              );
-                              await getIt<SharedPreferenceHelper>().storeBoolData(
-                                key: StorageKey.isTakeAway,
-                                value: false,
-                              );
+                              /// App Logo
+                              Image.asset(AppImage.logo2, height: logoHeight),
 
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const HomeScreen()),
-                              );
-                            },
+                              SizedBox(height: spacing * 1.2),
+
+                              /// Dine-In & Takeaway options
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _buildOption(
+                                    context: context,
+                                    label: 'Dine-In',
+                                    svgAssetPath: AppImage.dinein,
+                                    isSelected: selectedOption == 'dinein',
+                                    onTap: () async {
+                                      Provider.of<CategoryProvider>(context, listen: false).setDineIn(true);
+                                      setState(() => selectedOption = 'dinein');
+
+                                      await getIt<SharedPreferenceHelper>().storeStringData(
+                                        key: StorageKey.dineInOption,
+                                        value: "dinein",
+                                      );
+                                      await getIt<SharedPreferenceHelper>().storeBoolData(
+                                        key: StorageKey.isTakeAway,
+                                        value: false,
+                                      );
+
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (_) => const HomeScreen()),
+                                      );
+                                    },
+                                  ),
+                                  SizedBox(width: screenWidth * 0.05),
+                                  _buildOption(
+                                    context: context,
+                                    label: 'Take Away',
+                                    svgAssetPath: AppImage.takeaway,
+                                    isSelected: selectedOption == 'takeaway',
+                                    onTap: () async {
+                                      Provider.of<CategoryProvider>(context, listen: false).setDineIn(false);
+                                      setState(() => selectedOption = 'takeaway');
+
+                                      await getIt<SharedPreferenceHelper>().storeStringData(
+                                        key: StorageKey.dineInOption,
+                                        value: "takeaway",
+                                      );
+
+                                      await getIt<SharedPreferenceHelper>().storeBoolData(
+                                        key: StorageKey.isTakeAway,
+                                        value: true,
+                                      );
+
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (_) => const HomeScreen()),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+
+                              SizedBox(height: spacing * 2),
+                            ],
                           ),
-                          SizedBox(width: screenWidth * 0.05),
-                          _buildOption(
-                            context: context,
-                            label: 'Take Away',
-                            svgAssetPath: AppImage.takeaway,
-                            isSelected: selectedOption == 'takeaway',
-                            onTap: () async {
-                              Provider.of<CategoryProvider>(context, listen: false).setDineIn(false);
-                              setState(() => selectedOption = 'takeaway');
-
-                              await getIt<SharedPreferenceHelper>().storeStringData(
-                              key: StorageKey.dineInOption,
-                              value: "takeaway",
-                              );
-
-                              await getIt<SharedPreferenceHelper>().storeBoolData(
-                                key: StorageKey.isTakeAway,
-                                value: true,
-                              );
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const HomeScreen()),
-                              );
-                            },
-                          ),
-
-                        ],
+                        ),
                       ),
 
-                      SizedBox(height: spacing * 2),
-                      const Spacer(),
+                      /// Fixed bottom "Powered by M8"
                       Padding(
                         padding: EdgeInsets.only(bottom: screenHeight * 0.02),
                         child: Text(
@@ -138,6 +151,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
           );
         },
       ),
+
     );
   }
 

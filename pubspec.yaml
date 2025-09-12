@@ -68,32 +68,21 @@ flutter:
 
 
   fonts:
-    - family: Poppins
+    - family: Rubik
       fonts:
-        - asset: assets/fonts/Poppins-Regular.ttf
-          weight: 500
-        - asset: assets/fonts/Poppins-Medium.ttf
-          weight: 600
-        - asset: assets/fonts/Poppins-Thin.ttf
-          weight: 300
-        - asset: assets/fonts/Poppins-Light.ttf
-          weight: 400
-        - asset: assets/fonts/Poppins-Bold.ttf
+        - asset: assets/fonts/Rubik.ttf
           weight: 700
-          style: italic
 
-    - family: Inter
+
+    - family: Nunito
       fonts:
-        - asset: assets/fonts/inter_regular.ttf
-          weight: 400
-        - asset: assets/fonts/inter_medium.ttf
-          weight: 500
-        - asset: assets/fonts/inter_thin.ttf
-          weight: 300
-        - asset: assets/fonts/inter_extrabold.ttf
-          weight: 800
-        - asset: assets/fonts/inter_bold.ttf
-          weight: 700
+       # - asset: assets/fonts/Nunito.ttf
+       # - asset: assets/fonts/Nunito-Bold.ttf
+        - asset: assets/fonts/Nunito-ExtraBold.ttf
+
+
+
+
 
     - family: Reem Kufi
       fonts:

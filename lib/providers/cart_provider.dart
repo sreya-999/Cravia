@@ -207,6 +207,44 @@ class CartProvider with ChangeNotifier {
   }
 
 
+  // int get totalEstimatedTime {
+  //   int totalTime = 0;
+  //
+  //   for (var item in _items) {
+  //     if (item.prepareTime != null) {
+  //       // Clean up delivery time string like "30 mins"
+  //       final baseTime = int.tryParse(
+  //         item.prepareTime.toString().toLowerCase().replaceAll("mins", "").trim(),
+  //       ) ?? 0;
+  //       print("Item: ${item.name}, Prepare Time: $baseTime mins, Quantity: ${item.quantity}");
+  //       totalTime += baseTime * item.quantity;
+  //     }
+  //   }
+  //   return totalTime;
+  // }
+
+  double get averageEstimatedTime {
+    int totalTime = 0;
+    int totalQuantity = 0;
+
+    for (var item in _items) {
+      if (item.prepareTime != null) {
+        // Clean up delivery time string like "30 mins"
+        final baseTime = int.tryParse(
+          item.prepareTime.toString().toLowerCase().replaceAll("mins", "").trim(),
+        ) ?? 0;
+
+        print("Item: ${item.name}, Prepare Time: $baseTime mins, Quantity: ${item.quantity}");
+
+        totalTime += baseTime * item.quantity;
+        totalQuantity += item.quantity;
+      }
+    }
+
+    if (totalQuantity == 0) return 0; // avoid division by zero
+    return totalTime / totalQuantity;
+  }
+
   int get totalEstimatedTime {
     int totalTime = 0;
 

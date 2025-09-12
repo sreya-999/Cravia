@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 class AppFonts {
   AppFonts._();
 
-  static const String fontInter = 'inter';
-  static const String fontPoppins = 'Poppins';
+  static const String fontNunito = 'Nunito';
+  static const String fontRubik = 'Rubik';
   static const String fontReemKufi = 'Reem Kufi';
   static const String fontLobster = 'Lobster';
   static const String fontOleoScriptSwashCaps = 'OleoScriptSwashCaps'; // ✅ New font
@@ -15,45 +15,45 @@ class AppStyle {
 
   // Inter styles
   static const TextStyle textStyle400 = TextStyle(
-    fontFamily: AppFonts.fontInter,
+    fontFamily: AppFonts.fontNunito,
     fontWeight: FontWeight.w400,
   );
   static const TextStyle textStyle500 = TextStyle(
-    fontFamily: AppFonts.fontInter,
+    fontFamily: AppFonts.fontNunito,
     fontWeight: FontWeight.w500,
   );
   static const TextStyle textStyle600 = TextStyle(
-    fontFamily: AppFonts.fontInter,
+    fontFamily: AppFonts.fontNunito,
     fontWeight: FontWeight.w600,
   );
   static const TextStyle textStyle700 = TextStyle(
-    fontFamily: AppFonts.fontInter,
+    fontFamily: AppFonts.fontNunito,
     fontWeight: FontWeight.w700,
   );
   static const TextStyle textStyle800 = TextStyle(
-    fontFamily: AppFonts.fontInter,
+    fontFamily: AppFonts.fontNunito,
     fontWeight: FontWeight.w800,
   );
 
   // Poppins styles
   static const TextStyle textStylePoppins300 = TextStyle(
-    fontFamily: AppFonts.fontPoppins,
+    fontFamily: AppFonts.fontRubik,
     fontWeight: FontWeight.w300,
   );
   static const TextStyle textStylePoppins400 = TextStyle(
-    fontFamily: AppFonts.fontPoppins,
+    fontFamily: AppFonts.fontRubik,
     fontWeight: FontWeight.w400,
   );
   static const TextStyle textStylePoppins500 = TextStyle(
-    fontFamily: AppFonts.fontPoppins,
+    fontFamily: AppFonts.fontRubik,
     fontWeight: FontWeight.w500,
   );
   static const TextStyle textStylePoppins600 = TextStyle(
-    fontFamily: AppFonts.fontPoppins,
+    fontFamily: AppFonts.fontRubik,
     fontWeight: FontWeight.w600,
   );
   static const TextStyle textStylePoppins700 = TextStyle(
-    fontFamily: AppFonts.fontPoppins,
+    fontFamily: AppFonts.fontRubik,
     fontWeight: FontWeight.w700,
   );
 

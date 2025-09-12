@@ -49,10 +49,11 @@ class ComboProductModel {
   final String? disountPercent;
   final String? discountPrice;
   final int categoryId;
-  final String description;
   final bool? isCombo;
   String? takeAwayPrice;
   final CategoryModel? category;
+  final List<String> categoryName;
+  final List<String> description;
   final List<String> subCategoryIds;   // ✅ Added
   final List<String> childCategoryIds; // ✅ Added
   final List<ChildCategory> childCategory;
@@ -67,6 +68,7 @@ class ComboProductModel {
     this.discountPrice,
     this.disountPercent,
     required this.categoryId,
+    required this.categoryName,
     required this.description,
     this.isCombo,
     this.category,
@@ -80,7 +82,7 @@ class ComboProductModel {
     return ComboProductModel(
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
-      description: json['description'] ?? '',
+     // description: json['description'] ?? '',
       disountPercent: json['discount_percent'] ?? '',
       discountPrice: json['discount_price'] ?? '',
       images: (json['images'] as List<dynamic>?)
@@ -111,6 +113,8 @@ class ComboProductModel {
           (json['child_category_id'] as String).replaceAll('[', '').replaceAll(']', '').replaceAll('"', '').split(',')
       )
           : [],
+      categoryName: json['category_name'] != null ? List<String>.from(json['category_name']) : [],
+      description: json['description'] != null ? List<String>.from(json['description']) : [],
     );
   }
 }
@@ -120,6 +124,7 @@ class ComboProductModel {
 class CartItemModel {
   final int id;
   final String name;
+   String? description;
   final List<String> images;
   final int? categoryId;
   final double price;
@@ -135,6 +140,7 @@ class CartItemModel {
   final int? comboId;
   final int? totalDeliveryTime;
   String? prepareTime;
+ List<String>? categoryName;
 
   CartItemModel({
     required this.id,
@@ -152,7 +158,9 @@ class CartItemModel {
    this.type,
     this.comboId,
     this.totalDeliveryTime,
-    this.prepareTime
+    this.prepareTime,
+    this.categoryName,
+     this.description
 
   });
 
@@ -185,17 +193,17 @@ class CartItemModel {
     };
   }
   // Factory constructor from ComboProductModel
-  factory CartItemModel.fromCombo(ComboProductModel combo, {int quantity = 1}) {
-    return CartItemModel(
-      id: combo.id,
-      name: combo.name,
-      images: combo.images, // Already a list
-      categoryId: combo.categoryId,
-      price: combo.price.toDouble(),
-      quantity: quantity,
-      isCombo: combo.isCombo,
-    );
-  }
+  // factory CartItemModel.fromCombo(ComboProductModel combo, {int quantity = 1}) {
+  //   return CartItemModel(
+  //     id: combo.id,
+  //     name: combo.name,
+  //     images: combo.images, // Already a list
+  //     categoryId: combo.categoryId,
+  //     price: combo.price.toDouble(),
+  //     quantity: quantity,
+  //     isCombo: combo.isCombo,
+  //   );
+  // }
 
   double get totalPrice => price * quantity;
 }

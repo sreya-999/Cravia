@@ -20,4 +20,6 @@ class AppImage{
   static const String logo3='assets/icons/logo3.png';
   static const String logo2='assets/icons/logo5.png';
   static const String cross ='assets/icons/cross.svg';
+  static const String emoji ='assets/icons/emoji.svg';
+
 }

@@ -28,6 +28,9 @@ class AppColor{
   static const Color lightgreeColor=Color(0xFF38C108);
   static const Color pendingBoxColor=Color(0xFFF49600);
   static const Color backgroundColor = Color(0xFFFCFCFE);
+  Color myColor = const Color(0xCC55001A);
+
+
 
 
 
