@@ -304,7 +304,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                     height: MediaQuery.of(context).size.height * 0.6,
                     child: Center(
                         child: Text(
-                      "No products were found",
+                      "No products found",
                       style: AppStyle.textStyleReemKufi.copyWith(
                         fontWeight: FontWeight.w500,
                         color: AppColor.greyColor,
@@ -477,24 +477,56 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                         },
                                       ),
                                     ),
-                                    const SizedBox(height: 10),
+                                    const SizedBox(height: 15),
+                                    // Row(
+                                    //   children: [
+                                    //     // Text(
+                                    //     //   (product.name.isNotEmpty)
+                                    //     //       ? product.name[0].toUpperCase() +
+                                    //     //           product.name
+                                    //     //               .substring(1)
+                                    //     //               .toLowerCase()
+                                    //     //       : '',
+                                    //     //   overflow: TextOverflow.ellipsis,
+                                    //     //   style: AppStyle.textStyleReemKufi
+                                    //     //       .copyWith(
+                                    //     //     color: AppColor.blackColor,
+                                    //     //     fontSize: 17,
+                                    //     //     fontWeight: FontWeight.bold,
+                                    //     //   ),
+                                    //     // ),
+                                    //   ],
+                                    // ),
                                     Row(
                                       children: [
-                                        // Text(
-                                        //   (product.name.isNotEmpty)
-                                        //       ? product.name[0].toUpperCase() +
-                                        //           product.name
-                                        //               .substring(1)
-                                        //               .toLowerCase()
-                                        //       : '',
-                                        //   overflow: TextOverflow.ellipsis,
-                                        //   style: AppStyle.textStyleReemKufi
-                                        //       .copyWith(
-                                        //     color: AppColor.blackColor,
-                                        //     fontSize: 17,
-                                        //     fontWeight: FontWeight.bold,
-                                        //   ),
-                                        // ),
+                                        for (int i = 0;
+                                            i <
+                                                (product.categoryName?.length ??
+                                                    0);
+                                            i++) ...[
+                                          Text(
+                                            product.categoryName![i],
+                                            style: AppStyle.textStyleReemKufi
+                                                .copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 17,
+                                              color: Colors.black,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          if (i <
+                                              product.categoryName!.length -
+                                                  1) // only add "+" between, not after last
+                                            const Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 4),
+                                              child: Icon(
+                                                Icons.add,
+                                                size: 18,
+                                                color: AppColor.blackColor,
+                                              ),
+                                            ),
+                                        ]
                                       ],
                                     ),
                                     Row(
@@ -640,8 +672,8 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
     final double priceSize = isDesktop
         ? 27
         : isTablet
-            ? 17
-            : 17;
+            ? 20
+            : 20;
     final double description = isDesktop
         ? 20
         : isTablet
@@ -679,7 +711,8 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
 
                     return GestureDetector(
                       onVerticalDragUpdate: (details) {
-                        if (details.primaryDelta! > 15) { // drag down with some threshold
+                        if (details.primaryDelta! > 15) {
+                          // drag down with some threshold
                           Navigator.of(context).pop();
                         }
                       },
@@ -774,96 +807,38 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                     height: 10,
                                                   ),
                                                   Padding(
-                                                    padding: const EdgeInsets.all(8.0),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
                                                     child: Padding(
-                                                      padding: const EdgeInsets.only(
-                                                          left: 12.0),
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 12.0),
                                                       child: Column(
                                                         crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
+                                                            CrossAxisAlignment
+                                                                .start,
                                                         mainAxisAlignment:
-                                                        MainAxisAlignment.center,
+                                                            MainAxisAlignment
+                                                                .center,
                                                         children: [
                                                           SizedBox(
                                                             height: 10,
                                                           ),
 
-                                                          /// Product Name
+                                                          const SizedBox(
+                                                              height: 6),
 
-                                                          const SizedBox(height: 6),
-
-                                                          /// Product Price
-                                                          // Row(
-                                                          //   mainAxisAlignment:
-                                                          //   MainAxisAlignment
-                                                          //       .spaceBetween,
-                                                          //   children: [
-                                                          //     if (product.time != null &&
-                                                          //         product.time!
-                                                          //             .trim()
-                                                          //             .isNotEmpty)
-                                                          //       Row(
-                                                          //         children: [
-                                                          //           const Icon(
-                                                          //             Icons
-                                                          //                 .access_time_outlined,
-                                                          //             color: Colors.white70,
-                                                          //           ),
-                                                          //           const SizedBox(
-                                                          //               width: 6),
-                                                          //           Text(
-                                                          //             "Prep time : ",
-                                                          //             style: AppStyle
-                                                          //                 .textStyleReemKufi
-                                                          //                 .copyWith(
-                                                          //               color:
-                                                          //               Colors.white70,
-                                                          //               fontSize: 15,
-                                                          //               fontWeight:
-                                                          //               FontWeight.w500,
-                                                          //             ),
-                                                          //           ),
-                                                          //           Text(
-                                                          //             product.time!
-                                                          //                 .toLowerCase()
-                                                          //                 .contains(
-                                                          //                 "mins")
-                                                          //                 ? product.time!
-                                                          //                 : "${product.time} mins",
-                                                          //             style: AppStyle
-                                                          //                 .textStyleReemKufi
-                                                          //                 .copyWith(
-                                                          //               color:
-                                                          //               Colors.white70,
-                                                          //               fontSize: 15,
-                                                          //             ),
-                                                          //           ),
-                                                          //         ],
-                                                          //       ),
-                                                          //     Text(
-                                                          //       "₹${(product.discountPrice != null && product.discountPrice!.isNotEmpty ? num.tryParse(product.discountPrice!) : product.price.toDouble())?.toStringAsFixed(2) ?? '0.00'}",
-                                                          //       style: AppStyle
-                                                          //           .textStyleReemKufi
-                                                          //           .copyWith(
-                                                          //           color: AppColor
-                                                          //               .backgroundColor,
-                                                          //           fontSize:
-                                                          //           priceSize,
-                                                          //           fontWeight:
-                                                          //           FontWeight
-                                                          //               .bold),
-                                                          //     ),
-                                                          //   ],
-                                                          // ),
                                                         ],
                                                       ),
                                                     ),
                                                   ),
+
                                                   /// Product Name
                                                   Text(
                                                     (product.name != null &&
-                                                            product
-                                                                .name!.isNotEmpty)
+                                                            product.name!
+                                                                .isNotEmpty)
                                                         ? product.name![0]
                                                                 .toUpperCase() +
                                                             product.name!
@@ -873,9 +848,11 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                     style: AppStyle
                                                         .textStyleReemKufi
                                                         .copyWith(
-                                                      color: AppColor.whiteColor,
+                                                      color:
+                                                          AppColor.whiteColor,
                                                       fontSize: priceSize,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
                                                   ),
 
@@ -883,31 +860,52 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
 
                                                   /// Product Price
                                                   Row(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
                                                     children: [
                                                       // Left Side: Prep Time (Shown only if available)
-                                                      if (product.time != null && product.time!.trim().isNotEmpty)
+                                                      if (product.time !=
+                                                              null &&
+                                                          product.time!
+                                                              .trim()
+                                                              .isNotEmpty)
                                                         Row(
                                                           children: [
                                                             const Icon(
-                                                              Icons.access_time_outlined,
-                                                              color: Colors.white70,
+                                                              Icons
+                                                                  .access_time_outlined,
+                                                              color: Colors
+                                                                  .white70,
                                                             ),
-                                                            const SizedBox(width: 6),
+                                                            const SizedBox(
+                                                                width: 6),
                                                             Text(
                                                               "Prep time : ",
-                                                              style: AppStyle.textStyleReemKufi.copyWith(
-                                                                color: Colors.white70,
+                                                              style: AppStyle
+                                                                  .textStyleReemKufi
+                                                                  .copyWith(
+                                                                color: Colors
+                                                                    .white70,
                                                                 fontSize: 15,
-                                                                fontWeight: FontWeight.w500,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
                                                               ),
                                                             ),
                                                             Text(
-                                                              product.time!.toLowerCase().contains("mins")
-                                                                  ? product.time!
+                                                              product.time!
+                                                                      .toLowerCase()
+                                                                      .contains(
+                                                                          "mins")
+                                                                  ? product
+                                                                      .time!
                                                                   : "${product.time} mins",
-                                                              style: AppStyle.textStyleReemKufi.copyWith(
-                                                                color: Colors.white70,
+                                                              style: AppStyle
+                                                                  .textStyleReemKufi
+                                                                  .copyWith(
+                                                                color: Colors
+                                                                    .white70,
                                                                 fontSize: 15,
                                                               ),
                                                             ),
@@ -918,18 +916,19 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
 
                                                       // Right Side: Price
                                                       Text(
-                                                        "₹${(product.discountPrice != null && product.discountPrice!.isNotEmpty
-                                                            ? num.tryParse(product.discountPrice!)
-                                                            : product.price.toDouble())?.toStringAsFixed(2) ?? '0.00'}",
-                                                        style: AppStyle.textStyleReemKufi.copyWith(
-                                                          color: AppColor.backgroundColor,
+                                                        "₹${(product.discountPrice != null && product.discountPrice!.isNotEmpty ? num.tryParse(product.discountPrice!) : product.price.toDouble())?.toStringAsFixed(2) ?? '0.00'}",
+                                                        style: AppStyle
+                                                            .textStyleReemKufi
+                                                            .copyWith(
+                                                          color: AppColor
+                                                              .backgroundColor,
                                                           fontSize: priceSize,
-                                                          fontWeight: FontWeight.bold,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                         ),
                                                       ),
                                                     ],
                                                   )
-
                                                 ],
                                               ),
                                             ),
@@ -966,6 +965,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
 
                               Expanded(
                                 child: Container(
+                                 clipBehavior: Clip.hardEdge,
                                   decoration: const BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.only(
@@ -1011,8 +1011,8 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                 }),
                                                 const SizedBox(width: 12),
                                                 Consumer<CategoryProvider>(
-                                                  builder:
-                                                      (context, provider, child) {
+                                                  builder: (context, provider,
+                                                      child) {
                                                     return Text(
                                                       "${provider.quantity}",
                                                       style: AppStyle
@@ -1037,211 +1037,295 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                         const SizedBox(
                                           height: 25,
                                         ),
-                                      Column(
-                                        children: List.generate(product.images.length, (index) {
-                                          final imageUrl =
-                                              '${ApiEndpoints.imageBaseUrl}${product.images[index]}';
+                                        Column(
+                                          children: List.generate(
+                                              product.images.length, (index) {
+                                            final imageUrl =
+                                                '${ApiEndpoints.imageBaseUrl}${product.images[index]}';
 
-                                          return Padding(
-                                            padding: const EdgeInsets.only(bottom: 12.0),
-                                            child: IntrinsicHeight( // 👈 ensures Row takes full height of card
-                                              child: Row(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  /// Circle + Line
-                                                  Column(
-                                                    children: [
-                                                      // Circle
-                                                      CircleAvatar(
-                                                        radius: 14,
-                                                        backgroundColor: Colors.deepOrange,
-                                                        child: Text(
-                                                          '${index + 1}',
-                                                          style: const TextStyle(
-                                                            color: Colors.white,
-                                                            fontWeight: FontWeight.bold,
-                                                          ),
-                                                        ),
-                                                      ),
-
-                                                      // Vertical Line (only if not last item)
-                                                      if (index < product.images.length - 1)
-                                                        Expanded( // 👈 this makes line auto-match card height
-                                                          child: Container(
-                                                            width: 2,
-                                                            color: Colors.grey.shade200,
-                                                          ),
-                                                        ),
-                                                    ],
-                                                  ),
-
-                                                  const SizedBox(width: 10),
-
-                                                  /// Card
-                                                  Expanded(
-                                                    child: Container(
-                                                      padding: const EdgeInsets.all(12),
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.orange.shade50,
-                                                        borderRadius: BorderRadius.circular(12),
-                                                        boxShadow: [
-                                                          BoxShadow(
-                                                            color: Colors.black.withOpacity(0.1),
-                                                            blurRadius: 6,
-                                                            offset: const Offset(0, 3),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      child: Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: [
-                                                          /// Image
-                                                          ClipRRect(
-                                                            borderRadius: BorderRadius.circular(10),
-                                                            child: Image.network(
-                                                              imageUrl,
-                                                              height: 90,
-                                                              width: 90,
-                                                              fit: BoxFit.fill,
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 12.0),
+                                              child: IntrinsicHeight(
+                                                // 👈 ensures Row takes full height of card
+                                                child: Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    /// Circle + Line
+                                                    Column(
+                                                      children: [
+                                                        // Circle
+                                                        CircleAvatar(
+                                                          radius: 14,
+                                                          backgroundColor:
+                                                              Colors.deepOrange,
+                                                          child: Text(
+                                                            '${index + 1}',
+                                                            style:
+                                                                const TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
                                                             ),
                                                           ),
+                                                        ),
 
-                                                          const SizedBox(height: 8),
-
-                                                          /// Name + Description
-                                                          Padding(
-                                                            padding: const EdgeInsets.only(left: 12.0),
-                                                            child: Column(
-                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                              children: [
-                                                                Text(
-                                                                  product.categoryName[index],
-                                                                  style: AppStyle.textStyleReemKufi.copyWith(
-                                                                    // fontWeight: FontWeight.w400,
-                                                                    color: AppColor.blackColor,
-                                                                    fontSize: 20,
-                                                                    height: 1.0,
-                                                                  ),
-                                                                ),
-                                                                SizedBox(height: 5,),
-                                                                if (product.description.isNotEmpty)
-                                                                  Builder(
-                                                                    builder: (context) {
-                                                                      bool isExpanded = false;
-
-                                                                      return StatefulBuilder(
-                                                                        builder: (context, setState) {
-                                                                          // Convert list to single string
-                                                                          final String descriptionText = product.description.join(' ');
-
-                                                                          return Column(
-                                                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                                                            children: [
-                                                                              Text(
-                                                                                isExpanded || descriptionText.length <= 100
-                                                                                    ? descriptionText
-                                                                                    : '${descriptionText.substring(0, 100)}...',
-                                                                                textAlign: TextAlign.justify,
-                                                                                style: AppStyle.textStyleReemKufi.copyWith(
-                                                                                 // fontWeight: FontWeight.w400,
-                                                                                  color: Colors.grey.shade500,
-                                                                                  fontSize: 14,
-                                                                                  height: 1.0,
-                                                                                ),
-                                                                              ),
-                                                                              const SizedBox(height: 4),
-
-                                                                              if (descriptionText.length > 100)
-                                                                                GestureDetector(
-                                                                                  onTap: () {
-                                                                                    setState(() {
-                                                                                      isExpanded = !isExpanded;
-                                                                                    });
-                                                                                  },
-                                                                                  child: Text(
-                                                                                    isExpanded ? 'See Less' : 'See More',
-                                                                                    style: const TextStyle(
-                                                                                      color: AppColor.primaryColor,
-                                                                                      fontSize: 14,
-                                                                                      fontWeight: FontWeight.bold,
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                            ],
-                                                                          );
-                                                                        },
-                                                                      );
-                                                                    },
-                                                                  ),
-
-
-                                                              ],
+                                                        // Vertical Line (only if not last item)
+                                                        if (index <
+                                                            product.images
+                                                                    .length -
+                                                                1)
+                                                          Expanded(
+                                                            // 👈 this makes line auto-match card height
+                                                            child: Container(
+                                                              width: 2,
+                                                              color: Colors.grey
+                                                                  .shade200,
                                                             ),
                                                           ),
+                                                      ],
+                                                    ),
 
-                                                          const SizedBox(height: 5),
+                                                    const SizedBox(width: 10),
 
-                                                          /// Spicy Label
-                                                          Padding(
-                                                            padding: const EdgeInsets.only(left: 10.0),
-                                                            child: Text(
-                                                              "Spicy",
-                                                              style: AppStyle.textStyleReemKufi.copyWith(
-                                                                fontWeight: FontWeight.w200,
-                                                                fontSize: buttonFontSize,
+                                                    /// Card
+                                                    Expanded(
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(12),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors
+                                                              .orange.shade50,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(12),
+                                                          boxShadow: [
+                                                            BoxShadow(
+                                                              color: Colors
+                                                                  .black
+                                                                  .withOpacity(
+                                                                      0.1),
+                                                              blurRadius: 6,
+                                                              offset:
+                                                                  const Offset(
+                                                                      0, 3),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            /// Image
+                                                            ClipRRect(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10),
+                                                              child:
+                                                                  Image.network(
+                                                                imageUrl,
+                                                                height: 90,
+                                                                width: 90,
+                                                                fit:
+                                                                    BoxFit.fill,
                                                               ),
                                                             ),
-                                                          ),
 
-                                                          /// Heat Level Selector
-                                                          HeatLevelSelector(),
+                                                            const SizedBox(
+                                                                height: 8),
 
-                                                          /// Labels (Mild, Medium, Hot)
-                                                          Padding(
-                                                            padding: const EdgeInsets.only(left: 16.0, right: 18),
-                                                            child: Row(
-                                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                              children: [
-                                                                Text(
-                                                                  "Mild",
-                                                                  style: AppStyle.textStyleReemKufi.copyWith(
-                                                                    fontWeight: FontWeight.w600,
-                                                                    fontSize: description,
-                                                                    color: AppColor.primaryColor,
+                                                            /// Name + Description
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .only(
+                                                                      left:
+                                                                          12.0),
+                                                              child: Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Text(
+                                                                    product.categoryName[
+                                                                        index],
+                                                                    style: AppStyle
+                                                                        .textStyleReemKufi
+                                                                        .copyWith(
+                                                                      // fontWeight: FontWeight.w400,
+                                                                      color: AppColor
+                                                                          .blackColor,
+                                                                      fontSize:
+                                                                          18,
+                                                                      height:
+                                                                          1.0,
+                                                                    ),
                                                                   ),
-                                                                ),
-                                                                Text(
-                                                                  "Medium",
-                                                                  style: AppStyle.textStyleReemKufi.copyWith(
-                                                                    fontWeight: FontWeight.w600,
-                                                                    fontSize: description,
-                                                                    color: AppColor.primaryColor,
+                                                                  const SizedBox(
+                                                                    height: 5,
                                                                   ),
-                                                                ),
-                                                                Text(
-                                                                  "Hot",
-                                                                  style: AppStyle.textStyleReemKufi.copyWith(
-                                                                    fontWeight: FontWeight.w600,
-                                                                    fontSize: description,
-                                                                    color: AppColor.primaryColor,
-                                                                  ),
-                                                                ),
-                                                              ],
+                                                                  if (product
+                                                                      .description
+                                                                      .isNotEmpty)
+                                                                    Builder(
+                                                                      builder:
+                                                                          (context) {
+                                                                        bool
+                                                                            isExpanded =
+                                                                            false;
+
+                                                                        return StatefulBuilder(
+                                                                          builder:
+                                                                              (context, setState) {
+                                                                            // Convert list to single string
+                                                                            final String
+                                                                                descriptionText =
+                                                                                product.description.join(' ');
+
+                                                                            return Column(
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              children: [
+                                                                                Text(
+                                                                                  isExpanded || descriptionText.length <= 100 ? descriptionText : '${descriptionText.substring(0, 100)}...',
+                                                                                  textAlign: TextAlign.justify,
+                                                                                  style: AppStyle.textStyleReemKufi.copyWith(
+                                                                                    // fontWeight: FontWeight.w400,
+                                                                                    color: Colors.grey.shade500,
+                                                                                    fontSize: 14,
+                                                                                    height: 1.0,
+                                                                                  ),
+                                                                                ),
+                                                                                const SizedBox(height: 4),
+                                                                                if (descriptionText.length > 100)
+                                                                                  GestureDetector(
+                                                                                    onTap: () {
+                                                                                      setState(() {
+                                                                                        isExpanded = !isExpanded;
+                                                                                      });
+                                                                                    },
+                                                                                    child: Text(
+                                                                                      isExpanded ? 'See Less' : 'See More',
+                                                                                      style: const TextStyle(
+                                                                                        color: AppColor.primaryColor,
+                                                                                        fontSize: 14,
+                                                                                        fontWeight: FontWeight.bold,
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                              ],
+                                                                            );
+                                                                          },
+                                                                        );
+                                                                      },
+                                                                    ),
+                                                                ],
+                                                              ),
                                                             ),
-                                                          ),
-                                                        ],
+
+                                                            const SizedBox(
+                                                                height: 5),
+
+                                                            /// Spicy Label
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .only(
+                                                                      left:
+                                                                          10.0),
+                                                              child: Text(
+                                                                "Spicy",
+                                                                style: AppStyle
+                                                                    .textStyleReemKufi
+                                                                    .copyWith(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w200,
+                                                                  fontSize:
+                                                                      buttonFontSize,
+                                                                ),
+                                                              ),
+                                                            ),
+
+                                                            /// Heat Level Selector
+                                                            HeatLevelSelector(),
+
+                                                            /// Labels (Mild, Medium, Hot)
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .only(
+                                                                      left:
+                                                                          16.0,
+                                                                      right:
+                                                                          18),
+                                                              child: Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .spaceBetween,
+                                                                children: [
+                                                                  Text(
+                                                                    "Mild",
+                                                                    style: AppStyle
+                                                                        .textStyleReemKufi
+                                                                        .copyWith(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      fontSize:
+                                                                          description,
+                                                                      color: AppColor
+                                                                          .primaryColor,
+                                                                    ),
+                                                                  ),
+                                                                  Text(
+                                                                    "Medium",
+                                                                    style: AppStyle
+                                                                        .textStyleReemKufi
+                                                                        .copyWith(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      fontSize:
+                                                                          description,
+                                                                      color: AppColor
+                                                                          .primaryColor,
+                                                                    ),
+                                                                  ),
+                                                                  Text(
+                                                                    "Hot",
+                                                                    style: AppStyle
+                                                                        .textStyleReemKufi
+                                                                        .copyWith(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      fontSize:
+                                                                          description,
+                                                                      color: AppColor
+                                                                          .primaryColor,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                ],
+                                                  ],
+                                                ),
                                               ),
-                                            ),
-                                          );
-                                        }),
-                                      ),
-
-
-                                      SizedBox(height: screenHeight * 0.02),
+                                            );
+                                          }),
+                                        ),
+                                        SizedBox(height: screenHeight * 0.02),
                                       ],
                                     ),
                                   ),
@@ -1287,10 +1371,14 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                 const LinearGradient(colors: [
                                               AppColor.primaryColor,
                                               AppColor.primaryColor
-                                            ]).createShader(Rect.fromLTWH(0, 0,
-                                                    bounds.width, bounds.height)),
+                                            ]).createShader(Rect.fromLTWH(
+                                                    0,
+                                                    0,
+                                                    bounds.width,
+                                                    bounds.height)),
                                             child: Text('Price',
-                                                style: AppStyle.textStyleReemKufi
+                                                style: AppStyle
+                                                    .textStyleReemKufi
                                                     .copyWith(
                                                   color: Colors.white,
                                                   fontSize: 16,
@@ -1304,21 +1392,24 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                 (context, totalPrice, child) {
                                               return ShaderMask(
                                                 shaderCallback: (bounds) =>
-                                                    const LinearGradient(colors: [
-                                                  AppColor.primaryColor,
-                                                  AppColor.primaryColor
-                                                ]).createShader(Rect.fromLTWH(
-                                                        0,
-                                                        0,
-                                                        bounds.width,
-                                                        bounds.height)),
+                                                    const LinearGradient(
+                                                        colors: [
+                                                      AppColor.primaryColor,
+                                                      AppColor.primaryColor
+                                                    ]).createShader(
+                                                        Rect.fromLTWH(
+                                                            0,
+                                                            0,
+                                                            bounds.width,
+                                                            bounds.height)),
                                                 child: Text(
                                                   '₹${totalPrice.toStringAsFixed(2)}',
                                                   style: AppStyle
                                                       .textStyleReemKufi
                                                       .copyWith(
                                                     color: Colors.white,
-                                                    fontSize: isDesktop ? 17 : 16,
+                                                    fontSize:
+                                                        isDesktop ? 17 : 16,
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
@@ -1336,7 +1427,8 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                         height: 60,
                                         decoration: BoxDecoration(
                                           color: Colors.white,
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
                                         ),
                                         child: ElevatedButton(
                                           onPressed: () {
@@ -1346,12 +1438,14 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                 .read<CategoryProvider>()
                                                 .totalTime;
                                             final cartProvider =
-                                                Provider.of<CartProvider>(context,
+                                                Provider.of<CartProvider>(
+                                                    context,
                                                     listen: false);
                                             final cartItem = CartItemModel(
                                                 id: product.id,
                                                 name: product.name,
-                                                categoryName: product.categoryName,
+                                                categoryName:
+                                                    product.categoryName,
                                                 // name: product.name,
                                                 images: product.images,
                                                 categoryId: product.categoryId,
@@ -1367,16 +1461,19 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                 totalDeliveryTime: totalTime);
                                             cartProvider.addToCart(cartItem);
                                             Navigator.of(context).pop();
-                                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                                            WidgetsBinding.instance
+                                                .addPostFrameCallback((_) {
                                               if (context.mounted) {
-                                                PopupDialog.show(context,product.disountPercent);
+                                                PopupDialog.show(context,
+                                                    product.disountPercent);
                                               }
                                             });
-
                                           },
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: AppColor.whiteColor,
-                                            foregroundColor: AppColor.whiteColor,
+                                            backgroundColor:
+                                                AppColor.whiteColor,
+                                            foregroundColor:
+                                                AppColor.whiteColor,
                                             elevation: 0,
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 28, vertical: 14),
@@ -1394,8 +1491,11 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                               ],
                                               begin: Alignment.topCenter,
                                               end: Alignment.bottomRight,
-                                            ).createShader(Rect.fromLTWH(0, 0,
-                                                    bounds.width, bounds.height)),
+                                            ).createShader(Rect.fromLTWH(
+                                                    0,
+                                                    0,
+                                                    bounds.width,
+                                                    bounds.height)),
                                             child: Text(
                                               'Add To Cart',
                                               style: AppStyle.textStyleReemKufi
@@ -1620,7 +1720,6 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
         ),
         borderRadius: BorderRadius.circular(12),
       ),
-
       child: IconButton(
         padding: EdgeInsets.zero,
         icon: Icon(icon),
@@ -1743,6 +1842,7 @@ class SearchCartRow extends StatelessWidget {
           child: IconButton(
             icon: const Icon(Icons.tune, color: AppColor.whiteColor),
             onPressed: () {
+              _searchFocusNode.unfocus();
               _openSortDialog(context);
             },
           ),
@@ -1981,12 +2081,11 @@ class SearchCartRow extends StatelessWidget {
   //     }
   //   }
   // }
-
-
 }
 
 class PopupDialog {
-  static Future<void> show(BuildContext context,String? discount, {Duration duration = const Duration(seconds: 2)}) async {
+  static Future<void> show(BuildContext context, String? discount,
+      {Duration duration = const Duration(seconds: 2)}) async {
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -2017,13 +2116,14 @@ class PopupDialog {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-             SizedBox(height: 10,),
-              SvgPicture.asset(
-                AppImage.emoji,
-                height: 100,
-              ),
-
-              const SizedBox(height: 20),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  SvgPicture.asset(
+                    AppImage.emoji,
+                    height: 100,
+                  ),
+                  const SizedBox(height: 20),
                   const Text(
                     "Woo hoo!!",
                     style: TextStyle(
@@ -2034,21 +2134,25 @@ class PopupDialog {
                   const SizedBox(height: 10),
                   RichText(
                     textAlign: TextAlign.center,
-                    text:  TextSpan(
+                    text: TextSpan(
                       style: const TextStyle(
                         fontSize: 16,
                         color: Colors.black87,
                       ),
                       children: [
-                        TextSpan(text: "Smart choice! ", style: AppStyle.textStyleReemKufi.copyWith(
-                         // fontWeight: FontWeight.w600,
-                          color: AppColor.greyColor,
-                          fontSize: 16,
-                        ),),
                         TextSpan(
-                          text: "  ${discount}% off applied\n", // add newline before "successfully!"
+                          text: "Smart choice! ",
                           style: AppStyle.textStyleReemKufi.copyWith(
-                           // fontWeight: FontWeight.w600,
+                            // fontWeight: FontWeight.w600,
+                            color: AppColor.greyColor,
+                            fontSize: 16,
+                          ),
+                        ),
+                        TextSpan(
+                          text:
+                              "  ${discount}% off applied\n", // add newline before "successfully!"
+                          style: AppStyle.textStyleReemKufi.copyWith(
+                            // fontWeight: FontWeight.w600,
                             color: AppColor.primaryColor,
                             fontSize: 16,
                           ),
@@ -2056,7 +2160,7 @@ class PopupDialog {
                         TextSpan(
                           text: "successfully!",
                           style: AppStyle.textStyleReemKufi.copyWith(
-                           // fontWeight: FontWeight.w600,
+                            // fontWeight: FontWeight.w600,
                             color: AppColor.greyColor,
                             fontSize: 16,
                           ),
@@ -2064,9 +2168,7 @@ class PopupDialog {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                 ],
               ),
             ),
@@ -2076,6 +2178,3 @@ class PopupDialog {
     );
   }
 }
-
-
-

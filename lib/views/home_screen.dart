@@ -141,6 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (cartProvider.items.isNotEmpty) {
                           final shouldExit = await showExitDialog(context);
                           if (shouldExit) {
+
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
@@ -170,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               actions: [
                 Padding(
-                  padding: const EdgeInsets.only(right: 16),
+                  padding: const EdgeInsets.only(right: 5),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // optional inner padding
                     decoration: BoxDecoration(
@@ -540,6 +541,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: AppColor.whiteColor,
                             ),
                             onPressed: () {
+                              _searchFocusNode.unfocus();
                               _openSortDialog(context);
                               // Filter action here
                             },
@@ -577,12 +579,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                     context: context,
                                     onTap: () {
                                       if (index == 0) {
+                                        _searchFocusNode.unfocus();
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                               builder: (_) => BuyOneGetOne()),
                                         );
                                       } else {
+                                        _searchFocusNode.unfocus();
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -769,7 +773,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               12),
                                                       child: Image.network(
                                                         "${ApiEndpoints.imageBaseUrl}${product.image}", // prepend baseUrl
-                                                        fit: BoxFit.fill,
+                                                        //fit: BoxFit.fill,
                                                         errorBuilder: (context,
                                                                 error,
                                                                 stackTrace) =>
@@ -1435,6 +1439,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               Expanded(
                                 child: Container(
+                                  clipBehavior: Clip.hardEdge,
                                   decoration: const BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.only(
@@ -2545,6 +2550,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
 
+// when click on the ctagoey that item scroingthe list  then set the first  item
 // Widget buildCategoryList({
 //   required List<CategoryModel> categories,
 //

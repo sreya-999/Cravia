@@ -51,9 +51,11 @@ class ViewOrderScreen extends StatelessWidget {
         builder: (context, cartProvider, _) {
           final prefHelper = getIt<SharedPreferenceHelper>();
           final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
-          int estimatedTimeInMinutes = cartProvider.averageEstimatedTime.round();
+          int estimatedTimeInMinutes =
+              cartProvider.averageEstimatedTime.round();
           String formattedTime = formatTime(estimatedTimeInMinutes);
-          final estimatedTime = cartProvider.formatTime(cartProvider.averageEstimatedTime.round());
+          final estimatedTime = cartProvider
+              .formatTime(cartProvider.averageEstimatedTime.round());
           // int estimatedTimeInMinutes = cartProvider.totalEstimatedTime;
           // String formattedTime = formatTime(estimatedTimeInMinutes);
           // final estimatedTime =
@@ -215,7 +217,7 @@ class ViewOrderScreen extends StatelessWidget {
               ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: orderedItems.length,
+                  itemCount: orderedItems.length+1,
                   itemBuilder: (context, index) {
                     final prefHelper = getIt<SharedPreferenceHelper>();
                     final isTakeAway =
@@ -226,7 +228,38 @@ class ViewOrderScreen extends StatelessWidget {
 
                     final double imageSize = screenWidth * 0.18;
                     final containerPadding = screenWidth * 0.03;
-
+                    if (index == orderedItems.length) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const HomeScreen()),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.add,
+                                color: AppColor.primaryColor,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                "Add more items",
+                                style: AppStyle.textStyleReemKufi.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                  color: AppColor.primaryColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
                     final item = orderedItems[index];
                     // final quantity = cartProvider.getQuantity(item.id);
                     final quantity = item.quantity;
@@ -493,7 +526,8 @@ class ViewOrderScreen extends StatelessWidget {
                                                             cartProvider
                                                                 .decrement(
                                                                     item.id),
-                                                        child: _buildQtyButton(context,
+                                                        child: _buildQtyButton(
+                                                            context,
                                                             Icons.remove),
                                                       ),
                                                       SizedBox(
@@ -520,43 +554,13 @@ class ViewOrderScreen extends StatelessWidget {
                                                             cartProvider
                                                                 .increment(
                                                                     item.id),
-                                                        child: _buildQtyButton(context,
-                                                            Icons.add),
+                                                        child: _buildQtyButton(
+                                                            context, Icons.add),
                                                       ),
                                                     ],
                                                   ),
                                                 ],
                                               ),
-
-                                              /// Type (if available)
-                                              // if (item.childCategoryName != null &&
-                                              //     item.childCategoryName!
-                                              //         .isNotEmpty)
-                                              //   Row(
-                                              //     children: [
-                                              //       Text(
-                                              //         "Type : ",
-                                              //         style: AppStyle
-                                              //             .textStyleReemKufi
-                                              //             .copyWith(
-                                              //           fontWeight: FontWeight.w400,
-                                              //           color: AppColor.greyColor,
-                                              //           fontSize: 14,
-                                              //         ),
-                                              //       ),
-                                              //       Text(
-                                              //         item.childCategoryName!,
-                                              //         style: AppStyle
-                                              //             .textStyleReemKufi
-                                              //             .copyWith(
-                                              //           fontWeight: FontWeight.w500,
-                                              //           color: AppColor.blackColor,
-                                              //           fontSize: 14,
-                                              //         ),
-                                              //       ),
-                                              //     ],
-                                              //   ),
-
                                               const SizedBox(height: 14),
 
                                               /// Quantity controls
@@ -599,7 +603,8 @@ class ViewOrderScreen extends StatelessWidget {
                                                 child: Column(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
-                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
                                                   children: [
                                                     /// Product name and delete button
                                                     Row(
@@ -624,7 +629,8 @@ class ViewOrderScreen extends StatelessWidget {
                                                           ),
                                                         ),
                                                         IconButton(
-                                                          icon:SvgPicture.asset(
+                                                          icon:
+                                                              SvgPicture.asset(
                                                             AppImage
                                                                 .cross, // <-- your SVG asset path
                                                             width: 20,
@@ -632,7 +638,6 @@ class ViewOrderScreen extends StatelessWidget {
                                                             color: AppColor
                                                                 .primaryColor, // optional: apply color tint
                                                           ),
-
                                                           constraints:
                                                               const BoxConstraints(
                                                             minWidth: 20,
@@ -740,188 +745,58 @@ class ViewOrderScreen extends StatelessWidget {
                                                         ),
                                                       ],
                                                     ),
-
-                                                    /// Price
-                                                    // Text(
-                                                    //   '₹${(isTakeAway ? (item.price * quantity) // If TakeAway is true
-                                                    //       : (item.childCategoryId == null ? (item.price * quantity) // If TakeAway is false AND childCategory is null
-                                                    //           : ((item.price * quantity) - (item.takeAwayPrice ?? 0.0)) // If TakeAway is false AND childCategory is not null
-                                                    //       )).toStringAsFixed(2)}',
-                                                    //   style: AppStyle
-                                                    //       .textStyleReemKufi
-                                                    //       .copyWith(
-                                                    //     fontWeight:
-                                                    //         FontWeight.w700,
-                                                    //     color:
-                                                    //         AppColor.blackColor,
-                                                    //     fontSize: 16,
-                                                    //     height: 1.0,
-                                                    //   ),
-                                                    // ),
-
-                                                    // Visibility(
-                                                    //   visible: isTakeAway,
-                                                    //   child: Row(
-                                                    //     // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                    //     children: [
-                                                    //       Text(
-                                                    //         "Packing Charge",
-                                                    //         style: AppStyle
-                                                    //             .textStyleReemKufi
-                                                    //             .copyWith(
-                                                    //           fontWeight:
-                                                    //               FontWeight
-                                                    //                   .w500,
-                                                    //           color: AppColor
-                                                    //               .greyColor,
-                                                    //           fontSize: 14,
-                                                    //         ),
-                                                    //       ),
-                                                    //       SizedBox(
-                                                    //         width: 5,
-                                                    //       ),
-                                                    //       Text(
-                                                    //         '₹${(item.takeAwayPrice)?.toStringAsFixed(2) ?? "0.00"}',
-                                                    //         style: AppStyle
-                                                    //             .textStyleReemKufi
-                                                    //             .copyWith(
-                                                    //           fontWeight:
-                                                    //               FontWeight
-                                                    //                   .w700,
-                                                    //           color: AppColor
-                                                    //               .blackColor,
-                                                    //           fontSize: 16,
-                                                    //           height: 1.0,
-                                                    //         ),
-                                                    //       ),
-                                                    //     ],
-                                                    //   ),
-                                                    // ),
-
-                                                    // if (item.prepareTime !=
-                                                    //         null &&
-                                                    //     item.prepareTime!
-                                                    //         .isNotEmpty)
-                                                    //   Row(
-                                                    //     children: [
-                                                    //       Text(
-                                                    //         "Preparation Time : ",
-                                                    //         style: AppStyle
-                                                    //             .textStyleReemKufi
-                                                    //             .copyWith(
-                                                    //           fontWeight:
-                                                    //               FontWeight
-                                                    //                   .w400,
-                                                    //           color: AppColor
-                                                    //               .greyColor,
-                                                    //           fontSize: 14,
-                                                    //         ),
-                                                    //       ),
-                                                    //       Text(
-                                                    //         item.prepareTime
-                                                    //             .toString(),
-                                                    //         style: AppStyle
-                                                    //             .textStyleReemKufi
-                                                    //             .copyWith(
-                                                    //           fontWeight:
-                                                    //               FontWeight
-                                                    //                   .w500,
-                                                    //           color: AppColor
-                                                    //               .blackColor,
-                                                    //           fontSize: 14,
-                                                    //         ),
-                                                    //       ),
-                                                    //     ],
-                                                    //   ),
-
-                                                    /// Type (if available)
-                                                    // if (item.childCategoryName !=
-                                                    //         null &&
-                                                    //     item.childCategoryName!
-                                                    //         .isNotEmpty)
-                                                    //   Row(
-                                                    //     children: [
-                                                    //       Text(item.description.toString()),
-                                                    //       Text(
-                                                    //         "Type : ",
-                                                    //         style: AppStyle
-                                                    //             .textStyleReemKufi
-                                                    //             .copyWith(
-                                                    //           fontWeight:
-                                                    //               FontWeight
-                                                    //                   .w400,
-                                                    //           color: AppColor
-                                                    //               .greyColor,
-                                                    //           fontSize: 14,
-                                                    //         ),
-                                                    //       ),
-                                                    //       Text(
-                                                    //         item.childCategoryName!,
-                                                    //         style: AppStyle
-                                                    //             .textStyleReemKufi
-                                                    //             .copyWith(
-                                                    //           fontWeight:
-                                                    //               FontWeight
-                                                    //                   .w500,
-                                                    //           color: AppColor
-                                                    //               .blackColor,
-                                                    //           fontSize: 14,
-                                                    //         ),
-                                                    //       ),
-                                                    //     ],
-                                                    //   ),
-                                                    if ((item.description != null && item.description!.isNotEmpty) ||
-                                                        (item.childCategoryName != null && item.childCategoryName!.isNotEmpty))
+                                                    /* if ((item.description != null && item.description!.isNotEmpty) ||*/
+                                                    if (item.childCategoryName !=
+                                                            null &&
+                                                        item.childCategoryName!
+                                                            .isNotEmpty)
                                                       Row(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
                                                         children: [
-                                                          // description (takes remaining space)
-                                                          if (item.description != null && item.description!.isNotEmpty)
-                                                            Expanded(
-                                                              child: Text(
-                                                                item.description!,
-                                                                style: AppStyle.textStyleReemKufi.copyWith(
-                                                                  fontWeight: FontWeight.w400,
-                                                                  color: AppColor.blackColor,
-                                                                  fontSize: 14,
-                                                                  height: 1.0,
-                                                                ),
-                                                                overflow: TextOverflow.ellipsis,
-                                                                maxLines: 1,
-                                                              ),
-                                                            ),
+                                                          if (item.childCategoryName !=
+                                                                  null &&
+                                                              item.childCategoryName!
+                                                                  .isNotEmpty) // spacing only when both exist
 
-                                                          if (item.description != null &&
-                                                              item.description!.isNotEmpty &&
-                                                              item.childCategoryName != null &&
-                                                              item.childCategoryName!.isNotEmpty)
-                                                            const SizedBox(width: 10), // spacing only when both exist
-
-                                                          // type value
-                                                          if (item.childCategoryName != null &&
-                                                              item.childCategoryName!.isNotEmpty)
-                                                            Flexible(
-                                                              child: Text(
-                                                                item.childCategoryName!,
-                                                                style: AppStyle.textStyleReemKufi.copyWith(
-                                                                  fontWeight: FontWeight.w700,
-                                                                  color: AppColor.blackColor,
-                                                                  fontSize: 14,
-                                                                  height: 1.0,
+                                                            // type value
+                                                            if (item.childCategoryName !=
+                                                                    null &&
+                                                                item.childCategoryName!
+                                                                    .isNotEmpty)
+                                                              Flexible(
+                                                                child: Text(
+                                                                  item.childCategoryName!,
+                                                                  style: AppStyle
+                                                                      .textStyleReemKufi
+                                                                      .copyWith(
+                                                                    //fontWeight: FontWeight.w700,
+                                                                    color: AppColor
+                                                                        .blackColor,
+                                                                    fontSize:
+                                                                        14,
+                                                                    height: 1.0,
+                                                                  ),
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                  maxLines: 1,
                                                                 ),
-                                                                overflow: TextOverflow.ellipsis,
-                                                                maxLines: 1,
                                                               ),
-                                                            ),
                                                         ],
                                                       ),
-                                                    if ((item.description != null && item.description!.isNotEmpty) ||
-                                                        (item.childCategoryName != null && item.childCategoryName!.isNotEmpty))
-                                                    const SizedBox(
-                                                      height: 5,
-                                                    ),
+                                                    if (item.childCategoryName !=
+                                                            null &&
+                                                        item.childCategoryName!
+                                                            .isNotEmpty)
+                                                      const SizedBox(
+                                                        height: 5,
+                                                      ),
                                                     Row(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
                                                       children: [
                                                         Text(
                                                           '₹${(isTakeAway ? (item.price * quantity) // If TakeAway is true
@@ -933,8 +808,8 @@ class ViewOrderScreen extends StatelessWidget {
                                                               .copyWith(
                                                             fontWeight:
                                                                 FontWeight.w700,
-                                                            color:
-                                                                AppColor.blackColor,
+                                                            color: AppColor
+                                                                .blackColor,
                                                             fontSize: 18,
                                                             height: 1.0,
                                                           ),
@@ -946,39 +821,41 @@ class ViewOrderScreen extends StatelessWidget {
                                                                   cartProvider
                                                                       .decrement(
                                                                           item.id),
-                                                              child:
-                                                                  _buildQtyButton(context,
-                                                                      Icons.remove),
+                                                              child: _buildQtyButton(
+                                                                  context,
+                                                                  Icons.remove),
                                                             ),
-
-                                                        SizedBox(
-                                                            width: constraints
-                                                                    .maxWidth *
-                                                                0.030),
-                                                        Text(
-                                                          '$quantity',
-                                                          style: AppStyle
-                                                              .textStyleReemKufi
-                                                              .copyWith(
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            fontSize: 15,
-                                                            height: 1.0,
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                            width: constraints
-                                                                    .maxWidth *
-                                                                0.030),
-                                                        GestureDetector(
-                                                          onTap: () =>
-                                                              cartProvider
-                                                                  .increment(
-                                                                      item.id),
-                                                          child:
-                                                              _buildQtyButton(context,
-                                                                  Icons.add),
-                                                        ),
+                                                            SizedBox(
+                                                                width: constraints
+                                                                        .maxWidth *
+                                                                    0.030),
+                                                            Text(
+                                                              '$quantity',
+                                                              style: AppStyle
+                                                                  .textStyleReemKufi
+                                                                  .copyWith(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                fontSize: 15,
+                                                                height: 1.0,
+                                                              ),
+                                                            ),
+                                                            SizedBox(
+                                                                width: constraints
+                                                                        .maxWidth *
+                                                                    0.030),
+                                                            GestureDetector(
+                                                              onTap: () =>
+                                                                  cartProvider
+                                                                      .increment(
+                                                                          item.id),
+                                                              child:
+                                                                  _buildQtyButton(
+                                                                      context,
+                                                                      Icons
+                                                                          .add),
+                                                            ),
                                                           ],
                                                         ),
                                                       ],
@@ -1021,42 +898,10 @@ class ViewOrderScreen extends StatelessWidget {
                         ),
                       ),
                     );
-
                   },
                 ),
-              ),
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const HomeScreen()),
-            );
-            // or Navigator.push(context, MaterialPageRoute(builder: (_) => HomeScreen()));
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.add,
-                  color: AppColor.primaryColor,
-                  size: 20,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  "Add more items",
-                  style: AppStyle.textStyleReemKufi.copyWith(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                    color: AppColor.primaryColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),/// in extra add 1 position i want to show the add to more items
 
-        ),
             ]),
     );
   }
@@ -1071,9 +916,10 @@ class ViewOrderScreen extends StatelessWidget {
       return "$minutes mins";
     }
   }
-  Widget _buildQtyButton(BuildContext context,IconData icon) {
+
+  Widget _buildQtyButton(BuildContext context, IconData icon) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         gradient: const LinearGradient(
@@ -1117,7 +963,6 @@ class ViewOrderScreen extends StatelessWidget {
 //       ),
 //     );
 //   }
-
 
   Widget _buildQtyButtons(String svgAsset) {
     return Container(
@@ -1245,28 +1090,24 @@ class ViewOrderScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             errorStyle: const TextStyle(
-                                fontSize: 12,
-                                height: 1.2,
-                                color: Colors.grey),
-                            helperText:
-                            " ", // reserve space for error message
+                                fontSize: 12, height: 1.2, color: Colors.grey),
+                            helperText: " ", // reserve space for error message
                             contentPadding: const EdgeInsets.symmetric(
                               vertical: 14,
                               horizontal: 12,
                             ),
                           ),
-                          autovalidateMode:
-                          AutovalidateMode.onUserInteraction,
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "Please enter your name";
-                            } else if (value.trim().length < 3) {
-                              return "Name must be at least 3 characters";
-                            } else if (!RegExp(r"^[a-zA-Z\s]+$").hasMatch(value)) {
-                              return "Name can only contain letters";
-                            }
-                            return null;
-                          },
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          // validator: (value) {
+                          //   if (value == null || value.trim().isEmpty) {
+                          //     return "Please enter your name";
+                          //   } else if (value.trim().length < 3) {
+                          //     return "Name must be at least 3 characters";
+                          //   } else if (!RegExp(r"^[a-zA-Z\s]+$").hasMatch(value)) {
+                          //     return "Name can only contain letters";
+                          //   }
+                          //   return null;
+                          // },
                         ),
                       ),
                       Row(

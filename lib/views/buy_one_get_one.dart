@@ -285,6 +285,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                       child: IconButton(
                         icon: const Icon(Icons.tune, color: AppColor.whiteColor),
                         onPressed: () {
+                          _searchFocusNode.unfocus();
                           _openSortDialog(context);
                         },
                       ),
@@ -349,7 +350,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                     if (products == null || products.isEmpty) {
                       return  SizedBox(
                         height: MediaQuery.of(context).size.height * 0.6,
-                        child: Center(child: Text("No products were found",style: AppStyle.textStyleReemKufi.copyWith(
+                        child: Center(child: Text("No products found",style: AppStyle.textStyleReemKufi.copyWith(
                           fontWeight: FontWeight.w500,
                           color: AppColor.greyColor,
                           fontSize: 18,
@@ -922,6 +923,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                               // 🟡 BODY (Scrollable)
                               Expanded(
                                 child: Container(
+                                  clipBehavior: Clip.hardEdge,
                                   decoration: const BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.only(
