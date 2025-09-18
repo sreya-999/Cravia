@@ -142,6 +142,24 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void setBasePriceWithTakeAwayS(CartItemModel product) {
+    double base = 0.0;
+
+    // 1️⃣ Always start with the main product price
+    if (product.price != null) {
+      base = product.price!;
+    }
+
+    // 2️⃣ Use only product-level takeAwayPrice (ignore child category)
+    if (product.takeAwayPrice != null) {
+      base += product.takeAwayPrice!;
+    }
+
+    _basePrice = base;
+    notifyListeners();
+  }
+
+
   void setBasePriceWithTakeAwayCombo(ComboProductModel product) {
     double base = 0.0;
 

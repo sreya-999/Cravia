@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../providers/category_provider.dart';
 import '../utlis/share_preference_helper/sharereference_helper.dart';
+import '../utlis/widgets/app_text_style.dart';
 import 'home_screen.dart';
 
 void main() {
@@ -133,16 +134,16 @@ class _SelectionScreenState extends State<SelectionScreen> {
                       ),
 
                       /// Fixed bottom "Powered by M8"
-                      Padding(
-                        padding: EdgeInsets.only(bottom: screenHeight * 0.02),
-                        child: Text(
-                          'Powered by M8',
-                          style: AppStyle.textStyleLobster.copyWith(
-                            fontSize: isDesktop ? 18 : 16,
-                            color: AppColor.whiteColor,
-                          ),
-                        ),
-                      ),
+                      // Padding(
+                      //   padding: EdgeInsets.only(bottom: screenHeight * 0.02),
+                      //   child: Text(
+                      //     'Powered by M8',
+                      //     style: AppStyle.textStyleLobster.copyWith(
+                      //       fontSize: isDesktop ? 18 : 16,
+                      //       color: AppColor.whiteColor,
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -169,7 +170,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
 
     final double width = isWide ? screenWidth * 0.25 : screenWidth * 0.4;
     final double height = isWide ? 150 : 120;
-    final double iconSize = isWide ? 100 : 40;
+    final double iconSize = isWide ? 100 : 52;
     final double fontSize = isWide ? 22 : 16;
 
     return GestureDetector(
@@ -231,11 +232,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
                 const SizedBox(height: 12),
                 Text(
                   label,
-                  style: AppStyle.textStyleReemKufi.copyWith(
-                    color: AppColor.whiteColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSize,
-                  ),
+                  style: AppTextStyles.nunitoBold(fontSize, color: Colors.white),
                   textAlign: TextAlign.center,
                 ),
               ],

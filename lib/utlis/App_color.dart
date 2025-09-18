@@ -27,9 +27,13 @@ class AppColor{
   static const Color notificationText=Color(0xFF171D1B);
   static const Color lighBlueColor=Color(0xFFD5E4F9);
   static const Color lightgreeColor=Color(0xFF38C108);
-  static const Color pendingBoxColor=Color(0xFFF49600);
+  static  Color bgColor = Color(0xFFFFE0B2).withOpacity(0.16);
   static const Color backgroundColor = Color(0xFFFCFCFE);
+  static const Color blue = Color(0xFFFFFFFF);
   Color myColor = const Color(0xCC55001A);
+  //Color myColor = Color(0xFFCC5500);
+ // Color myColor = Color(0xFFFFE0B2);
+
 
 
 

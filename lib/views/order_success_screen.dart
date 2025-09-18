@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:ravathi_store/views/selection_screen.dart';
 import '../providers/cart_provider.dart';
 import '../providers/category_provider.dart';
+import '../providers/dashboard_provider.dart';
 import '../utlis/App_image.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -34,11 +35,10 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
       canPop: false,
       onPopInvoked: (didPop) {
         if (!didPop) {
-
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => SelectionScreen()),
-                (route) => false, // remove all previous routes
+            (route) => false, // remove all previous routes
           );
         }
       },
@@ -51,7 +51,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               decoration: const BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [AppColor.secondary, AppColor.primaryColor],
-                  begin: AlignmentDirectional(0.0, -2.0), // top-center
+                  begin: AlignmentDirectional(0.0, -3.0), // top-center
                   end: AlignmentDirectional(0.0, 1.0), // bottom-center
 
                   stops: [0.0, 1.0], // smooth gradient
@@ -60,11 +60,11 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               ),
               child: Align(
                 alignment: Alignment.bottomLeft,
-                child: Image.asset(
-                  AppImage.burger,
-                  fit: BoxFit.contain,
-                  height: r.hp(25),
-                ),
+                // child: Image.asset(
+                //   AppImage.burger,
+                //   fit: BoxFit.contain,
+                //   height: r.hp(25),
+                // ),
               ),
             ),
 
@@ -76,31 +76,37 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                   vertical: r.hp(2),
                 ),
                 child: Column(
-                  mainAxisAlignment:
-                      MainAxisAlignment.center, // Center vertically
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  // mainAxisAlignment: MainAxisAlignment.center, // Center vertically
+                  // crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SvgPicture.asset(
-                      AppImage.success,
-                      fit: BoxFit.cover,
-                      height: r.hp(10),
-                    ),
-                    SizedBox(height: r.hp(1.5)),
+                    SizedBox(height: r.hp(8)),
 
-                    Text(
-                      "Order Success !",
-                      style: AppStyle.textStyleReemKufi.copyWith(
-                        fontSize: r.sp(5.5, max: 24),
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                    /// Success icon and text in the same row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          AppImage.success,
+                          fit: BoxFit.cover,
+                          height: r.hp(5), // Reduced height for better balance
+                        ),
+                        SizedBox(width: r.wp(3)), // Space between icon and text
+                        Text(
+                          "Order Success!",
+                          style: AppStyle.textStyleReemKufi.copyWith(
+                            fontSize: r.sp(5.5, max: 24),
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
 
                     SizedBox(height: r.hp(5)),
 
                     Image.asset(
                       AppImage.receipt,
-                      height: r.hp(15),
+                      height: r.hp(22),
                       fit: BoxFit.cover,
                     ),
 
@@ -122,23 +128,6 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                         color: Colors.white,
                       ),
                     ),
-                    // if (isDineIn)
-                    //   Consumer<CartProvider>(
-                    //     builder: (context, cartProvider, _) {
-                    //       final selectedTableName = cartProvider.selectedTable ?? 'No Table Selected';
-                    //       return Padding(
-                    //         padding: const EdgeInsets.all(8.0),
-                    //         child: Text(
-                    //           "Selected Table: - $selectedTableName",
-                    //           style: AppStyle.textStyleReemKufi.copyWith(
-                    //             fontSize: r.sp(5, max: 22),
-                    //             fontWeight: FontWeight.bold,
-                    //             color: Colors.white,
-                    //           ),
-                    //         ),
-                    //       );
-                    //     },
-                    //   ),
 
                     SizedBox(height: r.hp(4)),
 
@@ -155,7 +144,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                     SizedBox(height: r.hp(1)),
 
                     Text(
-                      "Note: Please collect your receipt",
+                      "Note: Please collect Your receipt",
                       textAlign: TextAlign.center,
                       style: AppStyle.textStyleReemKufi.copyWith(
                         fontSize: r.sp(3.5, max: 16),
@@ -165,37 +154,42 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                     ),
 
                     SizedBox(height: r.hp(5)),
-
+                    Spacer(),
                     Consumer<CartProvider>(
                       builder: (context, cartProvider, _) {
-                        return SizedBox(
-                          height: 45,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: Size(double.infinity, r.hp(4)),
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.redAccent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 35.0),
+                          child: SizedBox(
+                            height: 45,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: Size(double.infinity, r.hp(4)),
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.redAccent,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
-                            ),
-                            onPressed: () {
-                              cartProvider.clearCart();
-                              cartProvider.clearSelection();
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => SelectionScreen()),
-                                (Route<dynamic> route) =>
-                                    false, // removes all previous routes
-                              );
-                            },
-                            child: Text(
-                              "Back to home",
-                              style: AppStyle.textStyleReemKufi.copyWith(
-                                fontSize: r.sp(4.5, max: 18),
-                                color: AppColor.primaryColor,
-                                fontWeight: FontWeight.w600,
+                              onPressed: () {
+                                final provider = Provider.of<DashboardProvider>(context, listen: false);
+                                provider.clearSort();
+                                cartProvider.clearCart();
+                                cartProvider.clearSelection();
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => SelectionScreen()),
+                                  (Route<dynamic> route) =>
+                                      false, // removes all previous routes
+                                );
+                              },
+                              child: Text(
+                                "Go Home",
+                                style: AppStyle.textStyleReemKufi.copyWith(
+                                  fontSize: r.sp(4.5, max: 18),
+                                  color: AppColor.primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
