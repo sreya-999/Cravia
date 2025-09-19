@@ -851,17 +851,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                               Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Center(
-                                  child: Container(
-                                    margin: const EdgeInsets.symmetric(vertical: 12),
-                                    height: 5,
-                                    width: 50,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[300],
-                                      borderRadius: BorderRadius.circular(2.5),
-                                    ),
-                                  ),
-                                ),
+
                                 Container(
                                   height: screenHeight * 0.29,
                                   width: double.infinity,
@@ -882,7 +872,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                     ),
                                     borderRadius: const BorderRadius.only(
                                       topLeft: Radius.circular(30),
-                                    //  topRight: Radius.circular(30),
+                                      topRight: Radius.circular(30),
                                     ),
 
                                   ),
@@ -1100,7 +1090,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
 //                                             ),
 //                                           ),
                                           Padding(
-                                            padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 8),
+                                            padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 0),
                                             child: LayoutBuilder(
                                               builder: (context, constraints) {
                                                 return StatefulBuilder(
@@ -1484,6 +1474,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                             }),
                                                           ],
                                                         ),
+                                                        SizedBox(height: 25,)
                                                       ],
                                                     ),
                                                   ],
@@ -1725,6 +1716,18 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                 ),
                               ],
                             ),
+                              Align(
+                                alignment: Alignment.topCenter,
+                                child: Container(
+                                  margin: const EdgeInsets.only(top: 20), // spacing from status bar
+                                  height: 5,
+                                  width: 50,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(2.5),
+                                  ),
+                                ),
+                              ),
                               Positioned(
                                 top: -15,
                                 left: 10,

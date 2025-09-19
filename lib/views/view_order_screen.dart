@@ -47,6 +47,7 @@ class ViewOrderScreen extends StatelessWidget {
             : 14;
 
     return Scaffold(
+     // bottom: false,
       backgroundColor: AppColor.whiteColor,
       appBar: const CustomAppBar(
         title: 'Your Cart',
@@ -195,150 +196,151 @@ class ViewOrderScreen extends StatelessWidget {
       //     );
       //   },
       // ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Consumer<CartProvider>(
-          builder: (context, cartProvider, _) {
-            final prefHelper = getIt<SharedPreferenceHelper>();
-            final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
-            int estimatedTimeInMinutes =
-                cartProvider.averageEstimatedTime.round();
-            String formattedTime = formatTime(estimatedTimeInMinutes);
-            final estimatedTime = cartProvider
-                .formatTime(cartProvider.averageEstimatedTime.round());
-            double packingCharge = cartProvider.totalPackingCharge;
-            if (cartProvider.items.isEmpty) {
-              return const SizedBox.shrink(); // empty widget
-            }
+      // bottomNavigationBar: Consumer<CartProvider>(
+      //     builder: (context, cartProvider, _) {
+      //       final prefHelper = getIt<SharedPreferenceHelper>();
+      //       final isTakeAway =
+      //           prefHelper.getBool(StorageKey.isTakeAway) ?? false;
+      //       int estimatedTimeInMinutes =
+      //           cartProvider.averageEstimatedTime.round();
+      //       String formattedTime = formatTime(estimatedTimeInMinutes);
+      //       final estimatedTime = cartProvider
+      //           .formatTime(cartProvider.averageEstimatedTime.round());
+      //       double packingCharge = cartProvider.totalPackingCharge;
+      //       if (cartProvider.items.isEmpty) {
+      //         return const SizedBox.shrink(); // empty widget
+      //       }
+      //
+      //       double total =
+      //           isTakeAway ? cartProvider.subTotal : cartProvider.subTotal;
+      //
+      //       double subTotal = isTakeAway
+      //           ? cartProvider.subTotal - packingCharge
+      //           : cartProvider.subTotal;
+      //
+      //       final double buttonFontSize = isDesktop
+      //           ? 22
+      //           : isTablet
+      //               ? 17
+      //               : 17;
+      //
+      //       return SafeArea(
+      //         bottom: false,
+      //         // ✅ this prevents hiding under nav bar
+      //         child: Container(
+      //           margin: const EdgeInsets.all(12),
+      //           padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      //           decoration: const BoxDecoration(
+      //             gradient: const LinearGradient(
+      //               colors: [AppColor.secondary, AppColor.primaryColor],
+      //               begin: AlignmentDirectional(0.0, -3.0), // top-center
+      //               end: AlignmentDirectional(0.0, 1.0), // bottom-center
+      //
+      //               stops: [0.0, 1.0], // smooth gradient
+      //               tileMode: TileMode.clamp,
+      //             ),
+      //             borderRadius: BorderRadius.only(
+      //               topLeft: Radius.circular(20),
+      //               topRight: Radius.circular(20),
+      //               bottomRight: Radius.circular(20),
+      //               bottomLeft: Radius.circular(20),
+      //             ),
+      //             boxShadow: [
+      //               BoxShadow(
+      //                 color: Colors.black12,
+      //                 blurRadius: 6,
+      //                 offset: Offset(0, -2),
+      //               ),
+      //             ],
+      //           ),
+      //           child: Column(
+      //             mainAxisSize: MainAxisSize.min,
+      //             crossAxisAlignment: CrossAxisAlignment.stretch,
+      //             children: [
+      //               // Price details
+      //               Padding(
+      //                 padding: const EdgeInsets.symmetric(
+      //                     horizontal: 4, vertical: 4),
+      //                 child: Column(
+      //                   children: [
+      //                     _priceRow(
+      //                         "Sub-Total", "₹${subTotal.toStringAsFixed(2)}"),
+      //                     if (isTakeAway)
+      //                       _priceRow("Packing Charge",
+      //                           "₹${packingCharge.toStringAsFixed(2)}"),
+      //                     const Divider(color: Colors.white54),
+      //                     _priceRow(
+      //                       "Tax",
+      //                       "${15}%",
+      //                       isBold: false,
+      //                     ),
+      //                     _priceRow(
+      //                       "Total",
+      //                       "₹${total.toStringAsFixed(2)}",
+      //                       isBold: true,
+      //                     ),
+      //                     const SizedBox(height: 4),
+      //                     Row(
+      //                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //                       children: [
+      //                         Text(
+      //                           isTakeAway
+      //                               ? "Order ready time.."
+      //                               : " Ready to serve in...",
+      //                           style: AppStyle.textStyleReemKufi.copyWith(
+      //                             color: Colors.white60,
+      //                             fontWeight: FontWeight.w100,
+      //                             fontSize: 12,
+      //                           ),
+      //                         ),
+      //                         Text(
+      //                           estimatedTime,
+      //                           style: AppStyle.textStyleReemKufi.copyWith(
+      //                             color: Colors.white60,
+      //                             fontWeight: FontWeight.w100,
+      //                             fontSize: 12,
+      //                           ),
+      //                         ),
+      //                       ],
+      //                     ),
+      //                   ],
+      //                 ),
+      //               ),
+      //               const SizedBox(height: 8),
+      //               // Place Order button
+      //               SizedBox(
+      //                 width: double.infinity, // ✅ force full width
+      //                 child: ElevatedButton(
+      //                   onPressed: () {
+      //                     showLoginSheet(context);
+      //                   },
+      //                   style: ElevatedButton.styleFrom(
+      //                     backgroundColor: Colors.white,
+      //                     shape: RoundedRectangleBorder(
+      //                       borderRadius: BorderRadius.circular(12),
+      //                     ),
+      //                     padding: EdgeInsets.symmetric(
+      //                       horizontal: buttonPaddingH,
+      //                       vertical: buttonPaddingV,
+      //                     ),
+      //                   ),
+      //                   child: Text(
+      //                     'Place Order',
+      //                     style: AppStyle.textStyleReemKufi.copyWith(
+      //                       fontWeight: FontWeight.w600,
+      //                       color: AppColor.primaryColor,
+      //                       fontSize: buttonFontSize,
+      //                     ),
+      //                   ),
+      //                 ),
+      //               ),
+      //             ],
+      //           ),
+      //         ),
+      //       );
+      //     },
+      //   ),
 
-            double total = isTakeAway
-                ? cartProvider.subTotal
-                : cartProvider.subTotal;
-
-            double subTotal = isTakeAway
-                ? cartProvider.subTotal - packingCharge
-                : cartProvider.subTotal;
-
-            final double buttonFontSize = isDesktop
-                ? 22
-                : isTablet
-                    ? 17
-                    : 17;
-
-            return SafeArea(
-              // ✅ this prevents hiding under nav bar
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-                decoration: const BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColor.secondary, AppColor.primaryColor],
-                    begin: AlignmentDirectional(0.0, -3.0), // top-center
-                    end: AlignmentDirectional(0.0, 1.0), // bottom-center
-
-                    stops: [0.0, 1.0], // smooth gradient
-                    tileMode: TileMode.clamp,
-                  ),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                    bottomRight:  Radius.circular(20),
-                    bottomLeft:  Radius.circular(20),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 6,
-                      offset: Offset(0, -2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Price details
-                    Padding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                      child: Column(
-                        children: [
-                          _priceRow(
-                              "Sub-Total", "₹${subTotal.toStringAsFixed(2)}"),
-                          if (isTakeAway)
-                            _priceRow("Packing Charge",
-                                "₹${packingCharge.toStringAsFixed(2)}"),
-                          const Divider(color: Colors.white54),
-                          _priceRow(
-                            "Tax",
-                            "${15}%",
-                            isBold: false,
-                          ),
-                          _priceRow(
-                            "Total",
-                            "₹${total.toStringAsFixed(2)}",
-                            isBold: true,
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-
-                                isTakeAway? "Order ready time..":" Ready to serve in...",
-                                style: AppStyle.textStyleReemKufi.copyWith(
-                                  color: Colors.white60,
-                                  fontWeight: FontWeight.w100,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              Text(
-                                estimatedTime,
-                                style: AppStyle.textStyleReemKufi.copyWith(
-                                  color: Colors.white60,
-                                  fontWeight: FontWeight.w100,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Place Order button
-                    SizedBox(
-                      width: double.infinity, // ✅ force full width
-                      child: ElevatedButton(
-                        onPressed: () {
-                          showLoginSheet(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: buttonPaddingH,
-                            vertical: buttonPaddingV,
-                          ),
-                        ),
-                        child: Text(
-                          'Place Order',
-                          style: AppStyle.textStyleReemKufi.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: AppColor.primaryColor,
-                            fontSize: buttonFontSize,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ),
       body: orderedItems.isEmpty
           ? Center(
               child: Text(
@@ -365,6 +367,9 @@ class ViewOrderScreen extends StatelessWidget {
               ),
               Expanded(
                 child: ListView.builder(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 250,
+                  ),
                   itemCount: orderedItems.length + 1,
                   itemBuilder: (context, index) {
                     final prefHelper = getIt<SharedPreferenceHelper>();
@@ -450,7 +455,7 @@ class ViewOrderScreen extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         if (item.isCombo != null)
-                                          const SizedBox(height: 10),
+                                          const SizedBox(height: 5),
 
                                         /// ========== COMBO ITEM ==========
                                         if (item.isCombo == true) ...[
@@ -462,76 +467,85 @@ class ViewOrderScreen extends StatelessWidget {
                                                       .clamp(40, 100)
                                                       .toDouble();
 
-                                              return Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment
-                                                        .start, // 👈 top alignment
-                                                children: [
-                                                  for (int i = 0;
-                                                      i < item.images.length;
-                                                      i++) ...[
-                                                    // image
-                                                    Container(
-                                                      width: imageSize,
-                                                      height: imageSize,
-                                                      child: Image.network(
-                                                        "${ApiEndpoints.imageBaseUrl}${item.images[i]}",
-                                                        fit: BoxFit.fill,
-                                                        errorBuilder: (context,
-                                                            error, stackTrace) {
-                                                          return const Icon(
-                                                            Icons.broken_image,
-                                                            size: 40,
-                                                            color: Colors.grey,
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
-
-                                                    // add icon centered to image height
-                                                    if (i <
-                                                        item.images.length - 1)
-                                                      SizedBox(
-                                                        height:
-                                                            imageSize, // match image height
-                                                        child: const Center(
-                                                          child: Padding(
-                                                            padding: EdgeInsets
-                                                                .symmetric(
-                                                                    horizontal:
-                                                                        5),
-                                                            child: Icon(
-                                                              Icons.add,
-                                                              size: 28,
-                                                              color: AppColor
-                                                                  .primaryColor,
-                                                            ),
+                                              return Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 12.0),
+                                                child: Stack(children: [
+                                                  Row(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start, // 👈 top alignment
+                                                    children: [
+                                                      for (int i = 0;
+                                                          i <
+                                                              item.images
+                                                                  .length;
+                                                          i++) ...[
+                                                        // image
+                                                        Container(
+                                                          width: imageSize,
+                                                          height: imageSize,
+                                                          child: Image.network(
+                                                            "${ApiEndpoints.imageBaseUrl}${item.images[i]}",
+                                                            // fit: BoxFit.fill,
+                                                            errorBuilder:
+                                                                (context, error,
+                                                                    stackTrace) {
+                                                              return const Icon(
+                                                                Icons
+                                                                    .broken_image,
+                                                                size: 40,
+                                                                color:
+                                                                    Colors.grey,
+                                                              );
+                                                            },
                                                           ),
                                                         ),
-                                                      ),
-                                                  ],
 
-                                                  const Spacer(),
+                                                        // add icon centered to image height
+                                                        if (i <
+                                                            item.images.length -
+                                                                1)
+                                                          SizedBox(
+                                                            height:
+                                                                imageSize, // match image height
+                                                            child: const Center(
+                                                              child: Padding(
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                        horizontal:
+                                                                            5),
+                                                                child: Icon(
+                                                                  Icons.add,
+                                                                  size: 28,
+                                                                  color: AppColor
+                                                                      .primaryColor,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                      ],
 
-                                                  // clear button aligned at top
-                                                  Align(
-                                                    alignment:
-                                                        Alignment.topCenter,
+                                                      const Spacer(),
+
+                                                    ],
+                                                  ),
+                                                  Positioned(
+                                                    top: -14,
+                                                    right: -9,
                                                     child: IconButton(
                                                       icon: SvgPicture.asset(
-                                                        AppImage
-                                                            .cross, // <-- your SVG asset path
+                                                        AppImage.cross,
                                                         width: 20,
                                                         height: 20,
                                                         color: AppColor
-                                                            .primaryColor, // optional: apply color tint
+                                                            .primaryColor,
                                                       ),
                                                       padding: EdgeInsets.zero,
                                                       constraints:
                                                           const BoxConstraints(
-                                                        minWidth: 20,
-                                                        minHeight: 20,
-                                                      ),
+                                                              minWidth: 30,
+                                                              minHeight: 30),
                                                       onPressed: () async {
                                                         final confirm =
                                                             await showDialog<
@@ -631,7 +645,7 @@ class ViewOrderScreen extends StatelessWidget {
                                                       },
                                                     ),
                                                   ),
-                                                ],
+                                                ]),
                                               );
                                             },
                                           ),
@@ -639,484 +653,419 @@ class ViewOrderScreen extends StatelessWidget {
                                           const SizedBox(height: 5),
 
                                           /// Product details below combo images
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              /// Product name and delete button
-                                              Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      (item.name != null &&
-                                                              item.name!
-                                                                  .isNotEmpty)
-                                                          ? item.name![0]
-                                                                  .toUpperCase() +
-                                                              item.name!
-                                                                  .substring(1)
-                                                                  .toLowerCase()
-                                                          : '',
-                                                      //item.name,
-                                                      style: AppStyle
-                                                          .textStyleReemKufi
-                                                          .copyWith(
-                                                        fontWeight:
-                                                            FontWeight.w900,
-                                                        color:
-                                                            AppColor.blackColor,
-                                                        fontSize: 20,
-                                                        height: 1.0,
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 12.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                /// Product name and delete button
+                                                Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Text(
+                                                        (item.name != null &&
+                                                                item.name!
+                                                                    .isNotEmpty)
+                                                            ? item.name![0]
+                                                                    .toUpperCase() +
+                                                                item.name!
+                                                                    .substring(
+                                                                        1)
+                                                                    .toLowerCase()
+                                                            : '',
+                                                        //item.name,
+                                                        style: AppTextStyles.nunitoBold(19, color:  AppColor.blackColor),
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
                                                       ),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(
-                                                height: 10,
-                                              ),
-                                              Row(
-                                                children: [
-                                                  for (int i = 0;
-                                                      i <
-                                                          (item.categoryName
-                                                                  ?.length ??
-                                                              0);
-                                                      i++) ...[
-                                                    Text(
-                                                      item.categoryName![i],
-                                                      style: AppStyle
-                                                          .textStyleReemKufi
-                                                          .copyWith(
-                                                        // fontWeight: FontWeight.w500,
-                                                        color:
-                                                            AppColor.blackColor,
-                                                        fontSize: 15,
-                                                        height: 1.0,
-                                                      ),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                    if (i <
-                                                        item.categoryName!
-                                                                .length -
-                                                            1) // only add "+" between, not after last
-                                                      const Padding(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                                horizontal: 4),
-                                                        child: Icon(
-                                                          Icons.add,
-                                                          size: 18,
-                                                          color: AppColor
-                                                              .blackColor,
-                                                        ),
-                                                      ),
-                                                  ]
-                                                ],
-                                              ),
-                                              const SizedBox(
-                                                height: 10,
-                                              ),
-
-                                              /// Price
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Text(
-                                                    '₹${(item.price * quantity).toStringAsFixed(2)}',
-                                                    style: AppStyle
-                                                        .textStyleReemKufi
-                                                        .copyWith(
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color:
-                                                          AppColor.blackColor,
-                                                      fontSize: 18,
-                                                      height: 1.0,
-                                                    ),
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                      GestureDetector(
-                                                        onTap: () =>
-                                                            cartProvider
-                                                                .decrement(
-                                                                    item.id),
-                                                        child: _buildQtyButton(
-                                                            context,
-                                                            Icons.remove),
-                                                      ),
-                                                      SizedBox(
-                                                          width: constraints
-                                                                  .maxWidth *
-                                                              0.030),
+                                                  ],
+                                                ),
+                                                const SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    for (int i = 0;
+                                                        i <
+                                                            (item.categoryName
+                                                                    ?.length ??
+                                                                0);
+                                                        i++) ...[
                                                       Text(
-                                                        '$quantity',
-                                                        style: AppStyle
-                                                            .textStyleReemKufi
-                                                            .copyWith(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontSize: 15,
-                                                          height: 1.0,
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                          width: constraints
-                                                                  .maxWidth *
-                                                              0.030),
-                                                      GestureDetector(
-                                                        onTap: () =>
-                                                            cartProvider
-                                                                .increment(
-                                                                    item.id),
-                                                        child: _buildQtyButton(
-                                                            context, Icons.add),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 14),
+                                                        item.categoryName![i],
+                                                        style: AppTextStyles.latoRegular(15, color:  AppColor.blackColor),
 
-                                              /// Quantity controls
-                                            ],
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                      if (i <
+                                                          item.categoryName!
+                                                                  .length -
+                                                              1) // only add "+" between, not after last
+                                                        const Padding(
+                                                          padding: EdgeInsets
+                                                              .symmetric(
+                                                                  horizontal:
+                                                                      4),
+                                                          child: Icon(
+                                                            Icons.add,
+                                                            size: 18,
+                                                            color: AppColor
+                                                                .blackColor,
+                                                          ),
+                                                        ),
+                                                    ]
+                                                  ],
+                                                ),
+                                                const SizedBox(
+                                                  height: 10,
+                                                ),
+
+                                                /// Price
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      '₹${(item.price * quantity).toStringAsFixed(2)}',
+                                                      style: AppTextStyles.nunitoBold(19, color:  AppColor.blackColor),
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        GestureDetector(
+                                                          onTap: () =>
+                                                              cartProvider
+                                                                  .decrement(
+                                                                      item.id),
+                                                          child:
+                                                              _buildQtyButton(
+                                                                  context,
+                                                                  Icons.remove),
+                                                        ),
+                                                        SizedBox(
+                                                            width: constraints
+                                                                    .maxWidth *
+                                                                0.030),
+                                                        Text(
+                                                          '$quantity',
+                                                          style: AppTextStyles.latoBold(15, color:  AppColor.blackColor),
+
+                                                        ),
+                                                        SizedBox(
+                                                            width: constraints
+                                                                    .maxWidth *
+                                                                0.030),
+                                                        GestureDetector(
+                                                          onTap: () =>
+                                                              cartProvider
+                                                                  .increment(
+                                                                      item.id),
+                                                          child:
+                                                              _buildQtyButton(
+                                                                  context,
+                                                                  Icons.add),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height: 4,
+                                                )
+
+                                                /// Quantity controls
+                                              ],
+                                            ),
                                           ),
                                         ],
 
                                         /// ========== NON-COMBO ITEM ==========
                                         if (item.isCombo != true) ...[
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              /// Single Product Image
-                                              GestureDetector(
-                                                onTap: () {
-                                                  // showBurgerDialog(
-                                                  //     context, item);
-                                                },
-                                                child: Container(
-                                                  width: (constraints.maxWidth *
-                                                          0.25)
-                                                      .clamp(60, 80),
-                                                  height:
-                                                      (constraints.maxWidth *
-                                                              0.25)
-                                                          .clamp(60, 80),
-                                                  child: Image.network(
-                                                    "${ApiEndpoints.imageBaseUrl}${item.images.isNotEmpty ? item.images.first : ''}",
-                                                    fit: BoxFit.fill,
-                                                    errorBuilder: (context,
-                                                        error, stackTrace) {
-                                                      return const Icon(
-                                                        Icons.broken_image,
-                                                        size: 50,
-                                                        color: Colors.grey,
-                                                      );
-                                                    },
-                                                  ),
-                                                ),
-                                              ),
+                                          Stack(children: [
+                                            Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                /// Single Product Image
+                                                LayoutBuilder(
+                                                  builder:
+                                                      (context, constraints) {
+                                                    final imageSize =
+                                                        (constraints.maxWidth *
+                                                                0.20)
+                                                            .clamp(40, 100)
+                                                            .toDouble();
 
-                                              const SizedBox(width: 12),
-
-                                              /// Product Details
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    /// Product name and delete button
-                                                    Row(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .end,
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        /// Product Name
-                                                        Expanded(
-                                                          child: Text(
-                                                            item.name,
-                                                            style: AppStyle
-                                                                .textStyleReemKufi
-                                                                .copyWith(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w800,
-                                                              color: AppColor
-                                                                  .blackColor,
-                                                              fontSize: 20,
-                                                              height: 1.0,
-                                                            ),
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            maxLines: 1,
-                                                          ),
-                                                        ),
-
-                                                        /// Delete Icon
-                                                        Align(
-                                                          alignment: Alignment
-                                                              .bottomLeft,
-                                                          child: IconButton(
-                                                            icon: SvgPicture
-                                                                .asset(
-                                                              AppImage
-                                                                  .cross, // <-- your SVG asset path
-                                                              width: 20,
-                                                              height: 20,
-                                                              color: AppColor
-                                                                  .primaryColor,
-                                                            ),
-                                                            padding: EdgeInsets
-                                                                .zero, // Prevent extra padding
-                                                            constraints:
-                                                                const BoxConstraints(
-                                                              minWidth: 30,
-                                                              minHeight: 30,
-                                                            ),
-                                                            onPressed:
-                                                                () async {
-                                                              final confirm =
-                                                                  await showDialog<
-                                                                      bool>(
-                                                                context:
-                                                                    context,
-                                                                builder:
-                                                                    (BuildContext
-                                                                        context) {
-                                                                  return AlertDialog(
-                                                                    title: Text(
-                                                                      "Confirm Delete",
-                                                                      style: AppStyle
-                                                                          .textStyleReemKufi
-                                                                          .copyWith(
-                                                                        fontWeight:
-                                                                            FontWeight.w500,
-                                                                        color: AppColor
-                                                                            .primaryColor,
-                                                                        fontSize:
-                                                                            18,
-                                                                        height:
-                                                                            1.0,
-                                                                      ),
-                                                                    ),
-                                                                    content:
-                                                                        Text(
-                                                                      "Are you sure you want to delete this item?",
-                                                                      style: AppStyle
-                                                                          .textStyleReemKufi
-                                                                          .copyWith(
-                                                                        fontWeight:
-                                                                            FontWeight.w300,
-                                                                        color: AppColor
-                                                                            .blackColor,
-                                                                        fontSize:
-                                                                            18,
-                                                                        height:
-                                                                            1.0,
-                                                                      ),
-                                                                    ),
-                                                                    actions: [
-                                                                      TextButton(
-                                                                        onPressed:
-                                                                            () =>
-                                                                                Navigator.of(context).pop(false),
-                                                                        child:
-                                                                            Text(
-                                                                          "Cancel",
-                                                                          style: AppStyle
-                                                                              .textStyleReemKufi
-                                                                              .copyWith(
-                                                                            fontWeight:
-                                                                                FontWeight.w300,
-                                                                            color:
-                                                                                AppColor.blackColor,
-                                                                            fontSize:
-                                                                                14,
-                                                                            height:
-                                                                                1.0,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                      TextButton(
-                                                                        onPressed:
-                                                                            () =>
-                                                                                Navigator.of(context).pop(true),
-                                                                        child:
-                                                                            Text(
-                                                                          "Delete",
-                                                                          style: AppStyle
-                                                                              .textStyleReemKufi
-                                                                              .copyWith(
-                                                                            fontWeight:
-                                                                                FontWeight.w300,
-                                                                            color:
-                                                                                AppColor.primaryColor,
-                                                                            fontSize:
-                                                                                14,
-                                                                            height:
-                                                                                1.0,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  );
-                                                                },
+                                                    return GestureDetector(
+                                                      onTap: () {
+                                                        // showBurgerDialog(context, item);
+                                                      },
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(
+                                                                left: 2.0),
+                                                        child: Container(
+                                                          width: imageSize,
+                                                          height: imageSize,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              12), // optional rounded edges
+                                                                  color: Colors
+                                                                      .transparent // background if image fails
+                                                                  ),
+                                                          clipBehavior:
+                                                              Clip.antiAlias,
+                                                          child: Image.network(
+                                                            "${ApiEndpoints.imageBaseUrl}${item.images.isNotEmpty ? item.images.first : ''}",
+                                                            errorBuilder:
+                                                                (context, error,
+                                                                    stackTrace) {
+                                                              return const Icon(
+                                                                Icons
+                                                                    .broken_image,
+                                                                size: 40,
+                                                                color:
+                                                                    Colors.grey,
                                                               );
-
-                                                              if (confirm ==
-                                                                  true) {
-                                                                cartProvider
-                                                                    .removeItem(
-                                                                  item.id,
-                                                                  childCategoryId:
-                                                                      item.childCategoryId,
-                                                                );
-                                                              }
                                                             },
                                                           ),
                                                         ),
-                                                      ],
-                                                    ),
-                                                    const SizedBox(
-                                                      height: 5,
-                                                    ),
-                                                    /* if ((item.description != null && item.description!.isNotEmpty) ||*/
-                                                    if (item.childCategoryName !=
-                                                            null &&
-                                                        item.childCategoryName!
-                                                            .isNotEmpty)
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+
+                                                const SizedBox(width: 12),
+
+                                                /// Product Details
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      /// Product name and delete button
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          /// Product Name
+                                                          Expanded(
+                                                            child: Text(
+                                                              item.name,
+                                                              style: AppTextStyles.nunitoBold(19, color:  AppColor.blackColor),
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              maxLines: 1,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 5,
+                                                      ),
+
                                                       Row(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
                                                                 .start,
                                                         children: [
-                                                          if (item.childCategoryName !=
-                                                                  null &&
-                                                              item.childCategoryName!
-                                                                  .isNotEmpty) // spacing only when both exist
-
-                                                            // type value
-                                                            if (item.childCategoryName !=
-                                                                    null &&
-                                                                item.childCategoryName!
-                                                                    .isNotEmpty)
-                                                              Flexible(
-                                                                child: Text(
-                                                                  item.childCategoryName!,
-                                                                  style: AppStyle
-                                                                      .textStyleReemKufi
-                                                                      .copyWith(
-                                                                    //fontWeight: FontWeight.w700,
-                                                                    color: AppColor
-                                                                        .blackColor,
-                                                                    fontSize:
-                                                                        14,
-                                                                    height: 1.0,
-                                                                  ),
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                  maxLines: 1,
-                                                                ),
-                                                              ),
+                                                          Flexible(
+                                                            child: Text(
+                                                              item.childCategoryName ??
+                                                                  '',
+                                                              style: AppTextStyles.latoRegular(15, color:  AppColor.blackColor),
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              maxLines: 1,
+                                                            ),
+                                                          ),
                                                         ],
                                                       ),
-                                                    // if (item.childCategoryName !=
-                                                    //         null &&
-                                                    //     item.childCategoryName!
-                                                    //         .isNotEmpty)
-                                                    const SizedBox(
-                                                      height: 5,
-                                                    ),
+                                                      // if (item.childCategoryName !=
+                                                      //         null &&
+                                                      //     item.childCategoryName!
+                                                      //         .isNotEmpty)
+                                                      const SizedBox(
+                                                        height: 5,
+                                                      ),
 
-                                                    Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Text(
-                                                          '₹${(isTakeAway ? (item.price * quantity) // If TakeAway is true
-                                                              : (item.childCategoryId == null ? (item.price * quantity) // If TakeAway is false AND childCategory is null
-                                                                  : ((item.price * quantity) - (item.takeAwayPrice ?? 0.0)) // If TakeAway is false AND childCategory is not null
-                                                              )).toStringAsFixed(2)}',
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          Text(
+                                                            '₹${(isTakeAway ? (item.price * quantity) // If TakeAway is true
+                                                                : (item.childCategoryId == null ? (item.price * quantity) // If TakeAway is false AND childCategory is null
+                                                                    : ((item.price * quantity) - (item.takeAwayPrice ?? 0.0)) // If TakeAway is false AND childCategory is not null
+                                                                )).toStringAsFixed(2)}',
+                                                            style: AppTextStyles.nunitoBold(19, color:  AppColor.blackColor),
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              GestureDetector(
+                                                                onTap: () =>
+                                                                    cartProvider
+                                                                        .decrement(
+                                                                            item.id),
+                                                                child: _buildQtyButton(
+                                                                    context,
+                                                                    Icons
+                                                                        .remove),
+                                                              ),
+                                                              SizedBox(
+                                                                  width: constraints
+                                                                          .maxWidth *
+                                                                      0.030),
+                                                              Text(
+                                                                '$quantity',
+                                                                style: AppTextStyles.latoBold(15, color:  AppColor.blackColor),
+
+                                                              ),
+                                                              SizedBox(
+                                                                  width: constraints
+                                                                          .maxWidth *
+                                                                      0.030),
+                                                              GestureDetector(
+                                                                onTap: () =>
+                                                                    cartProvider
+                                                                        .increment(
+                                                                            item.id),
+                                                                child:
+                                                                    _buildQtyButton(
+                                                                        context,
+                                                                        Icons
+                                                                            .add),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Positioned(
+                                              top: -14,
+                                              right: -9,
+                                              child: IconButton(
+                                                icon: SvgPicture.asset(
+                                                  AppImage.cross,
+                                                  width: 20,
+                                                  height: 20,
+                                                  color: AppColor.primaryColor,
+                                                ),
+                                                padding: EdgeInsets.zero,
+                                                constraints:
+                                                    const BoxConstraints(
+                                                        minWidth: 30,
+                                                        minHeight: 30),
+                                                onPressed: () async {
+                                                  final confirm =
+                                                      await showDialog<bool>(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return AlertDialog(
+                                                        title: Text(
+                                                          "Confirm Delete",
                                                           style: AppStyle
                                                               .textStyleReemKufi
                                                               .copyWith(
                                                             fontWeight:
-                                                                FontWeight.w700,
+                                                                FontWeight.w500,
+                                                            color: AppColor
+                                                                .primaryColor,
+                                                            fontSize: 18,
+                                                            height: 1.0,
+                                                          ),
+                                                        ),
+                                                        content: Text(
+                                                          "Are you sure you want to delete this item?",
+                                                          style: AppStyle
+                                                              .textStyleReemKufi
+                                                              .copyWith(
+                                                            fontWeight:
+                                                                FontWeight.w300,
                                                             color: AppColor
                                                                 .blackColor,
                                                             fontSize: 18,
                                                             height: 1.0,
                                                           ),
                                                         ),
-                                                        Row(
-                                                          children: [
-                                                            GestureDetector(
-                                                              onTap: () =>
-                                                                  cartProvider
-                                                                      .decrement(
-                                                                          item.id),
-                                                              child: _buildQtyButton(
-                                                                  context,
-                                                                  Icons.remove),
-                                                            ),
-                                                            SizedBox(
-                                                                width: constraints
-                                                                        .maxWidth *
-                                                                    0.030),
-                                                            Text(
-                                                              '$quantity',
+                                                        actions: [
+                                                          TextButton(
+                                                            onPressed: () =>
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop(false),
+                                                            child: Text(
+                                                              "Cancel",
                                                               style: AppStyle
                                                                   .textStyleReemKufi
                                                                   .copyWith(
                                                                 fontWeight:
                                                                     FontWeight
-                                                                        .w600,
-                                                                fontSize: 15,
+                                                                        .w300,
+                                                                color: AppColor
+                                                                    .blackColor,
+                                                                fontSize: 14,
                                                                 height: 1.0,
                                                               ),
                                                             ),
-                                                            SizedBox(
-                                                                width: constraints
-                                                                        .maxWidth *
-                                                                    0.030),
-                                                            GestureDetector(
-                                                              onTap: () =>
-                                                                  cartProvider
-                                                                      .increment(
-                                                                          item.id),
-                                                              child:
-                                                                  _buildQtyButton(
-                                                                      context,
-                                                                      Icons
-                                                                          .add),
+                                                          ),
+                                                          TextButton(
+                                                            onPressed: () =>
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop(true),
+                                                            child: Text(
+                                                              "Delete",
+                                                              style: AppStyle
+                                                                  .textStyleReemKufi
+                                                                  .copyWith(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w300,
+                                                                color: AppColor
+                                                                    .primaryColor,
+                                                                fontSize: 14,
+                                                                height: 1.0,
+                                                              ),
                                                             ),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
+                                                          ),
+                                                        ],
+                                                      );
+                                                    },
+                                                  );
 
-                                        const SizedBox(height: 10),
+                                                  if (confirm == true) {
+                                                    cartProvider.removeItem(
+                                                      item.id,
+                                                      childCategoryId:
+                                                          item.childCategoryId,
+                                                    );
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          ]),
+                                        ],
                                       ],
                                     );
                                   },
@@ -1153,117 +1102,117 @@ class ViewOrderScreen extends StatelessWidget {
 
               /// in extra add 1 position i want to show the add to more items
             ]),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      // floatingActionButton: Consumer<CartProvider>(
-      //   builder: (context, cartProvider, _) {
-      //     final prefHelper = getIt<SharedPreferenceHelper>();
-      //     final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
-      //
-      //     if (cartProvider.items.isEmpty) return const SizedBox.shrink();
-      //
-      //     int estimatedTimeInMinutes =
-      //         cartProvider.averageEstimatedTime.round();
-      //     String estimatedTime = formatTime(estimatedTimeInMinutes);
-      //     double packingCharge = cartProvider.totalPackingCharge;
-      //
-      //     double total = cartProvider.subTotal;
-      //     double subTotal = isTakeAway
-      //         ? cartProvider.subTotal - packingCharge
-      //         : cartProvider.subTotal;
-      //
-      //     final double buttonFontSize = isDesktop
-      //         ? 22
-      //         : isTablet
-      //             ? 17
-      //             : 17;
-      //
-      //     return SafeArea(
-      //       child: Container(
-      //         margin: const EdgeInsets.symmetric(horizontal: 16),
-      //         padding: const EdgeInsets.all(16),
-      //         decoration: BoxDecoration(
-      //           gradient: LinearGradient(
-      //             colors: [AppColor.secondary, AppColor.primaryColor],
-      //             begin: AlignmentDirectional(0.0, -2.0),
-      //             end: AlignmentDirectional(0.0, 1.0),
-      //             stops: [0.0, 1.0],
-      //             tileMode: TileMode.clamp,
-      //           ),
-      //           borderRadius: BorderRadius.circular(20),
-      //           boxShadow: const [
-      //             BoxShadow(
-      //               color: Colors.black12,
-      //               blurRadius: 6,
-      //               offset: Offset(0, 2),
-      //             ),
-      //           ],
-      //         ),
-      //         child: Column(
-      //           mainAxisSize: MainAxisSize.min,
-      //           crossAxisAlignment: CrossAxisAlignment.stretch,
-      //           children: [
-      //             // Price details
-      //             _priceRow("Sub-Total", "₹${subTotal.toStringAsFixed(2)}"),
-      //             if (isTakeAway)
-      //               _priceRow("Packing Charge",
-      //                   "₹${packingCharge.toStringAsFixed(2)}"),
-      //             const Divider(color: Colors.white54),
-      //             _priceRow("Tax", "15%", isBold: false),
-      //             _priceRow("Total", "₹${total.toStringAsFixed(2)}",
-      //                 isBold: true),
-      //             const SizedBox(height: 4),
-      //             Row(
-      //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //               children: [
-      //                 Text(
-      //                   isTakeAway
-      //                       ? "Order ready time.."
-      //                       : "Ready to serve in...",
-      //                   style: AppStyle.textStyleReemKufi.copyWith(
-      //                     color: Colors.white60,
-      //                     fontWeight: FontWeight.w100,
-      //                     fontSize: 12,
-      //                   ),
-      //                 ),
-      //                 Text(
-      //                   estimatedTime,
-      //                   style: AppStyle.textStyleReemKufi.copyWith(
-      //                     color: Colors.white60,
-      //                     fontWeight: FontWeight.w100,
-      //                     fontSize: 12,
-      //                   ),
-      //                 ),
-      //               ],
-      //             ),
-      //             const SizedBox(height: 8),
-      //             // Place Order button
-      //             ElevatedButton(
-      //               onPressed: () {
-      //                 showLoginSheet(context);
-      //               },
-      //               style: ElevatedButton.styleFrom(
-      //                 backgroundColor: Colors.white,
-      //                 shape: RoundedRectangleBorder(
-      //                   borderRadius: BorderRadius.circular(12),
-      //                 ),
-      //                 padding:
-      //                     EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      //               ),
-      //               child: Text(
-      //                 'Place Order',
-      //                 style: AppStyle.textStyleReemKufi.copyWith(
-      //                   fontWeight: FontWeight.w600,
-      //                   color: AppColor.primaryColor,
-      //                   fontSize: buttonFontSize,
-      //                 ),
-      //               ),
-      //             ),
-      //           ],
-      //         ),
-      //       ),
-      //     );
-      //   },
-      // ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Consumer<CartProvider>(
+        builder: (context, cartProvider, _) {
+          final prefHelper = getIt<SharedPreferenceHelper>();
+          final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
+
+          if (cartProvider.items.isEmpty) return const SizedBox.shrink();
+
+          int estimatedTimeInMinutes =
+              cartProvider.averageEstimatedTime.round();
+          String estimatedTime = formatTime(estimatedTimeInMinutes);
+          double packingCharge = cartProvider.totalPackingCharge;
+
+          double total = cartProvider.subTotal;
+          double subTotal = isTakeAway
+              ? cartProvider.subTotal - packingCharge
+              : cartProvider.subTotal;
+
+          final double buttonFontSize = isDesktop
+              ? 22
+              : isTablet
+                  ? 17
+                  : 17;
+
+          return SafeArea(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [AppColor.secondary, AppColor.primaryColor],
+                  begin: AlignmentDirectional(0.0, -2.0),
+                  end: AlignmentDirectional(0.0, 1.0),
+                  stops: [0.0, 1.0],
+                  tileMode: TileMode.clamp,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Price details
+                  _priceRow("Sub-Total", "₹${subTotal.toStringAsFixed(2)}"),
+                  if (isTakeAway)
+                    _priceRow("Packing Charge",
+                        "₹${packingCharge.toStringAsFixed(2)}"),
+                  const Divider(color: Colors.white54),
+                  _priceRow("Tax", "15%", isBold: false),
+                  _priceRow("Total", "₹${total.toStringAsFixed(2)}",
+                      isBold: true),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        isTakeAway
+                            ? "Order ready time.."
+                            : "Ready to serve in...",
+                        style: AppStyle.textStyleReemKufi.copyWith(
+                          color: Colors.white60,
+                          fontWeight: FontWeight.w100,
+                          fontSize: 12,
+                        ),
+                      ),
+                      Text(
+                        estimatedTime,
+                        style: AppStyle.textStyleReemKufi.copyWith(
+                          color: Colors.white60,
+                          fontWeight: FontWeight.w100,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  // Place Order button
+                  ElevatedButton(
+                    onPressed: () {
+                      showLoginSheet(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    ),
+                    child: Text(
+                      'Place Order',
+                      style: AppStyle.textStyleReemKufi.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppColor.primaryColor,
+                        fontSize: buttonFontSize,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -1280,7 +1229,7 @@ class ViewOrderScreen extends StatelessWidget {
 
   Widget _buildQtyButton(BuildContext context, IconData icon) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 7),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         gradient: const LinearGradient(
@@ -1433,7 +1382,8 @@ class ViewOrderScreen extends StatelessWidget {
                         ),
                         Text(
                           "Login",
-                          style: AppTextStyles.nunitoMedium(20, color:  AppColor.whiteColor),
+                          style: AppTextStyles.nunitoMedium(20,
+                              color: AppColor.whiteColor),
                           // style: AppStyle.textStyleReemKufi.copyWith(
                           //   fontWeight: FontWeight.w400,
                           //   color: AppColor.whiteColor,
@@ -1449,8 +1399,8 @@ class ViewOrderScreen extends StatelessWidget {
                           children: [
                             Text(
                               'Name (Optional)',
-                              style: AppTextStyles.nunitoMedium(15, color:  AppColor.whiteColor),
-
+                              style: AppTextStyles.nunitoMedium(15,
+                                  color: AppColor.whiteColor),
                             ),
                           ],
                         ),
@@ -1525,7 +1475,8 @@ class ViewOrderScreen extends StatelessWidget {
                           children: [
                             Text(
                               'Mobile Number',
-                              style: AppTextStyles.nunitoMedium(15, color:  AppColor.whiteColor),
+                              style: AppTextStyles.nunitoMedium(15,
+                                  color: AppColor.whiteColor),
                             ),
                           ],
                         ),
@@ -1777,8 +1728,8 @@ class ViewOrderScreen extends StatelessWidget {
                     ),
                     Text(
                       "OTP Verification",
-                      style: AppTextStyles.nunitoMedium(20, color:  AppColor.whiteColor),
-
+                      style: AppTextStyles.nunitoMedium(20,
+                          color: AppColor.whiteColor),
                     ),
                     const SizedBox(height: 20),
                     const Divider(color: Colors.white54),
@@ -1788,8 +1739,8 @@ class ViewOrderScreen extends StatelessWidget {
                         Expanded(
                           child: Text(
                             'Enter the verification code that we sent to your mobile number',
-                            style: AppTextStyles.nunitoMedium(15, color:  AppColor.whiteColor),
-
+                            style: AppTextStyles.nunitoMedium(15,
+                                color: AppColor.whiteColor),
                           ),
                         ),
                       ],
@@ -3651,8 +3602,8 @@ class ViewOrderScreen extends StatelessWidget {
                       const SizedBox(height: 20),
                       Text(
                         "You've successfully logged in.",
-                        style: AppTextStyles.nunitoRegular(20, color:  AppColor.whiteColor),
-
+                        style: AppTextStyles.nunitoRegular(20,
+                            color: AppColor.whiteColor),
                         textAlign: TextAlign.center,
                       ),
                     ],

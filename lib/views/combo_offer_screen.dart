@@ -754,19 +754,9 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                             Column(
                               mainAxisSize: MainAxisSize.max,
                               children: [
-                                Center(
-                                  child: Container(
-                                    margin: const EdgeInsets.symmetric(vertical: 12),
-                                    height: 5,
-                                    width: 50,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[300],
-                                      borderRadius: BorderRadius.circular(2.5),
-                                    ),
-                                  ),
-                                ),
+
                                 Container(
-                                  height: screenHeight * 0.15,
+                                  height: screenHeight * 0.16,
                                   width: double.infinity,
                                   decoration: const BoxDecoration(
 
@@ -798,7 +788,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
 
                                       return Container(
                                         height: imageSize +
-                                            60, // Increased height to fit price
+                                            70, // Increased height to fit price
                                         width: double.infinity,
                                         decoration: const BoxDecoration(
                                           image: DecorationImage(
@@ -827,7 +817,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                               padding: const EdgeInsets.all(8.0),
                                               child: Padding(
                                                 padding: const EdgeInsets.only(
-                                                    left: 15.0),
+                                                    left: 15.0,top: 25),
                                                 child: Column(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
@@ -1042,7 +1032,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                         children: [
                                                           // Circle
                                                           CircleAvatar(
-                                                            radius: 14,
+                                                            radius: 12,
                                                             backgroundColor:
                                                                 AppColor.primaryColor,
                                                             child: Text(
@@ -1051,9 +1041,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                                   const TextStyle(
                                                                 color:
                                                                     Colors.white,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
+                                                                fontSize: 10
                                                               ),
                                                             ),
                                                           ),
@@ -1074,7 +1062,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                         ],
                                                       ),
 
-                                                      const SizedBox(width: 10),
+                                                      const SizedBox(width: 5),
 
                                                       /// Card
                                                       Expanded(
@@ -1099,24 +1087,25 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                                 borderRadius: BorderRadius.circular(10),
                                                                 child: Image.network(
                                                                   imageUrl,
-                                                                  height: 70,
-                                                                  width: 70,
+                                                                  height: 80,
+                                                                  width: 80,
                                                                   //fit: BoxFit.cover,
                                                                 ),
                                                               ),
-                                                              const SizedBox(width: 12),
-
                                                               /// Details Section
                                                               Expanded(
                                                                 child: Column(
                                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                                   children: [
                                                                     /// Product Name
-                                                                    Text(
-                                                                      product.categoryName[index],
-                                                                      style: AppTextStyles.nunitoMedium(
-                                                                        18,
-                                                                        color: AppColor.blackColor,
+                                                                    Padding(
+                                                                      padding: const EdgeInsets.only(left: 13.0),
+                                                                      child: Text(
+                                                                        product.categoryName[index],
+                                                                        style: AppTextStyles.nunitoMedium(
+                                                                          18,
+                                                                          color: AppColor.blackColor,
+                                                                        ),
                                                                       ),
                                                                     ),
                                                                     const SizedBox(height: 4),
@@ -1131,61 +1120,66 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                                               final String descriptionText =
                                                                               product.description.join(' ');
 
-                                                                              return Column(
-                                                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                children: [
-                                                                                  Text(
-                                                                                    isExpanded || descriptionText.length <= 80
-                                                                                        ? descriptionText
-                                                                                        : '${descriptionText.substring(0, 80)}...',
-                                                                                    textAlign: TextAlign
-                                                                                        .justify,
-                                                                                    style: AppTextStyles.latoRegular(
-                                                                                      14,
-                                                                                      color: AppColor.lightGreyColor,
-                                                                                    ),
-                                                                                  ),
-                                                                                  if (descriptionText.length > 80)
-                                                                                    GestureDetector(
-                                                                                      onTap: () {
-                                                                                        setState(() {
-                                                                                          isExpanded = !isExpanded;
-                                                                                        });
-                                                                                      },
-                                                                                      child: Text(
-                                                                                        isExpanded ? 'See Less' : 'See More',
-                                                                                        style: const TextStyle(
-                                                                                          color: AppColor.primaryColor,
-                                                                                          fontSize: 13,
-                                                                                          fontWeight: FontWeight.bold,
-                                                                                        ),
+                                                                              return Padding(
+                                                                                padding: const EdgeInsets.only(left: 13.0),
+                                                                                child: Column(
+                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                  children: [
+                                                                                    Text(
+                                                                                      isExpanded || descriptionText.length <= 80
+                                                                                          ? descriptionText
+                                                                                          : '${descriptionText.substring(0, 80)}...',
+                                                                                      textAlign: TextAlign
+                                                                                          .justify,
+                                                                                      style: AppTextStyles.latoRegular(
+                                                                                        14,
+                                                                                        color: AppColor.lightGreyColor,
                                                                                       ),
                                                                                     ),
-                                                                                ],
+                                                                                    if (descriptionText.length > 80)
+                                                                                      GestureDetector(
+                                                                                        onTap: () {
+                                                                                          setState(() {
+                                                                                            isExpanded = !isExpanded;
+                                                                                          });
+                                                                                        },
+                                                                                        child: Text(
+                                                                                          isExpanded ? 'See Less' : 'See More',
+                                                                                          style: const TextStyle(
+                                                                                            color: AppColor.primaryColor,
+                                                                                            fontSize: 13,
+                                                                                            fontWeight: FontWeight.bold,
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                  ],
+                                                                                ),
                                                                               );
                                                                             },
                                                                           );
                                                                         },
                                                                       ),
 
-                                                                    const SizedBox(height: 8),
+                                                                    const SizedBox(height: 10),
 
                                                                     /// Spicy Label
-                                                                    Text(
-                                                                      "Spicy",
-                                                                      style: AppTextStyles.nunitoMedium(
-                                                                        buttonFontSize,
-                                                                        color: AppColor.blackColor,
+                                                                    Padding(
+                                                                      padding: const EdgeInsets.only(left: 17.0),
+                                                                      child: Text(
+                                                                        "Spicy",
+                                                                        style: AppTextStyles.nunitoMedium(
+                                                                          buttonFontSize,
+                                                                          color: AppColor.blackColor,
+                                                                        ),
                                                                       ),
                                                                     ),
-                                                                    const SizedBox(height: 4),
 
                                                                     /// Heat Level Selector
                                                                     HeatLevelSelector(),
 
                                                                     /// Mild, Medium, Hot Labels
                                                                     Padding(
-                                                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                                                      padding: const EdgeInsets.only(left: 15.0,right:10),
                                                                       child: Row(
                                                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                                         children: [
@@ -1450,6 +1444,18 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                 ),
                               ],
                             ),
+                              Align(
+                                alignment: Alignment.topCenter,
+                                child: Container(
+                                  margin: const EdgeInsets.only(top: 20), // spacing from status bar
+                                  height: 5,
+                                  width: 50,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(2.5),
+                                  ),
+                                ),
+                              ),
                               Positioned(
                                 top: -13,
                                 left: 10,
@@ -1733,11 +1739,11 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                 gradient: LinearGradient(
                   colors: [
                     AppColor.primaryColor,
-                    AppColor.primaryColor,
+                    AppColor.whiteColor,
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  stops: [0.3, 0.0],
+                  stops: [0.6, 0.25],
                 ),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -2110,9 +2116,9 @@ class _HeatLevelSelectorState extends State<HeatLevelSelector> {
           data: SliderTheme.of(context).copyWith(
               trackHeight: 8,
               activeTrackColor:
-                  AppColor.primaryColor, // Hide default active track color
+              AppColor.primaryColor, // Hide default active track color
               inactiveTrackColor:
-                  Colors.white, // Hide default inactive track color
+              Colors.white, // Hide default inactive track color
               valueIndicatorColor: AppColor.primaryColor,
               thumbColor: AppColor.primaryColor),
           child: Slider(
@@ -2132,6 +2138,8 @@ class _HeatLevelSelectorState extends State<HeatLevelSelector> {
     );
   }
 }
+
+
 
 class SearchCartRow extends StatelessWidget {
   final int cartItemCount;
