@@ -93,8 +93,11 @@ class CategoryProvider with ChangeNotifier {
 
   void setBasePrice(double price) {
     _basePrice = price;
+    print('Base price set to: $_basePrice');
     notifyListeners();
   }
+
+
   /// include childCategoryTakeawayPrice
 //   void setBasePriceWithTakeAway(Item product) {
 //     double base = 0.0;
@@ -192,6 +195,36 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void setBasePriceWithTakeAwayCombos(CartItemModel product) {
+    double base = 0.0;
+
+    // 1️⃣ Always start with the main product price
+    if (product.price != null) {
+      base = product.price!.toDouble();
+    }
+
+    // 2️⃣ If a child category is selected → use its takeAwayPrice (if available)
+    if (_selectedChildCategory != null) {
+      if (_selectedChildCategory!.takeAwayPrice != null) {
+        base += _selectedChildCategory!.takeAwayPrice!.toDouble();
+      }
+    }
+    // 3️⃣ If no child selected, but child categories exist → use the first child's takeAwayPrice (if available)
+    else if (product.childCategory != null && product.childCategory!.isNotEmpty) {
+      final firstChild = product.childCategory!.first;
+      if (firstChild.takeAwayPrice != null) {
+        base += firstChild.takeAwayPrice!.toDouble();
+      }
+    }
+    // 4️⃣ If there are NO child categories → fallback to product-level takeAwayPrice
+    else if (product.takeAwayPrice != null) {
+      base += product.takeAwayPrice!.toDouble();
+    }
+
+    _basePrice = base;
+    notifyListeners();
+  }
+
 
   void setTakeAwayPrice(double price) {
     _takeAwayPrice = price;
@@ -235,6 +268,8 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
   }
 
+
+
   double get selectedPrices {
     if (_selectedChildCategory != null && _selectedChildCategory!.price != null) {
       return _selectedChildCategory!.price.toDouble();
@@ -252,10 +287,12 @@ class CategoryProvider with ChangeNotifier {
     }
 
     return price;
-  }
+  }///
 
   double get totalPrices => selectedPrices * _quantity;
-  double get totalPrice => selectedPrices * _quantity;
+
+  double get totalPriceWithTakeWay => selectedPrices * _quantity;
+
 
 
   int get quantity => _quantity;
@@ -278,6 +315,70 @@ class CategoryProvider with ChangeNotifier {
 
     // ✅ Add base price + takeaway price, then multiply by quantity
     return (selectedPrice + takeAway) * _quantity;
+  }
+  double discountPrice = 0.0;
+  double takeAwayPrice = 0.0;
+  double price = 0.0;
+
+
+  // double get totalComboPrice {
+  //   // Debug prints
+  //   // print('Discount Price: $discountPrice');
+  //   // print('TakeAway Price: $takeAwayPrice');
+  //   // print('Quantity: $_quantity');
+  //   // print('Total Combo Price: ${(discountPrice + takeAwayPrice) * _quantity}');
+  //
+  //   return (discountPrice + takeAwayPrice) * _quantity;
+  // }
+  double totalComboPrice({
+    ChildCategory? selectedChild,
+    required CategoryProvider provider,
+  }) {
+    // If child category is selected → use its price * provider quantity
+    if (selectedChild != null) {
+      final double childPrice = selectedChild.price ?? 0.0;
+
+      // Debugging
+      print('Selected Child Price: $childPrice');
+      print('Quantity (from provider): ${provider.quantity}');
+      print('Total (Child): ${childPrice * provider.quantity}');
+
+      return childPrice * provider.quantity;
+    }
+    final double validDiscountPrice = discountPrice ??  price ;
+
+    // Otherwise → fallback to discountPrice + takeAwayPrice
+    final double total = (validDiscountPrice + takeAwayPrice) * provider.quantity;
+
+    // Debugging
+    print('Discount Price: $discountPrice');
+    print('TakeAway Price: $takeAwayPrice');
+    print('Quantity (from provider): ${provider.quantity}');
+    print('Total (Fallback): $total');
+
+    return total;
+  }
+
+  double getChildCategoryOrDiscountTotal(CartItemModel cartItem, ChildCategory? selectedChild,CategoryProvider provider) {
+    if (selectedChild != null) {
+      final double childPrice = selectedChild.price ?? 0.0;
+      return childPrice * provider.quantity;
+    } else {
+      final double discountPrice = cartItem.discountPrice != null
+          ? double.parse(cartItem.discountPrice!)
+          : 0.0;
+      return discountPrice *  provider.quantity;
+    }
+  }
+
+
+
+
+
+  void setPrices({required double discount, required double takeAway}) {
+    discountPrice = discount;
+    takeAwayPrice = takeAway;
+    notifyListeners();
   }
 
 }

@@ -22,6 +22,8 @@ import '../urls/api_endpoints.dart';
 import '../utlis/App_style.dart';
 import '../utlis/share_preference_helper/sharereference_helper.dart';
 import '../utlis/widgets/app_text_style.dart';
+import '../utlis/widgets/custom_exit_dialog.dart';
+import '../utlis/widgets/responsiveness.dart';
 import '../utlis/widgets/shimmer_loading.dart';
 import 'buy_one_get_one.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -125,9 +127,11 @@ class _HomeScreenState extends State<HomeScreen> {
         onPopInvoked: (didPop) async {
           if (didPop) return;
 
+          /// Show custom exit dialog and wait for result
           final shouldExit = await showExitDialog(context);
 
-          if (shouldExit) {
+          if (shouldExit == true) {
+            // Exit the app
             Navigator.of(context).pop();
           }
         },
@@ -138,8 +142,8 @@ class _HomeScreenState extends State<HomeScreen> {
               toolbarHeight: isDesktop
                   ? 100
                   : isTablet
-                      ? 100
-                      : 70,
+                  ? 100
+                  : 70,
               automaticallyImplyLeading: false,
               centerTitle: false,
               titleSpacing: 0,
@@ -171,8 +175,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: isDesktop
                             ? 150
                             : isTablet
-                                ? 150
-                                : 100,
+                            ? 190
+                            : 100,
                       ),
                     ),
                     SizedBox(width: horizontalPadding),
@@ -189,7 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: AppColor
                           .primaryColor, // set your background color here
                       borderRadius:
-                          BorderRadius.circular(8), // optional rounded corners
+                      BorderRadius.circular(8), // optional rounded corners
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -198,13 +202,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           width: isDesktop
                               ? 36
                               : isTablet
-                                  ? 32
-                                  : 28,
+                              ? 32
+                              : 28,
                           height: isDesktop
                               ? 36
                               : isTablet
-                                  ? 32
-                                  : 25,
+                              ? 32
+                              : 25,
                           child: SvgPicture.asset(
                             orderImage,
                             fit: BoxFit.fill,
@@ -218,8 +222,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               isDesktop
                                   ? 20
                                   : isTablet
-                                      ? 18
-                                      : 12,
+                                  ? 18
+                                  : 12,
                               color: Colors.white),
                         ),
                       ],
@@ -243,43 +247,43 @@ class _HomeScreenState extends State<HomeScreen> {
                 final double barHeight = isDesktop
                     ? 110
                     : isTablet
-                        ? 90
-                        : 80;
+                    ? 90
+                    : 80;
                 final double paddingHorizontal = isDesktop
                     ? 40
                     : isTablet
-                        ? 24
-                        : 16;
+                    ? 24
+                    : 16;
                 final double paddingVertical = isDesktop
                     ? 16
                     : isTablet
-                        ? 12
-                        : 10;
+                    ? 12
+                    : 10;
                 final double titleFontSize = isDesktop
                     ? 18
                     : isTablet
-                        ? 16
-                        : 15;
+                    ? 16
+                    : 15;
                 final double priceFontSize = isDesktop
                     ? 20
                     : isTablet
-                        ? 18
-                        : 18;
+                    ? 18
+                    : 18;
                 final double buttonFontSize = isDesktop
                     ? 22
                     : isTablet
-                        ? 17
-                        : 17;
+                    ? 17
+                    : 17;
                 final double buttonPaddingH = isDesktop
                     ? 36
                     : isTablet
-                        ? 32
-                        : 28;
+                    ? 32
+                    : 28;
                 final double buttonPaddingV = isDesktop
                     ? 18
                     : isTablet
-                        ? 16
-                        : 14;
+                    ? 16
+                    : 14;
 
                 return Container(
                   height: barHeight,
@@ -481,7 +485,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     decoration: InputDecoration(
                                       hintText:
-                                          'Craving something? Find it here',
+                                      'Craving something? Find it here',
                                       hintStyle: AppTextStyles.nunitoRegular(
                                         hintFontSize.clamp(14, 20),
                                         color: AppColor.lightGreyColor,
@@ -494,7 +498,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     onChanged: (value) {
                                       final provider =
-                                          Provider.of<DashboardProvider>(
+                                      Provider.of<DashboardProvider>(
                                         context,
                                         listen: false,
                                       );
@@ -537,7 +541,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 AppColor.primaryColor
                               ],
                               begin:
-                                  AlignmentDirectional(0.0, -2.0), // top-center
+                              AlignmentDirectional(0.0, -2.0), // top-center
                               end: AlignmentDirectional(
                                   0.0, 1.0), // bottom-center
                               stops: [0.0, 1.0],
@@ -567,53 +571,53 @@ class _HomeScreenState extends State<HomeScreen> {
                   banners == null
                       ? const Center(child: CircularProgressIndicator())
                       : banners.isEmpty
-                          ? const Center(
-                              child: Text(
-                                "No banners available",
-                                style:
-                                    TextStyle(color: Colors.grey, fontSize: 16),
-                              ),
-                            )
-                          : SizedBox(
-                              height: cardHeight,// let the card control height
-                              child: ListView.separated(
-                                scrollDirection: Axis.horizontal,
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 12),
-                                itemCount: banners.length,
-                                separatorBuilder: (context, index) =>
-                                    const SizedBox(width: 12),
-                                itemBuilder: (context, index) {
-                                  final banner = banners[index];
-                                  return _buildPromoCard(
-                                    imagePath: banner.image,
-                                    context: context,
-                                    onTap: () {
-                                      if (index == 0) {
-                                        _searchFocusNode.unfocus();
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (_) => BuyOneGetOne()),
-                                        );
-                                      } else {
-                                        _searchFocusNode.unfocus();
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (_) =>
-                                                  ComboOfferScreen()),
-                                        );
-                                      }
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
+                      ? const Center(
+                    child: Text(
+                      "No banners available",
+                      style:
+                      TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  )
+                      : SizedBox(
+                    height: cardHeight,// let the card control height
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding:
+                      const EdgeInsets.only(left:15,right:15 ),
+                      itemCount: banners.length,
+                      separatorBuilder: (context, index) =>
+                      const SizedBox(width: 12),
+                      itemBuilder: (context, index) {
+                        final banner = banners[index];
+                        return _buildPromoCard(
+                          imagePath: banner.image,
+                          context: context,
+                          onTap: () {
+                            if (index == 0) {
+                              _searchFocusNode.unfocus();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => BuyOneGetOne()),
+                              );
+                            } else {
+                              _searchFocusNode.unfocus();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        ComboOfferScreen()),
+                              );
+                            }
+                          },
+                        );
+                      },
+                    ),
+                  ),
 
                   Padding(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                     child: Selector<DashboardProvider,
                         MapEntry<List<CategoryModel>?, int?>>(
                       selector: (_, provider) => MapEntry(
@@ -640,7 +644,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child:
-                        Selector<DashboardProvider, MapEntry<List<Item>, bool>>(
+                    Selector<DashboardProvider, MapEntry<List<Item>, bool>>(
                       selector: (_, provider) =>
                           MapEntry(provider.items ?? [], provider.isLoading),
                       builder: (context, entry, child) {
@@ -667,14 +671,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               }
 
                               final placeholderCount =
-                                  products.isNotEmpty ? products.length : 6;
+                              products.isNotEmpty ? products.length : 6;
 
                               return GridView.builder(
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemCount: placeholderCount,
                                 gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: crossAxisCount,
                                   crossAxisSpacing: 16,
                                   mainAxisSpacing: 16,
@@ -695,14 +699,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (products.isEmpty) {
                           return Center(
                               child: Text(
-                            "No products found",
-                            style: AppStyle.textStyleReemKufi.copyWith(
-                              fontWeight: FontWeight.w500,
-                              color: AppColor.greyColor,
-                              fontSize: 15,
-                              height: 1.0, // remove extra line height
-                            ),
-                          ));
+                                "No products found",
+                                style: AppStyle.textStyleReemKufi.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColor.greyColor,
+                                  fontSize: 15,
+                                  height: 1.0, // remove extra line height
+                                ),
+                              ));
                         }
 
                         return LayoutBuilder(
@@ -728,7 +732,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: products.length,
                               gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
+                              SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: crossAxisCount,
                                 crossAxisSpacing: 16,
                                 mainAxisSpacing: 16,
@@ -737,7 +741,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               itemBuilder: (context, index) {
                                 final product = products[index];
                                 final quantity =
-                                    cartProvider.getQuantity(product.id);
+                                cartProvider.getQuantity(product.id);
 
                                 return AnimationConfiguration.staggeredGrid(
                                   position: index,
@@ -754,7 +758,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             decoration: BoxDecoration(
                                               color: AppColor.whiteColor,
                                               borderRadius:
-                                                  BorderRadius.circular(30),
+                                              BorderRadius.circular(30),
                                               border: Border.all(
                                                 color: Colors.grey.shade300,
                                                 width: 1.5,
@@ -774,22 +778,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
                                                 crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
+                                                CrossAxisAlignment.center,
                                                 children: [
                                                   AspectRatio(
                                                     aspectRatio: 1.2,
                                                     child: ClipRRect(
                                                       borderRadius:
-                                                          BorderRadius.circular(
-                                                              12),
+                                                      BorderRadius.circular(
+                                                          12),
                                                       child: Image.network(
                                                         "${ApiEndpoints.imageBaseUrl}${product.image}", // prepend baseUrl
                                                         //fit: BoxFit.fill,
                                                         errorBuilder: (context,
-                                                                error,
-                                                                stackTrace) =>
-                                                            const Icon(Icons
-                                                                .image_not_supported),
+                                                            error,
+                                                            stackTrace) =>
+                                                        const Icon(Icons
+                                                            .image_not_supported),
                                                       ),
                                                     ),
                                                   ),
@@ -797,15 +801,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   Text(
                                                     (product.name.isNotEmpty)
                                                         ? product.name[0]
-                                                                .toUpperCase() +
-                                                            product.name
-                                                                .substring(1)
-                                                                .toLowerCase()
+                                                        .toUpperCase() +
+                                                        product.name
+                                                            .substring(1)
+                                                            .toLowerCase()
                                                         : '',
                                                     style: AppTextStyles
                                                         .nunitoBold(17,
-                                                            color:
-                                                                Colors.black),
+                                                        color:
+                                                        Colors.black),
                                                     textAlign: TextAlign.center,
                                                   ),
                                                   const SizedBox(height: 2),
@@ -815,17 +819,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     textAlign: TextAlign.center,
                                                     style: AppTextStyles
                                                         .latoRegular(10,
-                                                            color:
-                                                                Colors.black),
+                                                        color:
+                                                        Colors.black),
 
                                                     maxLines: 2,
                                                     overflow:
-                                                        TextOverflow.ellipsis,
+                                                    TextOverflow.ellipsis,
                                                   ),
                                                   const Spacer(),
                                                   Align(
                                                     alignment:
-                                                        Alignment.bottomLeft,
+                                                    Alignment.bottomLeft,
                                                     child: Text(
                                                       product.price != null
                                                           ? '₹${product.price}'
@@ -834,10 +838,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           .textStyleReemKufi
                                                           .copyWith(
                                                         fontWeight:
-                                                            FontWeight.bold,
+                                                        FontWeight.bold,
                                                         fontSize: 17,
                                                         color:
-                                                            AppColor.blackColor,
+                                                        AppColor.blackColor,
                                                       ),
                                                     ),
                                                   ),
@@ -870,11 +874,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     stops: [0, 0.60],
                                                   ),
                                                   borderRadius:
-                                                      BorderRadius.only(
+                                                  BorderRadius.only(
                                                     topLeft:
-                                                        Radius.circular(14),
+                                                    Radius.circular(14),
                                                     bottomRight:
-                                                        Radius.circular(16),
+                                                    Radius.circular(16),
                                                   ),
                                                 ),
                                                 child: const Icon(Icons.add,
@@ -906,6 +910,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+
   Widget _buildPromoCard({
     required String imagePath,
     required BuildContext context,
@@ -930,7 +935,7 @@ class _HomeScreenState extends State<HomeScreen> {
         width: cardWidth,
         height: cardHeight,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(50),
           boxShadow: const [
             BoxShadow(
               color: Colors.black12,
@@ -1174,127 +1179,127 @@ class _HomeScreenState extends State<HomeScreen> {
   // }
 
   Widget _buildOptionBox(
-    String title,
-    String price, {
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
+      String title,
+      String price, {
+        required bool isSelected,
+        required VoidCallback onTap,
+      }) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isDesktop = screenWidth >= 1024;
     final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
     final double priceSize = isDesktop
         ? 20
         : isTablet
-            ? 17
-            : 14;
+        ? 17
+        : 14;
     return GestureDetector(
       onTap: onTap,
       child: isSelected
           ? Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColor.secondary, AppColor.primaryColor],
-                    begin: AlignmentDirectional(0.0, -2.0), // top-center
-                    end: AlignmentDirectional(0.0, 1.0), // bottom-center
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          padding:
+          const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [AppColor.secondary, AppColor.primaryColor],
+              begin: AlignmentDirectional(0.0, -2.0), // top-center
+              end: AlignmentDirectional(0.0, 1.0), // bottom-center
 
-                    stops: [0.0, 1.0], // smooth gradient
-                    tileMode: TileMode.clamp,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  // boxShadow: [
-                  //   BoxShadow(
-                  //     color: Colors.black.withOpacity(0.1), // subtle shadow color
-                  //     blurRadius: 8, // how soft the shadow looks
-                  //     spreadRadius: 2, // how wide the shadow spreads
-                  //     offset: const Offset(0, 4), // position of shadow (x, y)
-                  //   ),
-                  // ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      title,
-                      style: AppStyle.textStyleReemKufi.copyWith(
-                        fontSize: priceSize,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      price,
-                      style: AppStyle.textStyleReemKufi.copyWith(
-                        fontSize: priceSize,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          : Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                padding: const EdgeInsets.all(2), // border thickness
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColor.secondary, AppColor.primaryColor],
-                    begin: AlignmentDirectional(0.0, -2.0), // top-center
-                    end: AlignmentDirectional(0.0, 1.0), // bottom-center
-
-                    stops: [0.0, 1.0], // smooth gradient
-                    tileMode: TileMode.clamp,
-                  ),
-                  borderRadius:
-                      BorderRadius.circular(14), // slightly bigger for border
-                ),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black
-                            .withOpacity(0.1), // subtle shadow color
-                        blurRadius: 8, // how soft the shadow looks
-                        spreadRadius: 3, // how wide the shadow spreads
-                        offset: const Offset(0, 4), // position of shadow (x, y)
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        title,
-                        style: AppStyle.textStyleReemKufi.copyWith(
-                          fontSize: priceSize,
-                          fontWeight: FontWeight.bold,
-                          color: AppColor.blackColor,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        price,
-                        style: AppStyle.textStyleReemKufi.copyWith(
-                          fontSize: priceSize,
-                          fontWeight: FontWeight.bold,
-                          color: AppColor.blackColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              stops: [0.0, 1.0], // smooth gradient
+              tileMode: TileMode.clamp,
             ),
+            borderRadius: BorderRadius.circular(12),
+            // boxShadow: [
+            //   BoxShadow(
+            //     color: Colors.black.withOpacity(0.1), // subtle shadow color
+            //     blurRadius: 8, // how soft the shadow looks
+            //     spreadRadius: 2, // how wide the shadow spreads
+            //     offset: const Offset(0, 4), // position of shadow (x, y)
+            //   ),
+            // ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                title,
+                style: AppStyle.textStyleReemKufi.copyWith(
+                  fontSize: priceSize,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                price,
+                style: AppStyle.textStyleReemKufi.copyWith(
+                  fontSize: priceSize,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      )
+          : Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          padding: const EdgeInsets.all(2), // border thickness
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [AppColor.secondary, AppColor.primaryColor],
+              begin: AlignmentDirectional(0.0, -2.0), // top-center
+              end: AlignmentDirectional(0.0, 1.0), // bottom-center
+
+              stops: [0.0, 1.0], // smooth gradient
+              tileMode: TileMode.clamp,
+            ),
+            borderRadius:
+            BorderRadius.circular(14), // slightly bigger for border
+          ),
+          child: Container(
+            padding:
+            const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black
+                      .withOpacity(0.1), // subtle shadow color
+                  blurRadius: 8, // how soft the shadow looks
+                  spreadRadius: 3, // how wide the shadow spreads
+                  offset: const Offset(0, 4), // position of shadow (x, y)
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: AppStyle.textStyleReemKufi.copyWith(
+                    fontSize: priceSize,
+                    fontWeight: FontWeight.bold,
+                    color: AppColor.blackColor,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  price,
+                  style: AppStyle.textStyleReemKufi.copyWith(
+                    fontSize: priceSize,
+                    fontWeight: FontWeight.bold,
+                    color: AppColor.blackColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -1303,7 +1308,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
     bool isExpanded = false;
     final selectedProvider =
-        Provider.of<CategoryProvider>(context, listen: false);
+    Provider.of<CategoryProvider>(context, listen: false);
     // selectedProvider.setBasePrice(product.price);
     selectedProvider.setQuantity(1);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
@@ -1340,18 +1345,18 @@ class _HomeScreenState extends State<HomeScreen> {
     final double buttonFontSize = isDesktop
         ? 25
         : isTablet
-            ? 17
-            : 16;
+        ? 17
+        : 16;
     final double priceSize = isDesktop
         ? 27
         : isTablet
-            ? 20
-            : 20;
+        ? 20
+        : 20;
     final double description = isDesktop
         ? 20
         : isTablet
-            ? 15
-            : 15;
+        ? 15
+        : 15;
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -1397,7 +1402,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ], // 👈 transition from primary → secondary at 70% height
                             ),
                             borderRadius:
-                                BorderRadius.vertical(top: Radius.circular(30)),
+                            BorderRadius.vertical(top: Radius.circular(30)),
                           ),
                           child: Stack(children: [
                             Column(
@@ -1462,10 +1467,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     child: SingleChildScrollView(
                                       padding:
-                                          EdgeInsets.all(screenWidth * 0.04),
+                                      EdgeInsets.all(screenWidth * 0.04),
                                       child: Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: [
                                           const SizedBox(
                                             height: 25,
@@ -1475,33 +1480,33 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 left: 12.0),
                                             child: Row(
                                               mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
+                                              MainAxisAlignment
+                                                  .spaceBetween,
                                               children: [
                                                 Flexible(
                                                   child: Text(
                                                     (product.name.isNotEmpty)
                                                         ? product.name[0]
-                                                                .toUpperCase() +
-                                                            product.name
-                                                                .substring(1)
-                                                                .toLowerCase()
+                                                        .toUpperCase() +
+                                                        product.name
+                                                            .substring(1)
+                                                            .toLowerCase()
                                                         : '',
                                                     overflow:
-                                                        TextOverflow.ellipsis,
+                                                    TextOverflow.ellipsis,
                                                     style: AppTextStyles
                                                         .nunitoBold(priceSize,
-                                                            color: AppColor
-                                                                .blackColor),
+                                                        color: AppColor
+                                                            .blackColor),
                                                   ),
                                                 ),
                                                 Text(
                                                   "₹${(double.tryParse(product.price ?? '0') ?? 0.0).toStringAsFixed(2)}",
                                                   style:
-                                                      AppTextStyles.nunitoBold(
-                                                          priceSize,
-                                                          color: AppColor
-                                                              .blackColor),
+                                                  AppTextStyles.nunitoBold(
+                                                      priceSize,
+                                                      color: AppColor
+                                                          .blackColor),
                                                 ),
                                               ],
                                             ),
@@ -1519,24 +1524,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 return StatefulBuilder(
                                                   builder: (context, setState) {
                                                     final bool
-                                                        isDescriptionLong =
+                                                    isDescriptionLong =
                                                         product.description
-                                                                .length >
+                                                            .length >
                                                             350;
                                                     final String
-                                                        displayDescription =
-                                                        isExpanded ||
-                                                                !isDescriptionLong
-                                                            ? product
-                                                                .description
-                                                            : '${product.description.substring(0, 350)}...';
+                                                    displayDescription =
+                                                    isExpanded ||
+                                                        !isDescriptionLong
+                                                        ? product
+                                                        .description
+                                                        : '${product.description.substring(0, 350)}...';
 
                                                     if (isDescriptionLong) {
                                                       // Long description -> show in column
                                                       return Column(
                                                         crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
+                                                        CrossAxisAlignment
+                                                            .start,
                                                         children: [
                                                           Text(
                                                             displayDescription,
@@ -1544,22 +1549,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 ? null
                                                                 : 4,
                                                             overflow:
-                                                                TextOverflow
-                                                                    .visible,
+                                                            TextOverflow
+                                                                .visible,
                                                             textAlign: TextAlign
                                                                 .justify,
                                                             style: AppTextStyles
                                                                 .latoRegular(
-                                                                    description,
-                                                                    color: AppColor
-                                                                        .lightGreyColor),
+                                                                description,
+                                                                color: AppColor
+                                                                    .lightGreyColor),
                                                           ),
                                                           if (isDescriptionLong)
                                                             GestureDetector(
                                                               onTap: () {
                                                                 setState(() {
                                                                   isExpanded =
-                                                                      !isExpanded;
+                                                                  !isExpanded;
                                                                 });
                                                               },
                                                               child: Text(
@@ -1567,12 +1572,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     ? "See Less"
                                                                     : "See More",
                                                                 style:
-                                                                    const TextStyle(
+                                                                const TextStyle(
                                                                   color: AppColor
                                                                       .primaryColor,
                                                                   fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
+                                                                  FontWeight
+                                                                      .bold,
                                                                   fontSize: 13,
                                                                 ),
                                                               ),
@@ -1585,8 +1590,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       // Short description -> show in row with prep time first, then takeaway price
                                                       return Row(
                                                         crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
+                                                        CrossAxisAlignment
+                                                            .start,
                                                         children: [
                                                           /// Description
                                                           Flexible(
@@ -1634,18 +1639,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   const SizedBox(width: 6),
                                                   Text(
                                                     product.time!
-                                                            .toLowerCase()
-                                                            .contains("mins")
+                                                        .toLowerCase()
+                                                        .contains("mins")
                                                         ? product.time!
                                                         : "${product.time} mins",
                                                     style: AppTextStyles
                                                         .latoRegular(15,
-                                                            color: AppColor
-                                                                .darkGreyColor),
+                                                        color: AppColor
+                                                            .darkGreyColor),
                                                   ),
                                                   const SizedBox(width: 9),
                                                   if (product.takeAwayPrice !=
-                                                          null &&
+                                                      null &&
                                                       isTakeAway)
                                                     Row(
                                                       children: [
@@ -1658,28 +1663,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         Builder(
                                                           builder: (context) {
                                                             final dynamic
-                                                                packingCharge =
+                                                            packingCharge =
                                                                 product
                                                                     .takeAwayPrice;
                                                             final double? chargeValue = packingCharge
-                                                                    is String
+                                                            is String
                                                                 ? double.tryParse(
-                                                                    packingCharge)
+                                                                packingCharge)
                                                                 : (packingCharge
-                                                                        is double
-                                                                    ? packingCharge
-                                                                    : null);
+                                                            is double
+                                                                ? packingCharge
+                                                                : null);
 
                                                             return Text(
                                                               chargeValue !=
-                                                                      null
+                                                                  null
                                                                   ? "Wrap & Pack Fee Rs  ${chargeValue.toStringAsFixed(2)}"
                                                                   : "Rs 0.00",
                                                               style: AppTextStyles
                                                                   .latoRegular(
-                                                                      12,
-                                                                      color: AppColor
-                                                                          .darkGreyColor),
+                                                                  12,
+                                                                  color: AppColor
+                                                                      .darkGreyColor),
                                                             );
                                                           },
                                                         ),
@@ -1840,12 +1845,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 padding: const EdgeInsets.only(left: 8.0),
                                                 child: Row(
                                                   mainAxisAlignment:
-                                                      MainAxisAlignment.start,
+                                                  MainAxisAlignment.start,
                                                   children: product.childCategory
                                                       .map((child) {
                                                     final provider =
-                                                        context.watch<
-                                                            CategoryProvider>();
+                                                    context.watch<
+                                                        CategoryProvider>();
                                                     var selectedChild = provider
                                                         .selectedChildCategory;
 
@@ -1855,32 +1860,33 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       WidgetsBinding.instance
                                                           .addPostFrameCallback(
                                                               (_) {
-                                                        context
-                                                            .read<
+                                                            context
+                                                                .read<
                                                                 CategoryProvider>()
-                                                            .setSelectedChildCategory(
+                                                                .setSelectedChildCategory(
                                                                 selectedChild);
-                                                      });
+                                                          });
                                                     }
 
                                                     return _buildOptionBox(
                                                       child.name,
                                                       "₹${(child.price ?? 0).toStringAsFixed(0)}",
                                                       isSelected:
-                                                          selectedChild?.id ==
-                                                              child.id,
+                                                      selectedChild?.id ==
+                                                          child.id,
                                                       onTap: () {
                                                         context
                                                             .read<
-                                                                CategoryProvider>()
+                                                            CategoryProvider>()
                                                             .setSelectedChildCategory(
-                                                                child);
+                                                            child);
                                                       },
                                                     );
                                                   }).toList(),
                                                 ),
                                               ),
                                             )
+
                                           ],
                                           SizedBox(
                                               height: screenHeight * 0.025),
@@ -2203,20 +2209,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                           const SizedBox(width: 12),
                                           Column(
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                             children: [
                                               Text("Add Add-Ons",
                                                   style: AppTextStyles.latoBold(
                                                       15,
                                                       color:
-                                                          AppColor.blackColor)),
+                                                      AppColor.blackColor)),
                                               Text(
                                                   "Make It Special — Choose Your Add-Ons Now!",
                                                   style:
-                                                      AppTextStyles.latoMedium(
-                                                          12,
-                                                          color: AppColor
-                                                              .lightGreyColor)),
+                                                  AppTextStyles.latoMedium(
+                                                      12,
+                                                      color: AppColor
+                                                          .lightGreyColor)),
                                             ],
                                           ),
                                           const Spacer(),
@@ -2261,18 +2267,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                         decoration: BoxDecoration(
                                           color: Colors.white,
                                           borderRadius:
-                                              BorderRadius.circular(12),
+                                          BorderRadius.circular(12),
                                         ),
                                         child: Column(
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                           children: [
                                             ShaderMask(
                                               shaderCallback: (bounds) =>
                                                   const LinearGradient(colors: [
-                                                AppColor.primaryColor,
-                                                AppColor.primaryColor
-                                              ]).createShader(Rect.fromLTWH(
+                                                    AppColor.primaryColor,
+                                                    AppColor.primaryColor
+                                                  ]).createShader(Rect.fromLTWH(
                                                       0,
                                                       0,
                                                       bounds.width,
@@ -2283,7 +2289,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       .copyWith(
                                                     color: Colors.white,
                                                     fontSize:
-                                                        isDesktop ? 17 : 16,
+                                                    isDesktop ? 17 : 16,
                                                     fontWeight: FontWeight.w700,
                                                   )),
                                             ),
@@ -2292,13 +2298,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 final prefHelper = getIt<
                                                     SharedPreferenceHelper>();
                                                 final isTakeAway = prefHelper
-                                                        .getBool(StorageKey
-                                                            .isTakeAway) ??
+                                                    .getBool(StorageKey
+                                                    .isTakeAway) ??
                                                     false;
 
                                                 // If TakeAway is true, use totalPrice else use totalPrices
                                                 return isTakeAway
-                                                    ? provider.totalPrice
+                                                    ? provider.totalPriceWithTakeWay
                                                     : provider.totalPrices;
                                               },
                                               builder:
@@ -2306,11 +2312,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 return ShaderMask(
                                                   shaderCallback: (bounds) =>
                                                       const LinearGradient(
-                                                    colors: [
-                                                      AppColor.primaryColor,
-                                                      AppColor.primaryColor
-                                                    ],
-                                                  ).createShader(Rect.fromLTWH(
+                                                        colors: [
+                                                          AppColor.primaryColor,
+                                                          AppColor.primaryColor
+                                                        ],
+                                                      ).createShader(Rect.fromLTWH(
                                                           0,
                                                           0,
                                                           bounds.width,
@@ -2322,9 +2328,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         .copyWith(
                                                       color: Colors.white,
                                                       fontSize:
-                                                          isDesktop ? 17 : 18,
+                                                      isDesktop ? 18 : 18,
                                                       fontWeight:
-                                                          FontWeight.bold,
+                                                      FontWeight.bold,
                                                     ),
                                                   ),
                                                 );
@@ -2342,7 +2348,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           decoration: BoxDecoration(
                                             color: Colors.white,
                                             borderRadius:
-                                                BorderRadius.circular(12),
+                                            BorderRadius.circular(12),
                                           ),
                                           child: ElevatedButton(
                                             onPressed: () {
@@ -2363,12 +2369,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                               // Convert to double safely
                                               final double? packingChargeValue =
-                                                  packingCharge is String
-                                                      ? double.tryParse(
-                                                          packingCharge)
-                                                      : (packingCharge is double
-                                                          ? packingCharge
-                                                          : null);
+                                              packingCharge is String
+                                                  ? double.tryParse(
+                                                  packingCharge)
+                                                  : (packingCharge is double
+                                                  ? packingCharge
+                                                  : null);
 
                                               final selectedChild = context
                                                   .read<CategoryProvider>()
@@ -2377,7 +2383,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   .read<CategoryProvider>()
                                                   .totalTime;
                                               final cartProvider =
-                                                  context.read<CartProvider>();
+                                              context.read<CartProvider>();
                                               final selectedProvider = context
                                                   .read<CategoryProvider>();
 
@@ -2385,24 +2391,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   id: product.id,
                                                   name: product.name,
                                                   description:
-                                                      product.description,
+                                                  product.description,
                                                   images: [product.image],
                                                   categoryId:
-                                                      product.categoryId,
+                                                  product.categoryId,
                                                   price: isTakeAway
                                                       ? (selectedProvider
-                                                              .selectedPrices ??
-                                                          0.0)
+                                                      .selectedPrices ??
+                                                      0.0)
                                                       : (selectedProvider
-                                                              .selectedPrices ??
-                                                          0.0),
+                                                      .selectedPrices ??
+                                                      0.0),
                                                   quantity:
-                                                      selectedProvider.quantity,
+                                                  selectedProvider.quantity,
                                                   takeAwayPrice: isTakeAway
                                                       ? packingChargeValue
                                                       : null,
                                                   childCategory:
-                                                      product.childCategory,
+                                                  product.childCategory,
 
                                                   // takeAwayPrice:
                                                   //     selectedChild?.takeAwayPrice,
@@ -2414,41 +2420,42 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       ?.id
                                                       .toString(),
                                                   childCategoryName:
-                                                      selectedChild?.name,
+                                                  selectedChild?.name,
                                                   isCombo: null,
                                                   heatLevel: selectedProvider
                                                       .selectedHeatLabel,
                                                   totalDeliveryTime: totalTime,
                                                   type: "normal",
+                                                  discountPrice: product.price,
                                                   prepareTime: product.time);
                                               cartProvider.addToCart(cartItem);
                                               Navigator.of(context).pop();
                                             },
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:
-                                                  AppColor.whiteColor,
+                                              AppColor.whiteColor,
                                               foregroundColor:
-                                                  AppColor.whiteColor,
+                                              AppColor.whiteColor,
                                               elevation: 0,
                                               padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 28,
-                                                      vertical: 14),
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 28,
+                                                  vertical: 14),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
-                                                    BorderRadius.circular(12),
+                                                BorderRadius.circular(12),
                                               ),
                                             ),
                                             child: ShaderMask(
                                               shaderCallback: (bounds) =>
                                                   const LinearGradient(
-                                                colors: [
-                                                  AppColor.primaryColor,
-                                                  AppColor.primaryColor
-                                                ],
-                                                begin: Alignment.topCenter,
-                                                end: Alignment.bottomRight,
-                                              ).createShader(Rect.fromLTWH(
+                                                    colors: [
+                                                      AppColor.primaryColor,
+                                                      AppColor.primaryColor
+                                                    ],
+                                                    begin: Alignment.topCenter,
+                                                    end: Alignment.bottomRight,
+                                                  ).createShader(Rect.fromLTWH(
                                                       0,
                                                       0,
                                                       bounds.width,
@@ -2553,7 +2560,7 @@ class _HomeScreenState extends State<HomeScreen> {
               itemBuilder: (context, index) {
                 return Padding(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                  const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey.shade300,
                     highlightColor: Colors.grey.shade100,
@@ -2695,11 +2702,11 @@ class _HomeScreenState extends State<HomeScreen> {
               runSpacing: 16,
               children: allCategories
                   .map((cat) => _buildCategoryItem(
-                        context,
-                        cat,
-                        fixedSize: 90,
-                        selectedCategoryId: selectedCategoryId,
-                      ))
+                context,
+                cat,
+                fixedSize: 90,
+                selectedCategoryId: selectedCategoryId,
+              ))
                   .toList(),
             ),
           );
@@ -2709,11 +2716,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCategoryItem(
-    BuildContext context,
-    CategoryModel cat, {
-    double? fixedSize,
-    required int? selectedCategoryId,
-  }) {
+      BuildContext context,
+      CategoryModel cat, {
+        double? fixedSize,
+        required int? selectedCategoryId,
+      }) {
     final provider = Provider.of<DashboardProvider>(context, listen: false);
     final isSelected = selectedCategoryId == cat.id;
 
@@ -2750,17 +2757,17 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ClipOval(
                 child: cat.id == -1
                     ? Image.asset(
-                        AppImage.all, // ✅ Asset image for "All" option
-                        //  fit: BoxFit.cover,
-                      )
+                  AppImage.all, // ✅ Asset image for "All" option
+                  //  fit: BoxFit.cover,
+                )
                     : Image.network(
-                        cat.image.startsWith("https")
-                            ? cat.image
-                            : "${ApiEndpoints.imageBaseUrl}${cat.image}",
-                        //  fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.image_not_supported, size: 30),
-                      ),
+                  cat.image.startsWith("https")
+                      ? cat.image
+                      : "${ApiEndpoints.imageBaseUrl}${cat.image}",
+                  //  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                  const Icon(Icons.image_not_supported, size: 30),
+                ),
               ),
               // child: ClipOval(
               //   child: Image.network(
@@ -2780,11 +2787,11 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(
               cat.name.isNotEmpty
                   ? cat.name[0].toUpperCase() +
-                      cat.name.substring(1).toLowerCase()
+                  cat.name.substring(1).toLowerCase()
                   : '',
               style: AppTextStyles.nunitoMedium(14,
-                      color:
-                          isSelected ? AppColor.primaryColor : Colors.black87)
+                  color:
+                  isSelected ? AppColor.primaryColor : Colors.black87)
                   .copyWith(
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
               ),
@@ -2814,26 +2821,26 @@ class _HomeScreenState extends State<HomeScreen> {
     final List<String> heatLabels = ['Mild', 'Medium', 'Hot'];
 
     return
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 8,
-            activeTrackColor: AppColor.primaryColor,
-            inactiveTrackColor: Colors.grey,
-            valueIndicatorColor: AppColor.primaryColor,
-            thumbColor: AppColor.primaryColor,
-          ),
-          child: Slider(
-            value: heatProvider.selectedHeatLevel.toDouble(),
-            min: 0,
-            max: 2,
-            divisions: 2,
-            label: heatLabels[heatProvider.selectedHeatLevel],
-            onChanged: (double value) {
-              heatProvider.setHeatLevel(value.round());
-            },
-          ),
+      SliderTheme(
+        data: SliderTheme.of(context).copyWith(
+          trackHeight: 8,
+          activeTrackColor: AppColor.primaryColor,
+          inactiveTrackColor: Colors.grey,
+          valueIndicatorColor: AppColor.primaryColor,
+          thumbColor: AppColor.primaryColor,
+        ),
+        child: Slider(
+          value: heatProvider.selectedHeatLevel.toDouble(),
+          min: 0,
+          max: 2,
+          divisions: 2,
+          label: heatLabels[heatProvider.selectedHeatLevel],
+          onChanged: (double value) {
+            heatProvider.setHeatLevel(value.round());
+          },
+        ),
 
-    );
+      );
   }
 
 
@@ -2968,10 +2975,10 @@ class _HeatLevelSelectorState extends State<HeatLevelSelector> {
           data: SliderTheme.of(context).copyWith(
               trackHeight: 8,
               activeTrackColor:
-                  AppColor.primaryColor, // Hide default active track color
+              AppColor.primaryColor, // Hide default active track color
               inactiveTrackColor: Colors.grey,
               valueIndicatorColor:
-                  AppColor.primaryColor, // Hide default inactive track color
+              AppColor.primaryColor, // Hide default inactive track color
 
               thumbColor: AppColor.primaryColor),
           child: Slider(
@@ -2996,65 +3003,23 @@ class _HeatLevelSelectorState extends State<HeatLevelSelector> {
 }
 
 Future<bool> showExitDialog(BuildContext context) async {
-  final shouldExit = await showDialog<bool>(
+  final shouldExit = await CustomActionDialog.show(
     context: context,
-    builder: (context) => AlertDialog(
-      title: Text(
-        "Exit App",
-        style: AppStyle.textStyleReemKufi.copyWith(
-          fontWeight: FontWeight.w500,
-          color: AppColor.primaryColor,
-          fontSize: 18,
-          height: 1.0,
-        ),
-      ),
-      content: Text(
-        "Are you sure you want to exit?",
-        style: AppStyle.textStyleReemKufi.copyWith(
-          fontWeight: FontWeight.w300,
-          color: AppColor.blackColor,
-          fontSize: 18,
-          height: 1.0,
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(
-            "Cancel",
-            style: AppStyle.textStyleReemKufi.copyWith(
-              fontWeight: FontWeight.w300,
-              color: AppColor.blackColor,
-              fontSize: 14,
-              height: 1.0,
-            ),
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            // Call clearCart from provider
-            context.read<CartProvider>().clearCart();
-
-            // Then close the dialog
-            Navigator.of(context).pop(true);
-          },
-          child: Text(
-            "Exit",
-            style: AppStyle.textStyleReemKufi.copyWith(
-              fontWeight: FontWeight.w300,
-              color: AppColor.primaryColor,
-              fontSize: 14,
-              height: 1.0,
-            ),
-          ),
-        ),
-      ],
-    ),
+    title: "Leaving so soon? Do you want to exit the app?",
+    iconColor: Colors.orange,
+    cancelText: "No, Stay",
+    confirmText: "Yes, Exit",
+     imagePath: AppImage.logout,
   );
-  return shouldExit ?? false;
+
+  return shouldExit ?? false; // Return false if null
 }
 
+
+
 Future<String?> showSortByDialog(BuildContext context, String currentSort) {
+  final responsive = Responsiveness(context);
+  final screenHeight = MediaQuery.of(context).size.height;
   String selectedOption = currentSort;
   final provider = Provider.of<DashboardProvider>(context, listen: false);
   List<String> options = [
@@ -3075,6 +3040,11 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
             child: Material(
               color: Colors.transparent,
               child: Container(
+                height: responsive.isDesktop
+                    ? screenHeight * 0.5 // 50% of screen on desktop
+                    : responsive.isTablet
+                    ? screenHeight * 0.45 // 45% on tablet
+                    : screenHeight * 0.4, // 40% on mobile
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 padding: const EdgeInsets.only(top: 16, bottom: 16),
                 decoration: const BoxDecoration(
@@ -3105,7 +3075,7 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
                               textAlign: TextAlign
                                   .center, // Centers text within Expanded
                               style: AppTextStyles.nunitoBold(
-                                20,
+                                responsive.mainTitleSize,
                                 color: AppColor.whiteColor,
                               ),
                             ),
@@ -3134,7 +3104,7 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
                           title: Text(
                             option,
                             style: AppTextStyles.nunitoMedium(
-                              15,
+                              responsive.subtitleSize,
                               color: isSelected
                                   ? AppColor.primaryColor
                                   : AppColor.whiteColor,
@@ -3148,7 +3118,7 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
                         ),
                       );
                     }).toList(),
-                    const SizedBox(height: 10),
+                   Spacer(),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 8),
@@ -3166,7 +3136,7 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 padding:
-                                    const EdgeInsets.symmetric(vertical: 12),
+                                const EdgeInsets.symmetric(vertical: 12),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -3191,7 +3161,7 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 padding:
-                                    const EdgeInsets.symmetric(vertical: 12),
+                                const EdgeInsets.symmetric(vertical: 12),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -3219,7 +3189,7 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
     transitionBuilder: (context, anim1, anim2, child) {
       return SlideTransition(
         position:
-            Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim1),
+        Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim1),
         child: child,
       );
     },
@@ -3495,7 +3465,7 @@ void showAddOnDialog(BuildContext context, Item product) {
                               ),
                             ),
                             Selector<CategoryProvider, double>(
-                              selector: (_, provider) => provider.totalPrice,
+                              selector: (_, provider) => provider.totalPriceWithTakeWay,
                               builder: (context, totalPrice, child) {
                                 return Text(
                                   '₹${totalPrice.toStringAsFixed(2)}',
@@ -3961,7 +3931,7 @@ void _openSortDialog(BuildContext context) async {
 
   // Pass current selected sort (label) to dialog
   final selectedOption =
-      await showSortByDialog(context, provider.selectedSortLabel);
+  await showSortByDialog(context, provider.selectedSortLabel);
 
   if (selectedOption != null && selectedOption.isNotEmpty) {
     // Map UI label to API value

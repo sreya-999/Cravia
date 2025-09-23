@@ -72,7 +72,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
 
                               /// Dine-In & Takeaway options
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
                                   _buildOption(
                                     context: context,
@@ -98,7 +98,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
                                       );
                                     },
                                   ),
-                                  SizedBox(width: screenWidth * 0.05),
+                                //  SizedBox(width: screenWidth * 0.05),
                                   _buildOption(
                                     context: context,
                                     label: 'Take Away',

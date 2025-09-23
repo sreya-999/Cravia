@@ -12,7 +12,8 @@ import '../providers/dashboard_provider.dart';
 import '../utlis/App_image.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../utlis/widgets/resonsive.dart';
+
+import '../utlis/widgets/responsive.dart';
 
 class OrderSuccessScreen extends StatefulWidget {
   final OrderModel? order; // Add order model
@@ -38,7 +39,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => SelectionScreen()),
-            (route) => false, // remove all previous routes
+                (route) => false, // remove all previous routes
           );
         }
       },
@@ -179,8 +180,8 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (_) => SelectionScreen()),
-                                  (Route<dynamic> route) =>
-                                      false, // removes all previous routes
+                                      (Route<dynamic> route) =>
+                                  false, // removes all previous routes
                                 );
                               },
                               child: Text(

@@ -18,6 +18,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../utlis/widgets/shimmer_loading.dart';
+import 'package:lottie/lottie.dart';
 
 class ComboOfferScreen extends StatefulWidget {
   const ComboOfferScreen({super.key});
@@ -68,48 +69,48 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
           final double barHeight = isDesktop
               ? 110
               : isTablet
-                  ? 90
-                  : 80;
+              ? 90
+              : 80;
           final double paddingH = isDesktop
               ? 32
               : isTablet
-                  ? 20
-                  : 16;
+              ? 20
+              : 16;
           final double paddingV = isDesktop
               ? 16
               : isTablet
-                  ? 12
-                  : 10;
+              ? 12
+              : 10;
           final double priceTitleFont = isDesktop
               ? 18
               : isTablet
-                  ? 16
-                  : 15;
+              ? 16
+              : 15;
           final double priceValueFont = isDesktop
               ? 20
               : isTablet
-                  ? 18
-                  : 18;
+              ? 18
+              : 18;
           final double buttonFont = isDesktop
               ? 18
               : isTablet
-                  ? 17
-                  : 17;
+              ? 17
+              : 17;
           final double buttonPaddingH = isDesktop
               ? 36
               : isTablet
-                  ? 30
-                  : 28;
+              ? 30
+              : 28;
           final double buttonPaddingV = isDesktop
               ? 18
               : isTablet
-                  ? 16
-                  : 14;
+              ? 16
+              : 14;
 
           return Container(
             height: barHeight,
             padding:
-                EdgeInsets.symmetric(horizontal: paddingH, vertical: paddingV),
+            EdgeInsets.symmetric(horizontal: paddingH, vertical: paddingV),
             decoration: const BoxDecoration(
               gradient: const LinearGradient(
                 colors: [
@@ -307,14 +308,14 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                     height: MediaQuery.of(context).size.height * 0.6,
                     child: Center(
                         child: Text(
-                      "No products found",
-                      style: AppStyle.textStyleReemKufi.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: AppColor.greyColor,
-                        fontSize: 15,
-                        height: 1.0, // remove extra line height
-                      ),
-                    )),
+                          "No products found",
+                          style: AppStyle.textStyleReemKufi.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: AppColor.greyColor,
+                            fontSize: 15,
+                            height: 1.0, // remove extra line height
+                          ),
+                        )),
                   );
                 }
                 return ListView.builder(
@@ -360,10 +361,10 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                   children: [
                                     Padding(
                                       padding:
-                                          const EdgeInsets.only(left: 100.0),
+                                      const EdgeInsets.only(left: 100.0),
                                       child: Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                        MainAxisAlignment.spaceBetween,
                                         children: [
                                           // Text(
                                           //   "Combo offers",
@@ -399,7 +400,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                 fontSize: 12,
                                                 foreground: Paint()
                                                   ..shader =
-                                                      const LinearGradient(
+                                                  const LinearGradient(
                                                     colors: [
                                                       AppColor.secondary,
                                                       AppColor.primaryColor,
@@ -418,21 +419,21 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                     const SizedBox(height: 16),
                                     Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                      MainAxisAlignment.center,
                                       children: List.generate(
                                         product.images.length * 2 - 1,
-                                        (i) {
+                                            (i) {
                                           if (i.isEven) {
                                             final img = product.images[i ~/ 2];
                                             return Container(
                                               height: imageSize,
                                               width:
-                                                  imageSize, // inner padding inside the container
+                                              imageSize, // inner padding inside the container
                                               decoration: BoxDecoration(
                                                 color: Colors.blue
                                                     .shade50, // background color around image
                                                 borderRadius:
-                                                    BorderRadius.circular(20),
+                                                BorderRadius.circular(20),
                                                 border: Border.all(
                                                   color: Colors.grey.shade300,
                                                   width: 1.5,
@@ -441,7 +442,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                   BoxShadow(
                                                     color: Colors.black
                                                         .withOpacity(
-                                                            0.15), // Shadow color
+                                                        0.15), // Shadow color
                                                     blurRadius: 6, // Softness
                                                     spreadRadius: 2, // Spread
                                                     offset: const Offset(
@@ -451,7 +452,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                               ),
                                               child: ClipRRect(
                                                 borderRadius:
-                                                    BorderRadius.circular(16),
+                                                BorderRadius.circular(16),
                                                 child: Image.network(
                                                   '${ApiEndpoints.imageBaseUrl}$img',
                                                   height: imageSize,
@@ -464,24 +465,24 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                             // The "+" icon between images
                                             return Padding(
                                               padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 6.0),
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 6.0),
                                               child: ShaderMask(
                                                 shaderCallback: (bounds) =>
                                                     const LinearGradient(
-                                                  colors: [
-                                                    AppColor.secondary,
-                                                    AppColor.primaryColor,
-                                                  ],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ).createShader(
-                                                  Rect.fromLTWH(
-                                                      0,
-                                                      0,
-                                                      bounds.width,
-                                                      bounds.height),
-                                                ),
+                                                      colors: [
+                                                        AppColor.secondary,
+                                                        AppColor.primaryColor,
+                                                      ],
+                                                      begin: Alignment.topLeft,
+                                                      end: Alignment.bottomRight,
+                                                    ).createShader(
+                                                      Rect.fromLTWH(
+                                                          0,
+                                                          0,
+                                                          bounds.width,
+                                                          bounds.height),
+                                                    ),
                                                 child: const Icon(
                                                   Icons.add,
                                                   size: 35,
@@ -541,7 +542,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                         ]
                                       ],
                                     ),
-                                   SizedBox(height:5),
+                                    SizedBox(height:5),
                                     Padding(
                                       padding: const EdgeInsets.only(left:12.0),
                                       child: Row(
@@ -549,10 +550,10 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                           if (product.discountPrice != null &&
                                               product.discountPrice!.isNotEmpty &&
                                               double.tryParse(
-                                                      product.discountPrice!) !=
+                                                  product.discountPrice!) !=
                                                   null &&
                                               double.parse(
-                                                      product.discountPrice!) >
+                                                  product.discountPrice!) >
                                                   0) ...[
                                             // Discounted Price
                                             Text(
@@ -571,7 +572,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                 fontSize: 15,
                                                 color: AppColor.greyColor,
                                                 decoration:
-                                                    TextDecoration.lineThrough,
+                                                TextDecoration.lineThrough,
                                               ),
                                             ),
                                           ] else ...[
@@ -651,7 +652,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
 
   void showBurgerDialog(BuildContext context, ComboProductModel product) {
     final selectedProvider =
-        Provider.of<CategoryProvider>(context, listen: false);
+    Provider.of<CategoryProvider>(context, listen: false);
     final prefHelper = getIt<SharedPreferenceHelper>();
     final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
     //selectedProvider.setBasePrice(product.price.toDouble());
@@ -667,7 +668,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
       selectedProvider.setBasePrice(
         product.discountPrice != null && product.discountPrice!.isNotEmpty
             ? double.tryParse(product.discountPrice!) ??
-                product.price.toDouble()
+            product.price.toDouble()
             : product.price.toDouble(),
       );
     }
@@ -679,18 +680,18 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
     final double buttonFontSize = isDesktop
         ? 25
         : isTablet
-            ? 17
-            : 16;
+        ? 17
+        : 16;
     final double priceSize = isDesktop
         ? 27
         : isTablet
-            ? 20
-            : 20;
+        ? 20
+        : 20;
     final double description = isDesktop
         ? 20
         : isTablet
-            ? 15
-            : 15;
+        ? 15
+        : 15;
     final size = MediaQuery.of(context).size;
     final badgeSize = size.width * 0.15;
 
@@ -747,736 +748,791 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                               stops: [0.3, 0.25],
                             ),
                             borderRadius:
-                                BorderRadius.vertical(top: Radius.circular(24)),
+                            BorderRadius.vertical(top: Radius.circular(24)),
                           ),
                           child: Stack(
-                            children: [
-                            Column(
-                              mainAxisSize: MainAxisSize.max,
                               children: [
+                                Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
 
-                                Container(
-                                  height: screenHeight * 0.16,
-                                  width: double.infinity,
-                                  decoration: const BoxDecoration(
+                                    Container(
+                                      height: screenHeight * 0.16,
+                                      width: double.infinity,
+                                      decoration: const BoxDecoration(
 
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        AppColor.secondary,
-                                        AppColor.primaryColor
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(30),
-                                      topRight: Radius.circular(30),
-                                    ),
-                                  ),
-                                  child: LayoutBuilder(
-                                    builder: (context, constraints) {
-                                      final screenWidth = constraints.maxWidth;
-                                      final screenHeight = constraints.maxHeight;
-
-                                      final totalItems =
-                                          product.images.length * 2 - 1;
-                                      final spacing = 8.0;
-
-                                      final imageSize = (screenWidth -
-                                              (spacing * (totalItems - 1))) /
-                                          totalItems;
-
-                                      return Container(
-                                        height: imageSize +
-                                            70, // Increased height to fit price
-                                        width: double.infinity,
-                                        decoration: const BoxDecoration(
-                                          image: DecorationImage(
-                                            image: AssetImage(AppImage.bgImg),
-                                            fit: BoxFit.cover, // Cover the entire container
-
-                                          ),
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              AppColor.primaryColor,
-                                              AppColor.primaryColor,
-                                            ],
-                                            end: Alignment.bottomRight,
-                                            begin: Alignment.topCenter,
-                                            stops: [0.3, 0.9],
-                                          ),
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(30),
-                                            topRight: Radius.circular(30),
-                                          ),
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            AppColor.secondary,
+                                            AppColor.primaryColor
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
                                         ),
-                                        child: Stack(
-                                          children: [
-                                            /// Product Name and Price
-                                            Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 15.0,top: 25),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(30),
+                                          topRight: Radius.circular(30),
+                                        ),
+                                      ),
+                                      child: LayoutBuilder(
+                                        builder: (context, constraints) {
+                                          final screenWidth = constraints.maxWidth;
+                                          final screenHeight = constraints.maxHeight;
 
-                                                    /// Product Name
-                                                    Row(
+                                          final totalItems =
+                                              product.images.length * 2 - 1;
+                                          final spacing = 8.0;
+
+                                          final imageSize = (screenWidth -
+                                              (spacing * (totalItems - 1))) /
+                                              totalItems;
+
+                                          return Container(
+                                            height: imageSize +
+                                                70, // Increased height to fit price
+                                            width: double.infinity,
+                                            decoration: const BoxDecoration(
+                                              image: DecorationImage(
+                                                image: AssetImage(AppImage.bgImg),
+                                                fit: BoxFit.cover, // Cover the entire container
+
+                                              ),
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  AppColor.primaryColor,
+                                                  AppColor.primaryColor,
+                                                ],
+                                                end: Alignment.bottomRight,
+                                                begin: Alignment.topCenter,
+                                                stops: [0.3, 0.9],
+                                              ),
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(30),
+                                                topRight: Radius.circular(30),
+                                              ),
+                                            ),
+                                            child: Stack(
+                                              children: [
+                                                /// Product Name and Price
+                                                Padding(
+                                                  padding: const EdgeInsets.all(8.0),
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.only(
+                                                        left: 15.0,top: 25),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                       mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
+                                                      MainAxisAlignment.center,
                                                       children: [
-                                                        Text(
-                                                          (product.name != null &&
+
+                                                        /// Product Name
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                          children: [
+                                                            Text(
+                                                              (product.name != null &&
                                                                   product.name!
                                                                       .isNotEmpty)
-                                                              ? product.name![0]
-                                                                      .toUpperCase() +
+                                                                  ? product.name![0]
+                                                                  .toUpperCase() +
                                                                   product.name!
                                                                       .substring(1)
                                                                       .toLowerCase()
-                                                              : '',
-                                                          style: AppTextStyles.nunitoBold(priceSize, color:  AppColor.whiteColor),
+                                                                  : '',
+                                                              style: AppTextStyles.nunitoBold(priceSize, color:  AppColor.whiteColor),
+                                                            ),
+                                                            Text(
+                                                              "₹${(product.discountPrice != null && product.discountPrice!.isNotEmpty ? num.tryParse(product.discountPrice!) : product.price.toDouble())?.toStringAsFixed(2) ?? '0.00'}",
+                                                              style: AppTextStyles.nunitoBold(priceSize, color:  AppColor.whiteColor),
+                                                            ),
+                                                          ],
                                                         ),
-                                                        Text(
-                                                          "₹${(product.discountPrice != null && product.discountPrice!.isNotEmpty ? num.tryParse(product.discountPrice!) : product.price.toDouble())?.toStringAsFixed(2) ?? '0.00'}",
-                                                          style: AppTextStyles.nunitoBold(priceSize, color:  AppColor.whiteColor),
-                                                        ),
-                                                      ],
-                                                    ),
 
-                                                    const SizedBox(height: 5),
+                                                        const SizedBox(height: 5),
 
-                                                    /// Product Price
-                                                    Row(
-                                                      mainAxisAlignment:
+                                                        /// Product Price
+                                                        Row(
+                                                          mainAxisAlignment:
                                                           MainAxisAlignment
                                                               .spaceBetween,
-                                                      children: [
-                                                        // Left Side: Prep Time (Shown only if available)
-                                                        if (product.time !=
+                                                          children: [
+                                                            // Left Side: Prep Time (Shown only if available)
+                                                            if (product.time !=
                                                                 null &&
-                                                            product.time!
-                                                                .trim()
-                                                                .isNotEmpty)
-                                                          Row(
-                                                            children: [
-                                                              const Icon(
-                                                                Icons
-                                                                    .access_time_outlined,
-                                                                color: Colors
-                                                                    .white70,
-                                                              ),
-                                                              const SizedBox(
-                                                                  width: 6),
-
-                                                              Text(
                                                                 product.time!
+                                                                    .trim()
+                                                                    .isNotEmpty)
+                                                              Row(
+                                                                children: [
+                                                                  const Icon(
+                                                                    Icons
+                                                                        .access_time_outlined,
+                                                                    color: Colors
+                                                                        .white70,
+                                                                  ),
+                                                                  const SizedBox(
+                                                                      width: 6),
+
+                                                                  Text(
+                                                                    product.time!
                                                                         .toLowerCase()
                                                                         .contains(
-                                                                            "mins")
-                                                                    ? product
+                                                                        "mins")
+                                                                        ? product
                                                                         .time!
-                                                                    : "${product.time} mins",
-                                                                style: AppStyle
-                                                                    .textStyleReemKufi
-                                                                    .copyWith(
-                                                                  color: Colors
-                                                                      .white70,
-                                                                  fontSize: 15,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-
-                                                        // Right Side: Price
-                                                        if (product.takeAwayPrice != null && isTakeAway)
-                                                          Row(
-                                                            children: [
-                                                              SvgPicture.asset(
-                                                                AppImage.take,
-                                                                height: 20,
-                                                                color: AppColor.whiteColor,
-
-                                                              ),
-                                                              const SizedBox(width: 4),
-                                                              Builder(
-                                                                builder: (context) {
-                                                                  final dynamic packingCharge = product.takeAwayPrice;
-                                                                  final double? chargeValue = packingCharge is String
-                                                                      ? double.tryParse(packingCharge)
-                                                                      : (packingCharge is double ? packingCharge : null);
-
-                                                                  return Text(
-                                                                    chargeValue != null
-                                                                        ? "Wrap & Pack Fee Rs  ${chargeValue.toStringAsFixed(2)}"
-                                                                        : "Rs 0.00", style: AppStyle.textStyleReemKufi.copyWith(
-                                                                    color: AppColor.whiteColor,
-                                                                    fontSize: 12,
+                                                                        : "${product.time} mins",
+                                                                    style: AppStyle
+                                                                        .textStyleReemKufi
+                                                                        .copyWith(
+                                                                      color: Colors
+                                                                          .white70,
+                                                                      fontSize: 15,
+                                                                    ),
                                                                   ),
-                                                                  );
-                                                                },
+                                                                ],
                                                               ),
-                                                            ],
-                                                          ),
+
+                                                            // Right Side: Price
+                                                            if (product.takeAwayPrice != null && isTakeAway)
+                                                              Row(
+                                                                children: [
+                                                                  SvgPicture.asset(
+                                                                    AppImage.take,
+                                                                    height: 20,
+                                                                    color: AppColor.whiteColor,
+
+                                                                  ),
+                                                                  const SizedBox(width: 4),
+                                                                  Builder(
+                                                                    builder: (context) {
+                                                                      final dynamic packingCharge = product.takeAwayPrice;
+                                                                      final double? chargeValue = packingCharge is String
+                                                                          ? double.tryParse(packingCharge)
+                                                                          : (packingCharge is double ? packingCharge : null);
+
+                                                                      return Text(
+                                                                        chargeValue != null
+                                                                            ? "Wrap & Pack Fee Rs  ${chargeValue.toStringAsFixed(2)}"
+                                                                            : "Rs 0.00", style: AppStyle.textStyleReemKufi.copyWith(
+                                                                        color: AppColor.whiteColor,
+                                                                        fontSize: 12,
+                                                                      ),
+                                                                      );
+                                                                    },
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                          ],
+                                                        ),
+
                                                       ],
                                                     ),
-
-                                                  ],
+                                                  ),
                                                 ),
-                                              ),
+
+                                                /// Badge
+
+                                              ],
                                             ),
-
-                                            /// Badge
-
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-
-                                Expanded(
-                                  child: Container(
-                                    clipBehavior: Clip.hardEdge,
-                                    decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(70),
-                                        //topRight: Radius.circular(10),
-                                        //  bottomRight: Radius.circular(10),
+                                          );
+                                        },
                                       ),
                                     ),
-                                    child: SingleChildScrollView(
-                                      padding: EdgeInsets.all(screenWidth * 0.04),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const SizedBox(
-                                            height: 25,
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "Quantity",
-                                                style: AppTextStyles.nunitoMedium(buttonFontSize, color:  AppColor.blackColor),
 
-                                              ),
+                                    Expanded(
+                                      child: Container(
+                                        clipBehavior: Clip.hardEdge,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(70),
+                                            //topRight: Radius.circular(10),
+                                            //  bottomRight: Radius.circular(10),
+                                          ),
+                                        ),
+                                        child: SingleChildScrollView(
+                                          padding: EdgeInsets.all(screenWidth * 0.04),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                            children: [
                                               const SizedBox(
-                                                width: 20,
+                                                height: 25,
                                               ),
                                               Row(
                                                 mainAxisAlignment:
-                                                    MainAxisAlignment.start,
+                                                MainAxisAlignment.end,
+                                                crossAxisAlignment:
+                                                CrossAxisAlignment.center,
                                                 children: [
-                                                  _buildIconButton(Icons.remove,
-                                                      () {
-                                                    selectedProvider
-                                                        .decreaseQuantity();
-                                                  }),
-                                                  const SizedBox(width: 12),
-                                                  Consumer<CategoryProvider>(
-                                                    builder: (context, provider,
-                                                        child) {
-                                                      return Text(
-                                                        "${provider.quantity}",
-                                                        style: AppStyle
-                                                            .textStyleReemKufi
-                                                            .copyWith(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontSize: 20,
-                                                        ),
-                                                      );
-                                                    },
+                                                  Text(
+                                                    "Quantity",
+                                                    style: AppTextStyles.nunitoMedium(buttonFontSize, color:  AppColor.blackColor),
+
                                                   ),
-                                                  const SizedBox(width: 12),
-                                                  _buildIconButton(Icons.add, () {
-                                                    selectedProvider
-                                                        .increaseQuantity();
-                                                  }),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(
-                                            height: 25,
-                                          ),
-                                          Column(
-                                            children: List.generate(
-                                                product.images.length, (index) {
-                                              final imageUrl =
-                                                  '${ApiEndpoints.imageBaseUrl}${product.images[index]}';
-
-                                              return Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 12.0),
-                                                child: IntrinsicHeight(
-                                                  // 👈 ensures Row takes full height of card
-                                                  child: Row(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
+                                                  const SizedBox(
+                                                    width: 20,
+                                                  ),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                    MainAxisAlignment.start,
                                                     children: [
-                                                      /// Circle + Line
-                                                      Column(
-                                                        children: [
-                                                          // Circle
-                                                          CircleAvatar(
-                                                            radius: 12,
-                                                            backgroundColor:
-                                                                AppColor.primaryColor,
-                                                            child: Text(
-                                                              '${index + 1}',
-                                                              style:
-                                                                  const TextStyle(
-                                                                color:
-                                                                    Colors.white,
-                                                                fontSize: 10
-                                                              ),
+                                                      _buildIconButton(Icons.remove,
+                                                              () {
+                                                            selectedProvider
+                                                                .decreaseQuantity();
+                                                          }),
+                                                      const SizedBox(width: 12),
+                                                      Consumer<CategoryProvider>(
+                                                        builder: (context, provider,
+                                                            child) {
+                                                          return Text(
+                                                            "${provider.quantity}",
+                                                            style: AppStyle
+                                                                .textStyleReemKufi
+                                                                .copyWith(
+                                                              fontWeight:
+                                                              FontWeight.w600,
+                                                              fontSize: 20,
                                                             ),
-                                                          ),
-
-                                                          // Vertical Line (only if not last item)
-                                                          if (index <
-                                                              product.images
-                                                                      .length -
-                                                                  1)
-                                                            Expanded(
-                                                              // 👈 this makes line auto-match card height
-                                                              child: Container(
-                                                                width: 2,
-                                                                color: Colors.grey
-                                                                    .shade200,
-                                                              ),
-                                                            ),
-                                                        ],
+                                                          );
+                                                        },
                                                       ),
-
-                                                      const SizedBox(width: 5),
-
-                                                      /// Card
-                                                      Expanded(
-                                                        child: Container(
-                                                          padding: const EdgeInsets.all(12),
-                                                          decoration: BoxDecoration(
-                                                            color: Colors.orange.shade50,
-                                                            borderRadius: BorderRadius.circular(12),
-                                                            boxShadow: [
-                                                              BoxShadow(
-                                                                color: Colors.black.withOpacity(0.1),
-                                                                blurRadius: 6,
-                                                                offset: const Offset(0, 3),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          child: Row(
-                                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                                            children: [
-                                                              /// Product Image
-                                                              ClipRRect(
-                                                                borderRadius: BorderRadius.circular(10),
-                                                                child: Image.network(
-                                                                  imageUrl,
-                                                                  height: 80,
-                                                                  width: 80,
-                                                                  //fit: BoxFit.cover,
-                                                                ),
-                                                              ),
-                                                              /// Details Section
-                                                              Expanded(
-                                                                child: Column(
-                                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                                  children: [
-                                                                    /// Product Name
-                                                                    Padding(
-                                                                      padding: const EdgeInsets.only(left: 13.0),
-                                                                      child: Text(
-                                                                        product.categoryName[index],
-                                                                        style: AppTextStyles.nunitoMedium(
-                                                                          18,
-                                                                          color: AppColor.blackColor,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    const SizedBox(height: 4),
-
-                                                                    /// Description with See More
-                                                                    if (product.description.isNotEmpty)
-                                                                      Builder(
-                                                                        builder: (context) {
-                                                                          bool isExpanded = false;
-                                                                          return StatefulBuilder(
-                                                                            builder: (context, setState) {
-                                                                              final String descriptionText =
-                                                                              product.description.join(' ');
-
-                                                                              return Padding(
-                                                                                padding: const EdgeInsets.only(left: 13.0),
-                                                                                child: Column(
-                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                  children: [
-                                                                                    Text(
-                                                                                      isExpanded || descriptionText.length <= 80
-                                                                                          ? descriptionText
-                                                                                          : '${descriptionText.substring(0, 80)}...',
-                                                                                      textAlign: TextAlign
-                                                                                          .justify,
-                                                                                      style: AppTextStyles.latoRegular(
-                                                                                        14,
-                                                                                        color: AppColor.lightGreyColor,
-                                                                                      ),
-                                                                                    ),
-                                                                                    if (descriptionText.length > 80)
-                                                                                      GestureDetector(
-                                                                                        onTap: () {
-                                                                                          setState(() {
-                                                                                            isExpanded = !isExpanded;
-                                                                                          });
-                                                                                        },
-                                                                                        child: Text(
-                                                                                          isExpanded ? 'See Less' : 'See More',
-                                                                                          style: const TextStyle(
-                                                                                            color: AppColor.primaryColor,
-                                                                                            fontSize: 13,
-                                                                                            fontWeight: FontWeight.bold,
-                                                                                          ),
-                                                                                        ),
-                                                                                      ),
-                                                                                  ],
-                                                                                ),
-                                                                              );
-                                                                            },
-                                                                          );
-                                                                        },
-                                                                      ),
-
-                                                                    const SizedBox(height: 10),
-
-                                                                    /// Spicy Label
-                                                                    Padding(
-                                                                      padding: const EdgeInsets.only(left: 17.0),
-                                                                      child: Text(
-                                                                        "Spicy",
-                                                                        style: AppTextStyles.nunitoMedium(
-                                                                          buttonFontSize,
-                                                                          color: AppColor.blackColor,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-
-                                                                    /// Heat Level Selector
-                                                                    HeatLevelSelector(),
-
-                                                                    /// Mild, Medium, Hot Labels
-                                                                    Padding(
-                                                                      padding: const EdgeInsets.only(left: 15.0,right:10),
-                                                                      child: Row(
-                                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                        children: [
-                                                                          _buildSpicyLabel("Mild"),
-                                                                          _buildSpicyLabel("Medium"),
-                                                                          _buildSpicyLabel("Hot"),
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-
+                                                      const SizedBox(width: 12),
+                                                      _buildIconButton(Icons.add, () {
+                                                        selectedProvider
+                                                            .increaseQuantity();
+                                                      }),
                                                     ],
                                                   ),
-                                                ),
-                                              );
-                                            }),
+                                                ],
+                                              ),
+                                              const SizedBox(
+                                                height: 25,
+                                              ),
+                                              Column(
+                                                children: List.generate(
+                                                    product.images.length, (index) {
+                                                  final imageUrl =
+                                                      '${ApiEndpoints.imageBaseUrl}${product.images[index]}';
+
+                                                  return Padding(
+                                                    padding: const EdgeInsets.only(
+                                                        bottom: 12.0),
+                                                    child: IntrinsicHeight(
+                                                      // 👈 ensures Row takes full height of card
+                                                      child: Row(
+                                                        crossAxisAlignment:
+                                                        CrossAxisAlignment.start,
+                                                        children: [
+                                                          /// Circle + Line
+                                                          Column(
+                                                            children: [
+                                                              // Circle
+                                                              CircleAvatar(
+                                                                radius: 12,
+                                                                backgroundColor:
+                                                                AppColor.primaryColor,
+                                                                child: Text(
+                                                                  '${index + 1}',
+                                                                  style:
+                                                                  const TextStyle(
+                                                                      color:
+                                                                      Colors.white,
+                                                                      fontSize: 10
+                                                                  ),
+                                                                ),
+                                                              ),
+
+                                                              // Vertical Line (only if not last item)
+                                                              if (index <
+                                                                  product.images
+                                                                      .length -
+                                                                      1)
+                                                                Expanded(
+                                                                  // 👈 this makes line auto-match card height
+                                                                  child: Container(
+                                                                    width: 2,
+                                                                    color: Colors.grey
+                                                                        .shade200,
+                                                                  ),
+                                                                ),
+                                                            ],
+                                                          ),
+
+                                                          const SizedBox(width: 5),
+
+                                                          /// Card
+                                                          Expanded(
+                                                            child: Container(
+                                                              padding: const EdgeInsets.all(12),
+                                                              decoration: BoxDecoration(
+                                                                color: Colors.orange.shade50,
+                                                                borderRadius: BorderRadius.circular(12),
+                                                                boxShadow: [
+                                                                  BoxShadow(
+                                                                    color: Colors.black.withOpacity(0.1),
+                                                                    blurRadius: 6,
+                                                                    offset: const Offset(0, 3),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              child: Row(
+                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                children: [
+                                                                  /// Product Image
+                                                                  ClipRRect(
+                                                                    borderRadius: BorderRadius.circular(10),
+                                                                    child: Image.network(
+                                                                      imageUrl,
+                                                                      height: 80,
+                                                                      width: 80,
+                                                                      //fit: BoxFit.cover,
+                                                                    ),
+                                                                  ),
+                                                                  /// Details Section
+                                                                  Expanded(
+                                                                    child: Column(
+                                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                                      children: [
+                                                                        /// Product Name
+                                                                        Padding(
+                                                                          padding: const EdgeInsets.only(left: 13.0),
+                                                                          child: Text(
+                                                                            product.categoryName[index],
+                                                                            style: AppTextStyles.nunitoMedium(
+                                                                              18,
+                                                                              color: AppColor.blackColor,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        const SizedBox(height: 4),
+
+                                                                        /// Description with See More
+                                                                        if (product.description.isNotEmpty)
+                                                                          Builder(
+                                                                            builder: (context) {
+                                                                              bool isExpanded = false;
+                                                                              return StatefulBuilder(
+                                                                                builder: (context, setState) {
+                                                                                  final String descriptionText =
+                                                                                  product.description.join(' ');
+
+                                                                                  return Padding(
+                                                                                    padding: const EdgeInsets.only(left: 13.0),
+                                                                                    child: Column(
+                                                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                      children: [
+                                                                                        Text(
+                                                                                          isExpanded || descriptionText.length <= 80
+                                                                                              ? descriptionText
+                                                                                              : '${descriptionText.substring(0, 80)}...',
+                                                                                          textAlign: TextAlign
+                                                                                              .justify,
+                                                                                          style: AppTextStyles.latoRegular(
+                                                                                            14,
+                                                                                            color: AppColor.lightGreyColor,
+                                                                                          ),
+                                                                                        ),
+                                                                                        if (descriptionText.length > 80)
+                                                                                          GestureDetector(
+                                                                                            onTap: () {
+                                                                                              setState(() {
+                                                                                                isExpanded = !isExpanded;
+                                                                                              });
+                                                                                            },
+                                                                                            child: Text(
+                                                                                              isExpanded ? 'See Less' : 'See More',
+                                                                                              style: const TextStyle(
+                                                                                                color: AppColor.primaryColor,
+                                                                                                fontSize: 13,
+                                                                                                fontWeight: FontWeight.bold,
+                                                                                              ),
+                                                                                            ),
+                                                                                          ),
+                                                                                      ],
+                                                                                    ),
+                                                                                  );
+                                                                                },
+                                                                              );
+                                                                            },
+                                                                          ),
+
+                                                                        const SizedBox(height: 10),
+
+                                                                        /// Spicy Label
+                                                                        Padding(
+                                                                          padding: const EdgeInsets.only(left: 17.0),
+                                                                          child: Text(
+                                                                            "Spicy",
+                                                                            style: AppTextStyles.nunitoMedium(
+                                                                              buttonFontSize,
+                                                                              color: AppColor.blackColor,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+
+                                                                        /// Heat Level Selector
+                                                                        HeatLevelSelector(),
+
+                                                                        /// Mild, Medium, Hot Labels
+                                                                        Padding(
+                                                                          padding: const EdgeInsets.only(left: 15.0,right:10),
+                                                                          child: Row(
+                                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                            children: [
+                                                                              _buildSpicyLabel("Mild"),
+                                                                              _buildSpicyLabel("Medium"),
+                                                                              _buildSpicyLabel("Hot"),
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  );
+                                                }),
+                                              ),
+                                              SizedBox(height: screenHeight * 0.02),
+                                            ],
                                           ),
-                                          SizedBox(height: screenHeight * 0.02),
-                                        ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                               // Spacer(),
-                                GestureDetector(
-                                  onTap: () {
-                                    // Navigate or open add-ons screen
-                                    // Navigator.pop(context);
-                                    Future.delayed(
-                                        const Duration(milliseconds: 200), () {
-                                      showAddOnDialog(
-                                          context, product); // Your add-on dialog
-                                    });
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 8.0),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 10),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFF9EFE9),
-                                        borderRadius: BorderRadius.circular(12),
+                                    // Spacer(),
+                                    GestureDetector(
+                                      onTap: () {
+                                        // Navigate or open add-ons screen
+                                        // Navigator.pop(context);
+                                        Future.delayed(
+                                            const Duration(milliseconds: 200), () {
+                                          showAddOnDialog(
+                                              context, product); // Your add-on dialog
+                                        });
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(bottom: 8.0),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 10),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF9EFE9),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              SvgPicture.asset(
+                                                  AppImage.addOn,
+                                                  height: 20
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Column(
+                                                crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                                children:  [
+                                                  Text(
+                                                      "Add Add-Ons",
+                                                      style: AppTextStyles.latoBold(15,
+                                                          color:  AppColor.blackColor)
+                                                  ),
+                                                  Text(
+                                                      "Make It Special — Choose Your Add-Ons Now!",
+                                                      style: AppTextStyles.latoMedium(12, color:  AppColor.lightGreyColor)
+                                                  ),
+                                                ],
+                                              ),
+                                              const Spacer(),
+                                              const Icon(Icons.arrow_forward_ios,
+                                                  size: 18, color: Colors.black54),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: screenWidth * 0.04,
+                                        vertical: screenHeight * 0.015,
+                                      ),
+                                      decoration: const BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            AppColor.secondary, // Top color
+                                            AppColor.primaryColor // Fade out below
+                                          ],
+                                          begin: Alignment.topCenter,    // Start at the very top
+                                          end: Alignment.bottomCenter,   // End at the bottom
+                                          stops: [0.0, 0.5],             // 0.0 = start, 0.4 = 40% height
+                                          tileMode: TileMode.clamp,
+                                        ),
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(20),
+                                          topRight: Radius.circular(20),
+                                        ),
                                       ),
                                       child: Row(
                                         children: [
-                                          SvgPicture.asset(
-                                              AppImage.addOn,
-                                              height: 20
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            children:  [
-                                              Text(
-                                                  "Add Add-Ons",
-                                                  style: AppTextStyles.latoBold(15,
-                                                      color:  AppColor.blackColor)
-                                              ),
-                                              Text(
-                                                  "Make It Special — Choose Your Add-Ons Now!",
-                                                  style: AppTextStyles.latoMedium(12, color:  AppColor.lightGreyColor)
-                                              ),
-                                            ],
-                                          ),
-                                          const Spacer(),
-                                          const Icon(Icons.arrow_forward_ios,
-                                              size: 18, color: Colors.black54),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: screenWidth * 0.04,
-                                    vertical: screenHeight * 0.015,
-                                  ),
-                                  decoration: const BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        AppColor.secondary, // Top color
-                                        AppColor.primaryColor // Fade out below
-                                      ],
-                                      begin: Alignment.topCenter,    // Start at the very top
-                                      end: Alignment.bottomCenter,   // End at the bottom
-                                      stops: [0.0, 0.5],             // 0.0 = start, 0.4 = 40% height
-                                      tileMode: TileMode.clamp,
-                                    ),
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(20),
-                                      topRight: Radius.circular(20),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      // Price box
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 12, vertical: 6),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            ShaderMask(
-                                              shaderCallback: (bounds) =>
-                                                  const LinearGradient(colors: [
-                                                AppColor.primaryColor,
-                                                AppColor.primaryColor
-                                              ]).createShader(Rect.fromLTWH(
-                                                      0,
-                                                      0,
-                                                      bounds.width,
-                                                      bounds.height)),
-                                              child: Text('Price',
-                                                  style: AppStyle
-                                                      .textStyleReemKufi
-                                                      .copyWith(
-                                                    color: Colors.white,
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w700,
-                                                  )),
+                                          // Price box
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 12, vertical: 6),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(12),
                                             ),
-                                            Selector<CategoryProvider, double>(
-                                              selector: (_, provider) =>
-                                                  provider.totalPrice,
-                                              builder:
-                                                  (context, totalPrice, child) {
-                                                return ShaderMask(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                              children: [
+                                                ShaderMask(
                                                   shaderCallback: (bounds) =>
-                                                      const LinearGradient(
-                                                          colors: [
+                                                      const LinearGradient(colors: [
                                                         AppColor.primaryColor,
                                                         AppColor.primaryColor
-                                                      ]).createShader(
-                                                          Rect.fromLTWH(
+                                                      ]).createShader(Rect.fromLTWH(
+                                                          0,
+                                                          0,
+                                                          bounds.width,
+                                                          bounds.height)),
+                                                  child: Text('Price',
+                                                      style: AppStyle
+                                                          .textStyleReemKufi
+                                                          .copyWith(
+                                                        color: Colors.white,
+                                                        fontSize: 16,
+                                                        fontWeight: FontWeight.w700,
+                                                      )),
+                                                ),
+                                                Selector<CategoryProvider, double>(
+                                                  selector: (context, provider) {
+                                                    final prefHelper = getIt<
+                                                        SharedPreferenceHelper>();
+                                                    final isTakeAway =
+                                                        prefHelper.getBool(StorageKey
+                                                            .isTakeAway) ??
+                                                            false;
+
+                                                    // If TakeAway is true, use totalPrice else use totalPrices
+                                                    return isTakeAway
+                                                        ? provider.totalPriceWithTakeWay
+                                                        : provider.totalPrices;
+                                                  },
+                                                  builder:
+                                                      (context, finalTotal, child) {
+                                                    return ShaderMask(
+                                                      shaderCallback: (bounds) =>
+                                                          const LinearGradient(
+                                                            colors: [
+                                                              AppColor.primaryColor,
+                                                              AppColor.primaryColor
+                                                            ],
+                                                          ).createShader(Rect.fromLTWH(
                                                               0,
                                                               0,
                                                               bounds.width,
                                                               bounds.height)),
-                                                  child: Text(
-                                                    '₹${totalPrice.toStringAsFixed(2)}',
-                                                    style: AppStyle
-                                                        .textStyleReemKufi
-                                                        .copyWith(
-                                                      color: Colors.white,
-                                                      fontSize:
-                                                          isDesktop ? 18 : 18,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                );
-                                              },
+                                                      child: Text(
+                                                        '₹${finalTotal.toStringAsFixed(2)}',
+                                                        style: AppStyle
+                                                            .textStyleReemKufi
+                                                            .copyWith(
+                                                          color: Colors.white,
+                                                          fontSize:
+                                                          isDesktop ? 20 : 18,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                                // Selector<CategoryProvider, double>(
+                                                //   selector: (_, provider) =>
+                                                //       provider.totalPrice,
+                                                //   builder:
+                                                //       (context, totalPrice, child) {
+                                                //     return ShaderMask(
+                                                //       shaderCallback: (bounds) =>
+                                                //           const LinearGradient(
+                                                //               colors: [
+                                                //             AppColor.primaryColor,
+                                                //             AppColor.primaryColor
+                                                //           ]).createShader(
+                                                //               Rect.fromLTWH(
+                                                //                   0,
+                                                //                   0,
+                                                //                   bounds.width,
+                                                //                   bounds.height)),
+                                                //       child: Text(
+                                                //         '₹${totalPrice.toStringAsFixed(2)}',
+                                                //         style: AppStyle
+                                                //             .textStyleReemKufi
+                                                //             .copyWith(
+                                                //           color: Colors.white,
+                                                //           fontSize:
+                                                //               isDesktop ? 18 : 18,
+                                                //           fontWeight: FontWeight.bold,
+                                                //         ),
+                                                //       ),
+                                                //     );
+                                                //   },
+                                                // ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: 15),
-
-                                      // Add to Cart button
-                                      Expanded(
-                                        child: Container(
-                                          height: 60,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(12),
                                           ),
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              print(
-                                                  "Images in product: ${product.images}");
-                                              final totalTime = context
-                                                  .read<CategoryProvider>()
-                                                  .totalTime;
-                                              final cartProvider =
+                                          const SizedBox(width: 15),
+
+                                          // Add to Cart button
+                                          Expanded(
+                                            child: Container(
+                                              height: 60,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                BorderRadius.circular(12),
+                                              ),
+                                              child: ElevatedButton(
+                                                onPressed: () {
+                                                  print(product.price);
+                                                  final dynamic packingCharge = product.takeAwayPrice;
+
+                                                  // Convert to double safely
+                                                  final double? packingChargeValue = packingCharge is String
+                                                      ? double.tryParse(packingCharge)
+                                                      : (packingCharge is double ? packingCharge : null);
+
+                                                  final selectedChild = context.read<CategoryProvider>().selectedChildCategory;
+                                                  print(
+                                                      "Images in product: ${product.images}");
+                                                  final totalTime = context
+                                                      .read<CategoryProvider>()
+                                                      .totalTime;
+                                                  final cartProvider =
                                                   Provider.of<CartProvider>(
                                                       context,
                                                       listen: false);
-                                              final cartItem = CartItemModel(
-                                                  id: product.id,
-                                                  name: product.name,
-                                                  categoryName:
+                                                  final cartItem = CartItemModel(
+                                                      id: product.id,
+                                                      name: product.name,
+                                                      categoryName:
                                                       product.categoryName,
-                                                  // name: product.name,
-                                                  images: product.images,
-                                                  categoryId: product.categoryId,
-                                                  price: double.tryParse(
-                                                          product.discountPrice ??
-                                                              '0') ??
-                                                      0.0,
-                                                  quantity:
+                                                      discountPrice: product.discountPrice,
+                                                      // name: product.name,
+                                                      images: product.images,
+                                                      descriptions: product.description,
+                                                      categoryId: product.categoryId,
+                                                      price: isTakeAway
+                                                          ? (selectedProvider.selectedPrices ?? 0.0)
+                                                          : (selectedProvider.selectedPrices ?? 0.0),
+
+                                                      quantity:
                                                       selectedProvider.quantity,
-                                                  isCombo: true,
-                                                  type: "combo",
-                                                  comboId: product.id,
-                                                  childCategory: product.childCategory,
-                                                  totalDeliveryTime: totalTime);
-                                              cartProvider.addToCart(cartItem);
-                                              Navigator.of(context).pop();
-                                              WidgetsBinding.instance
-                                                  .addPostFrameCallback((_) {
-                                                if (context.mounted) {
-                                                  PopupDialog.show(context,
-                                                      product.disountPercent);
-                                                }
-                                              });
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
+                                                      isCombo: true,
+                                                      type: "combo",
+                                                      comboId: product.id,
+                                                      childCategory: product.childCategory,
+                                                      disountPercent: product.disountPercent,
+                                                      takeAwayPrice: packingChargeValue,
+                                                      totalDeliveryTime: totalTime);
+                                                  cartProvider.addToCart(cartItem);
+                                                  Navigator.of(context).pop();
+                                                  WidgetsBinding.instance
+                                                      .addPostFrameCallback((_) {
+                                                    if (context.mounted) {
+                                                      PopupDialog.show(context,
+                                                          product.disountPercent);
+                                                    }
+                                                  });
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
                                                   AppColor.whiteColor,
-                                              foregroundColor:
+                                                  foregroundColor:
                                                   AppColor.whiteColor,
-                                              elevation: 0,
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 28, vertical: 14),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
+                                                  elevation: 0,
+                                                  padding: const EdgeInsets.symmetric(
+                                                      horizontal: 28, vertical: 14),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
                                                     BorderRadius.circular(12),
-                                              ),
-                                            ),
-                                            child: ShaderMask(
-                                              shaderCallback: (bounds) =>
-                                                  const LinearGradient(
-                                                colors: [
-                                                  AppColor.primaryColor,
-                                                  AppColor.primaryColor
-                                                ],
-                                                begin: Alignment.topCenter,
-                                                end: Alignment.bottomRight,
-                                              ).createShader(Rect.fromLTWH(
-                                                      0,
-                                                      0,
-                                                      bounds.width,
-                                                      bounds.height)),
-                                              child: Text(
-                                                'Add To Cart',
-                                                style: AppStyle.textStyleReemKufi
-                                                    .copyWith(
-                                                  color: Colors.white,
-                                                  fontSize: 17,
-                                                  fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                child: ShaderMask(
+                                                  shaderCallback: (bounds) =>
+                                                      const LinearGradient(
+                                                        colors: [
+                                                          AppColor.primaryColor,
+                                                          AppColor.primaryColor
+                                                        ],
+                                                        begin: Alignment.topCenter,
+                                                        end: Alignment.bottomRight,
+                                                      ).createShader(Rect.fromLTWH(
+                                                          0,
+                                                          0,
+                                                          bounds.width,
+                                                          bounds.height)),
+                                                  child: Text(
+                                                    'Add To Cart',
+                                                    style: AppStyle.textStyleReemKufi
+                                                        .copyWith(
+                                                      color: Colors.white,
+                                                      fontSize: 17,
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        ),
+                                        ],
                                       ),
-                                    ],
+                                    ),
+                                  ],
+                                ),
+                                Align(
+                                  alignment: Alignment.topCenter,
+                                  child: Container(
+                                    margin: const EdgeInsets.only(top: 20), // spacing from status bar
+                                    height: 5,
+                                    width: 50,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[300],
+                                      borderRadius: BorderRadius.circular(2.5),
+                                    ),
                                   ),
                                 ),
-                              ],
-                            ),
-                              Align(
-                                alignment: Alignment.topCenter,
-                                child: Container(
-                                  margin: const EdgeInsets.only(top: 20), // spacing from status bar
-                                  height: 5,
-                                  width: 50,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[300],
-                                    borderRadius: BorderRadius.circular(2.5),
+                                Positioned(
+                                  top: -13,
+                                  left: 10,
+                                  child: Image.asset(
+                                    AppImage.badge1,
+                                    height: 70,
+                                    width: badgeSize,
                                   ),
                                 ),
-                              ),
-                              Positioned(
-                                top: -13,
-                                left: 10,
-                                child: Image.asset(
-                                  AppImage.badge1,
-                                  height: 70,
-                                  width: badgeSize,
+                                /// Close Icon
+                                Positioned(
+                                  right: 16,
+                                  top: 16,
+                                  child: GestureDetector(
+                                    onTap: () =>
+                                        Navigator.of(context).pop(),
+                                    child: SvgPicture.asset(
+                                        AppImage.cross),
+                                  ),
                                 ),
-                              ),
-                              /// Close Icon
-                              Positioned(
-                                right: 16,
-                                top: 16,
-                                child: GestureDetector(
-                                  onTap: () =>
-                                      Navigator.of(context).pop(),
-                                  child: SvgPicture.asset(
-                                      AppImage.cross),
-                                ),
-                              ),
-                          ]),
+                              ]),
                         ),
                       ),
                     );
@@ -1556,7 +1612,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                     children: [
                       Padding(
                         padding:
-                            const EdgeInsets.only(top: 8, bottom: 16, left: 16),
+                        const EdgeInsets.only(top: 8, bottom: 16, left: 16),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -1625,7 +1681,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
                                   padding:
-                                      const EdgeInsets.symmetric(vertical: 12),
+                                  const EdgeInsets.symmetric(vertical: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -1651,7 +1707,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
                                   padding:
-                                      const EdgeInsets.symmetric(vertical: 12),
+                                  const EdgeInsets.symmetric(vertical: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -1682,7 +1738,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
       transitionBuilder: (context, anim1, anim2, child) {
         return SlideTransition(
           position:
-              Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim1),
+          Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim1),
           child: child,
         );
       },
@@ -1735,7 +1791,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
             return Container(
               height: screenHeight * 0.95,
               decoration: const BoxDecoration(
-              //  color: AppColor.primaryColor,
+                //  color: AppColor.primaryColor,
                 gradient: LinearGradient(
                   colors: [
                     AppColor.primaryColor,
@@ -1750,7 +1806,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-/// in flutter app my printing things that app connecct in another device this code is no in that device and when user open the app open that app printed text all arw display in another device console why?how to solve it
+                  /// in flutter app my printing things that app connecct in another device this code is no in that device and when user open the app open that app printed text all arw display in another device console why?how to solve it
                   Padding(
                     padding: const EdgeInsets.only(left: 22.0,top:18,bottom: 0),
                     child: GestureDetector(
@@ -1789,7 +1845,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                 final size = MediaQuery.of(context).size;
                                 final imageSize = size.width * 0.20;
                                 // Set image size based on screen width
-                               // double imageSize;
+                                // double imageSize;
                                 // if (screenWidth >= 1024) {
                                 //   // Desktop
                                 //   imageSize = 100;
@@ -1818,7 +1874,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                       imageUrl,
                                       width: imageSize,
                                       height: imageSize,
-                                    //  fit: BoxFit.fill,
+                                      //  fit: BoxFit.fill,
                                       errorBuilder: (context, error, stackTrace) {
                                         return const Icon(Icons.broken_image, size: 60, color: Colors.grey);
                                       },
@@ -1875,7 +1931,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                         color: Colors.white,
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(70),
-                         // topRight: Radius.circular(24),
+                          // topRight: Radius.circular(24),
                         ),
                         boxShadow: [
                           BoxShadow(
@@ -2021,7 +2077,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                 ),
                               ),
                               Selector<CategoryProvider, double>(
-                                selector: (_, provider) => provider.totalPrice,
+                                selector: (_, provider) => provider.totalPriceWithTakeWay,
                                 builder: (context, totalPrice, child) {
                                   return Text(
                                     '₹${totalPrice.toStringAsFixed(2)}',
@@ -2046,18 +2102,18 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                               Provider.of<CartProvider>(context, listen: false);
 
                               final cartItem = CartItemModel(
-                                id: product.id,
-                                name: product.name,
-                                categoryName: product.categoryName,
-                                images: product.images,
-                                categoryId: product.categoryId,
-                                price: double.tryParse(product.discountPrice ?? '0') ?? 0.0,
-                                quantity: selectedProvider.quantity,
-                                isCombo: true,
-                                type: "combo",
-                                comboId: product.id,
-                                totalDeliveryTime:
-                                context.read<CategoryProvider>().totalTime,
+                                  id: product.id,
+                                  name: product.name,
+                                  categoryName: product.categoryName,
+                                  images: product.images,
+                                  categoryId: product.categoryId,
+                                  price: double.tryParse(product.discountPrice ?? '0') ?? 0.0,
+                                  quantity: selectedProvider.quantity,
+                                  isCombo: true,
+                                  type: "combo",
+                                  comboId: product.id,
+                                  totalDeliveryTime:
+                                  context.read<CategoryProvider>().totalTime, descriptions: product.description
                               );
 
                               cartProvider.addToCart(cartItem);
@@ -2181,7 +2237,7 @@ class SearchCartRow extends StatelessWidget {
                 ),
                 prefixIcon: Icon(Icons.search, color: AppColor.lightGreyColor),
                 contentPadding:
-                    EdgeInsets.symmetric(vertical: 15.0, horizontal: 5.0),
+                EdgeInsets.symmetric(vertical: 15.0, horizontal: 5.0),
                 border: InputBorder.none,
               ),
               onChanged: (value) {
@@ -2322,7 +2378,7 @@ class SearchCartRow extends StatelessWidget {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
                                   padding:
-                                      const EdgeInsets.symmetric(vertical: 12),
+                                  const EdgeInsets.symmetric(vertical: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -2344,7 +2400,7 @@ class SearchCartRow extends StatelessWidget {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
                                   padding:
-                                      const EdgeInsets.symmetric(vertical: 12),
+                                  const EdgeInsets.symmetric(vertical: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -2369,7 +2425,7 @@ class SearchCartRow extends StatelessWidget {
       transitionBuilder: (context, anim1, anim2, child) {
         return SlideTransition(
           position:
-              Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim1),
+          Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim1),
           child: child,
         );
       },
@@ -2382,7 +2438,7 @@ class SearchCartRow extends StatelessWidget {
 
     // Pass current selected sort (label) to dialog
     final selectedOption =
-        await showSortByDialog(context, provider.comboSelectedSortLabel);
+    await showSortByDialog(context, provider.comboSelectedSortLabel);
 
     if (selectedOption != null && selectedOption.isNotEmpty) {
       // Map UI label to API value
@@ -2413,82 +2469,371 @@ class SearchCartRow extends StatelessWidget {
       );
     }
   }
-  // void _openSortDialog(BuildContext context) async {
-  //   final provider = Provider.of<DashboardProvider>(context, listen: false);
-  //   final selectedOption = await showSortByDialog(context, provider.selectedSort);
-  //
-  //   if (selectedOption != null && selectedOption.isNotEmpty) {
-  //     provider.setSortOption(selectedOption,"");
-  //
-  //
-  //     switch (selectedOption) {
-  //       case 'Popular':
-  //         provider.getComboProduct(context,"" ,'popular');
-  //         break;
-  //       case 'Newest':
-  //         provider.getComboProduct(context, "",'newest');
-  //         break;
-  //       case 'Price: Lowest to high':
-  //         provider.getComboProduct(context, "", 'price_asc');
-  //         break;
-  //       case 'Price: Highest to low':
-  //         provider.getComboProduct(context, "", 'pce_desc');
-  //         break;
-  //     }
-  //   }
-  // }
+// void _openSortDialog(BuildContext context) async {
+//   final provider = Provider.of<DashboardProvider>(context, listen: false);
+//   final selectedOption = await showSortByDialog(context, provider.selectedSort);
+//
+//   if (selectedOption != null && selectedOption.isNotEmpty) {
+//     provider.setSortOption(selectedOption,"");
+//
+//
+//     switch (selectedOption) {
+//       case 'Popular':
+//         provider.getComboProduct(context,"" ,'popular');
+//         break;
+//       case 'Newest':
+//         provider.getComboProduct(context, "",'newest');
+//         break;
+//       case 'Price: Lowest to high':
+//         provider.getComboProduct(context, "", 'price_asc');
+//         break;
+//       case 'Price: Highest to low':
+//         provider.getComboProduct(context, "", 'pce_desc');
+//         break;
+//     }
+//   }
+// }
 }
 
+
+
+// class PopupDialog {
+//   static Future<void> show(BuildContext context, String? discount,
+//       {Duration duration = const Duration(seconds: 5)}) async {
+//     showDialog(
+//       context: context,
+//       barrierDismissible: true,
+//       builder: (BuildContext context) {
+//         final screenSize = MediaQuery.of(context).size;
+//
+//         // Dialog dimensions
+//         final dialogWidth = screenSize.width * 0.8; // 80% of screen width
+//         final dialogHeight = screenSize.height * 0.45; // 45% of screen height
+//
+//         // Auto dismiss after duration
+//         Future.delayed(duration, () {
+//           if (Navigator.canPop(context)) {
+//             Navigator.of(context).pop();
+//           }
+//         });
+//
+//         return Center(
+//           child: Material(
+//             color: Colors.transparent,
+//             child: Stack(
+//               alignment: Alignment.center,
+//               clipBehavior: Clip.none, // Allows overflow outside Stack
+//               children: [
+//                 /// 🌟 **Top Floating Lottie Animation**
+//                 Positioned(
+//                   top: -dialogHeight * 0.30, // Float above dialog
+//                   child: Lottie.asset(
+//                     'assets/icons/lottie1.json',
+//                     height: dialogHeight * 0.35,
+//                     repeat: true,
+//                   ),
+//                 ),
+//
+//                 /// 🌟 **Bottom Floating Lottie Animation**
+//                 Positioned(
+//                   bottom: -dialogHeight * 0.25, // Float below dialog
+//                   child: Lottie.asset(
+//                     'assets/icons/lottie1.json',
+//                     height: dialogHeight * 0.35,
+//                     repeat: true,
+//                   ),
+//                 ),
+//
+//                 /// 🌟 **Left Floating Lottie Animation**
+//                 Positioned(
+//                   left: -dialogWidth * 0.25, // ✅ Move outside dialog for visibility
+//                   top: dialogHeight * 0.15,
+//                   child: Lottie.asset(
+//                     'assets/icons/lottie1.json',
+//                     height: dialogHeight * 0.6,
+//                     repeat: true,
+//                   ),
+//                 ),
+//                 Positioned(
+//                   right: -dialogWidth * 0.25, // Push slightly outside dialog
+//                   top: dialogHeight * 0.15,
+//                   child: Lottie.asset(
+//                     'assets/icons/lottie1.json',
+//                     height: dialogHeight * 0.6,
+//                     repeat: true,
+//                   ),
+//                 ),
+//                 /// 🌟 **Main Dialog Container**
+//                 Container(
+//                   width: dialogWidth,
+//                   height: dialogHeight,
+//                   padding: const EdgeInsets.all(20),
+//                   decoration: BoxDecoration(
+//                     color: Colors.white,
+//                     borderRadius: BorderRadius.circular(24),
+//                     boxShadow: const [
+//                       BoxShadow(
+//                         color: Colors.black12,
+//                         blurRadius: 10,
+//                         offset: Offset(0, 4),
+//                       ),
+//                     ],
+//                   ),
+//                   child: Column(
+//                     mainAxisSize: MainAxisSize.min,
+//                     children: [
+//                       const SizedBox(height: 10),
+//
+//                       /// 🏆 Center Animated Discount Icon
+//                       Lottie.asset(
+//                         'assets/icons/lottie2.json',
+//                         height: dialogHeight * 0.35,
+//                         repeat: false,
+//                       ),
+//
+//                       const SizedBox(height: 20),
+//
+//                      Text(
+//                         "Woo hoo!!",
+//                         style: AppTextStyles.nunitoBold(30, color:  AppColor.blackColor),
+//
+//                       ),
+//
+//                       const SizedBox(height: 10),
+//
+//                       /// Discount Text
+//                       Expanded(
+//                         child: Center(
+//                           child: RichText(
+//                             textAlign: TextAlign.center,
+//                             text: TextSpan(
+//                               style: const TextStyle(
+//                                 fontSize: 16,
+//                                 color: Colors.black87,
+//                               ),
+//                               children: [
+//                                 TextSpan(
+//                                   text: "Smart choice! ",
+//                                   style: AppStyle.textStyleReemKufi.copyWith(
+//                                     color: AppColor.greyColor,
+//                                     fontSize: 16,
+//                                   ),
+//                                 ),
+//                                 TextSpan(
+//                                   text: " ${discount}% off applied\n",
+//                                   style: AppStyle.textStyleReemKufi.copyWith(
+//                                     color: AppColor.primaryColor,
+//                                     fontSize: 16,
+//                                   ),
+//                                 ),
+//                                 TextSpan(
+//                                   text: "successfully!",
+//                                   style: AppStyle.textStyleReemKufi.copyWith(
+//                                     color: AppColor.greyColor,
+//                                     fontSize: 16,
+//                                   ),
+//                                 ),
+//                               ],
+//                             ),
+//                           ),
+//                         ),
+//                       ),
+//
+//                       /// ✅ Success Check Animation
+//                       Lottie.asset(
+//                         'assets/icons/lottie3.json',
+//                         height: dialogHeight * 0.2,
+//                         repeat: false,
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         );
+//       },
+//     );
+//   }
+// }
+
 class PopupDialog {
-  static Future<void> show(BuildContext context, String? discount,
-      {Duration duration = const Duration(seconds: 2)}) async {
-    showDialog(
+  static Future<void> show(
+      BuildContext context,
+      String? discount, {
+        Duration duration = const Duration(seconds: 2),
+      }) async {
+    showGeneralDialog(
       context: context,
       barrierDismissible: true,
-      builder: (BuildContext context) {
-        // Auto dismiss after duration
-        Future.delayed(duration, () {
-          if (Navigator.canPop(context)) {
-            Navigator.of(context).pop();
-          }
-        });
+      barrierLabel: "Popup",
+      transitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (context, anim1, anim2) {
+        return _PopupDialogContent(
+          discount: discount,
+          autoCloseDuration: duration,
+        );
+      },
+    );
+  }
+}
 
-        return Center(
-          child: Material(
-            color: Colors.transparent,
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
+class _PopupDialogContent extends StatefulWidget {
+  final String? discount;
+  final Duration autoCloseDuration;
+
+  const _PopupDialogContent({
+    Key? key,
+    this.discount,
+    required this.autoCloseDuration,
+  }) : super(key: key);
+
+  @override
+  State<_PopupDialogContent> createState() => _PopupDialogContentState();
+}
+
+class _PopupDialogContentState extends State<_PopupDialogContent>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    /// Create Animation Controller
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+
+    _scaleAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutBack,
+    );
+
+    /// Play opening animation
+    _controller.forward();
+
+    /// Auto close after [autoCloseDuration]
+    Future.delayed(widget.autoCloseDuration, () {
+      closeDialog();
+    });
+  }
+
+  /// Handles closing with reverse animation
+  void closeDialog() async {
+    await _controller.reverse(); // Play close animation
+    if (mounted && Navigator.canPop(context)) {
+      Navigator.of(context).pop(); // Close dialog
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+
+    final dialogWidth = screenSize.width * 0.8;
+    final dialogHeight = screenSize.height * 0.45;
+
+    return Center(
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: Material(
+          color: Colors.transparent,
+          child: Stack(
+            alignment: Alignment.center,
+            clipBehavior: Clip.none,
+            children: [
+              /// 🌟 Top Floating Lottie
+              Positioned(
+                top: -dialogHeight * 0.25,
+                child: Lottie.asset(
+                  'assets/icons/lottie1.json',
+                  height: dialogHeight * 0.35,
+                  repeat: true,
+                ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    height: 10,
-                  ),
-                  SvgPicture.asset(
-                    AppImage.emoji,
-                    height: 100,
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    "Woo hoo!!",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+
+              /// 🌟 Bottom Floating Lottie
+              Positioned(
+                bottom: -dialogHeight * 0.25,
+                child: Lottie.asset(
+                  'assets/icons/lottie1.json',
+                  height: dialogHeight * 0.35,
+                  repeat: true,
+                ),
+              ),
+
+              /// 🌟 Left Floating Lottie
+              Positioned(
+                left: -dialogWidth * 0.25,
+                top: dialogHeight * 0.15,
+                child: Lottie.asset(
+                  'assets/icons/lottie1.json',
+                  height: dialogHeight * 0.6,
+                  repeat: true,
+                ),
+              ),
+
+              /// 🌟 Right Floating Lottie
+              Positioned(
+                right: -dialogWidth * 0.25,
+                top: dialogHeight * 0.15,
+                child: Lottie.asset(
+                  'assets/icons/lottie1.json',
+                  height: dialogHeight * 0.6,
+                  repeat: true,
+                ),
+              ),
+
+              /// 🌟 Main Dialog
+              Container(
+                width: dialogWidth,
+                height: dialogHeight,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  RichText(
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 10),
+
+                    /// 🏆 Center Animated Discount Icon
+                    Lottie.asset(
+                      'assets/icons/lottie2.json',
+                      height: dialogHeight * 0.35,
+                      repeat: false,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                     Text(
+                      "Woo hoo!!",
+                      style: AppTextStyles.nunitoBold(30, color:  AppColor.blackColor),
+
+
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    /// Discount Text
+                RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
                       style: const TextStyle(
@@ -2498,39 +2843,136 @@ class PopupDialog {
                       children: [
                         TextSpan(
                           text: "Smart choice! ",
-                          style: AppStyle.textStyleReemKufi.copyWith(
-                            // fontWeight: FontWeight.w600,
-                            color: AppColor.greyColor,
-                            fontSize: 16,
-                          ),
+                          style: AppTextStyles.nunitoRegular(16, color:  AppColor.blackColor),
                         ),
                         TextSpan(
                           text:
-                              "  ${discount}% off applied\n", // add newline before "successfully!"
-                          style: AppStyle.textStyleReemKufi.copyWith(
-                            // fontWeight: FontWeight.w600,
-                            color: AppColor.primaryColor,
-                            fontSize: 16,
-                          ),
+                          "  ${widget.discount}% off applied\n", // add newline before "successfully!"
+                          style: AppTextStyles.nunitoRegular(16, color:  AppColor.primaryColor),
                         ),
                         TextSpan(
                           text: "successfully!",
-                          style: AppStyle.textStyleReemKufi.copyWith(
-                            // fontWeight: FontWeight.w600,
-                            color: AppColor.greyColor,
-                            fontSize: 16,
-                          ),
+                          style: AppTextStyles.nunitoRegular(16, color:  AppColor.blackColor),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                ],
+
+                    /// ✅ Success Check Animation
+                    // Lottie.asset(
+                    //   'assets/icons/lottie3.json',
+                    //   height: dialogHeight * 0.2,
+                    //   repeat: false,
+                    // ),
+
+
+                    /// Close Button
+
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
+
+
+
+// class PopupDialog {
+//   static Future<void> show(BuildContext context, String? discount,
+//       {Duration duration = const Duration(seconds: 2)}) async {
+//     showDialog(
+//       context: context,
+//       barrierDismissible: true,
+//       builder: (BuildContext context) {
+//         // Auto dismiss after duration
+//         Future.delayed(duration, () {
+//           if (Navigator.canPop(context)) {
+//             Navigator.of(context).pop();
+//           }
+//         });
+//
+//         return Center(
+//           child: Material(
+//             color: Colors.transparent,
+//             child: Container(
+//               padding: const EdgeInsets.all(20),
+//               decoration: BoxDecoration(
+//                 color: Colors.white,
+//                 borderRadius: BorderRadius.circular(24),
+//                 boxShadow: const [
+//                   BoxShadow(
+//                     color: Colors.black12,
+//                     blurRadius: 10,
+//                     offset: Offset(0, 4),
+//                   ),
+//                 ],
+//               ),
+//               child: Column(
+//                 mainAxisSize: MainAxisSize.min,
+//                 children: [
+//                   SizedBox(
+//                     height: 10,
+//                   ),
+//                   SvgPicture.asset(
+//                     AppImage.emoji,
+//                     height: 100,
+//                   ),
+//                   const SizedBox(height: 20),
+//                   const Text(
+//                     "Woo hoo!!",
+//                     style: TextStyle(
+//                       fontSize: 24,
+//                       fontWeight: FontWeight.bold,
+//                     ),
+//                   ),
+//                   const SizedBox(height: 10),
+//                   RichText(
+//                     textAlign: TextAlign.center,
+//                     text: TextSpan(
+//                       style: const TextStyle(
+//                         fontSize: 16,
+//                         color: Colors.black87,
+//                       ),
+//                       children: [
+//                         TextSpan(
+//                           text: "Smart choice! ",
+//                           style: AppStyle.textStyleReemKufi.copyWith(
+//                             // fontWeight: FontWeight.w600,
+//                             color: AppColor.greyColor,
+//                             fontSize: 16,
+//                           ),
+//                         ),
+//                         TextSpan(
+//                           text:
+//                           "  ${discount}% off applied\n", // add newline before "successfully!"
+//                           style: AppStyle.textStyleReemKufi.copyWith(
+//                             // fontWeight: FontWeight.w600,
+//                             color: AppColor.primaryColor,
+//                             fontSize: 16,
+//                           ),
+//                         ),
+//                         TextSpan(
+//                           text: "successfully!",
+//                           style: AppStyle.textStyleReemKufi.copyWith(
+//                             // fontWeight: FontWeight.w600,
+//                             color: AppColor.greyColor,
+//                             fontSize: 16,
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                   const SizedBox(height: 20),
+//                 ],
+//               ),
+//             ),
+//           ),
+//         );
+//       },
+//     );
+//   }
+// }

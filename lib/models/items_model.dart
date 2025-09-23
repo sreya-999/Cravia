@@ -17,6 +17,7 @@ class Item {
   final CategoryModel? category;
   final List<ChildCategory> childCategory;
   String? prepareTime;
+  final String? discountPrice;
 
 
   Item({
@@ -33,7 +34,8 @@ class Item {
     this.takeAwayPrice,
     this.category,
     required this.childCategory,
-    this.prepareTime
+    this.prepareTime,
+    this.discountPrice,
   });
 
   factory Item.fromJson(Map<String, dynamic> json) {
@@ -59,6 +61,8 @@ class Item {
           [],
     );
   }
+
+
 }
 
 class ChildCategory {

@@ -31,12 +31,12 @@ class ProductModel {
 
   ProductModel(
       {required this.id,
-      required this.name,
-      required this.image,
-      this.categoryId,
-      required this.price,
-      this.isCombo,
-      this.prepareTime // <-- Add this
+        required this.name,
+        required this.image,
+        this.categoryId,
+        required this.price,
+        this.isCombo,
+        this.prepareTime // <-- Add this
       });
 }
 
@@ -83,8 +83,8 @@ class ComboProductModel {
     final rawAddOns = json['addOns'] ?? json['addons'] ?? json['add_ons'];
     final List<AddOnModel> parsedAddOns = (rawAddOns is List)
         ? rawAddOns
-            .map((e) => AddOnModel.fromJson(Map<String, dynamic>.from(e)))
-            .toList()
+        .map((e) => AddOnModel.fromJson(Map<String, dynamic>.from(e)))
+        .toList()
         : <AddOnModel>[];
     return ComboProductModel(
       id: json['id'] ?? 0,
@@ -93,8 +93,8 @@ class ComboProductModel {
       disountPercent: json['discount_percent'] ?? '',
       discountPrice: json['discount_price'] ?? '',
       images: (json['images'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
+          ?.map((e) => e.toString())
+          .toList() ??
           [],
       price: json['price'] is int
           ? json['price']
@@ -107,22 +107,22 @@ class ComboProductModel {
           ? CategoryModel.fromJson(json['category'])
           : null,
       childCategory: (json['childCategory'] as List<dynamic>?)
-              ?.map((e) => ChildCategory.fromJson(e))
-              .toList() ??
+          ?.map((e) => ChildCategory.fromJson(e))
+          .toList() ??
           [],
       subCategoryIds: json['sub_category_id'] != null
           ? List<String>.from((json['sub_category_id'] as String)
-              .replaceAll('[', '')
-              .replaceAll(']', '')
-              .replaceAll('"', '')
-              .split(','))
+          .replaceAll('[', '')
+          .replaceAll(']', '')
+          .replaceAll('"', '')
+          .split(','))
           : [],
       childCategoryIds: json['child_category_id'] != null
           ? List<String>.from((json['child_category_id'] as String)
-              .replaceAll('[', '')
-              .replaceAll(']', '')
-              .replaceAll('"', '')
-              .split(','))
+          .replaceAll('[', '')
+          .replaceAll(']', '')
+          .replaceAll('"', '')
+          .split(','))
           : [],
       categoryName: json['category_name'] != null
           ? List<String>.from(json['category_name'])
@@ -144,6 +144,7 @@ class CartItemModel {
   final int? categoryId;
   final double price;
   int quantity;
+  List<String>? descriptions;
   //final List<int>? subCategoryIds;
   final int? subCategoryId;
   final String? childCategoryId;
@@ -160,7 +161,10 @@ class CartItemModel {
   List<ChildCategory>? childCategory;
   List<String>? categoryName;
   final String? spicy;
-   String? image;
+  String? image;
+  final String? disountPercent;
+  final String? discountPrice;
+
 
   CartItemModel({
     required this.id,
@@ -185,7 +189,10 @@ class CartItemModel {
     this.subCategoryIds,
     this.childCategoryIds,
     this.spicy,
-     this.image,
+    this.image,
+    this.disountPercent,
+    this.descriptions,
+    this.discountPrice,
   });
 
   // Factory constructor from ProductModel

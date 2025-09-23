@@ -31,7 +31,10 @@ class AppColor{
   static const Color backgroundColor = Color(0xFFFCFCFE);
   static const Color blue = Color(0xFFFFFFFF);
   Color myColor = const Color(0xCC55001A);
-  //Color myColor = Color(0xFFCC5500);
+  static const Color deleteRed = Color(0xFFE31E24);
+  Color lightPink = const Color(0xFFFF939B);
+
+//Color myColor = Color(0xFFCC5500);
  // Color myColor = Color(0xFFFFE0B2);
 
 

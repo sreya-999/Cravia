@@ -27,6 +27,9 @@ class AppImage{
   static const String time ='assets/icons/time.svg';
   static const String bgImg ='assets/icons/bgimg.png';
   static const String all ='assets/icons/all.png';
+  static const String cancel ='assets/icons/cancel.svg';
+  static const String logout ='assets/icons/logout.svg';
+
 
 
 }
