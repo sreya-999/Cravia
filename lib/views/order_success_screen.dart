@@ -14,6 +14,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 
 import '../utlis/widgets/responsive.dart';
+import '../utlis/widgets/responsiveness.dart';
 
 class OrderSuccessScreen extends StatefulWidget {
   final OrderModel? order; // Add order model
@@ -25,13 +26,17 @@ class OrderSuccessScreen extends StatefulWidget {
 }
 
 class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final responsive = Responsiveness(context);
+    final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
     OrderModel? order;
     final r = Responsive(context);
     final isDineIn =
         Provider.of<CategoryProvider>(context, listen: false).isDineIn;
-
+    final cartProvider = Provider.of<CartProvider>(context);
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) {
@@ -50,22 +55,13 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
             Container(
               width: double.infinity,
               decoration: const BoxDecoration(
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   colors: [AppColor.secondary, AppColor.primaryColor],
                   begin: AlignmentDirectional(0.0, -3.0), // top-center
-                  end: AlignmentDirectional(0.0, 1.0), // bottom-center
-
-                  stops: [0.0, 1.0], // smooth gradient
+                  end: AlignmentDirectional(0.0, 1.0),   // bottom-center
+                  stops: [0.0, 1.0],
                   tileMode: TileMode.clamp,
                 ),
-              ),
-              child: Align(
-                alignment: Alignment.bottomLeft,
-                // child: Image.asset(
-                //   AppImage.burger,
-                //   fit: BoxFit.contain,
-                //   height: r.hp(25),
-                // ),
               ),
             ),
 
@@ -77,11 +73,9 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                   vertical: r.hp(2),
                 ),
                 child: Column(
-                  // mainAxisAlignment: MainAxisAlignment.center, // Center vertically
-                  // crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center, // 👈 Center vertically
+                  crossAxisAlignment: CrossAxisAlignment.center, // 👈 Center horizontally
                   children: [
-                    SizedBox(height: r.hp(8)),
-
                     /// Success icon and text in the same row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -89,13 +83,13 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                         SvgPicture.asset(
                           AppImage.success,
                           fit: BoxFit.cover,
-                          height: r.hp(5), // Reduced height for better balance
+                          height: r.hp(5),
                         ),
-                        SizedBox(width: r.wp(3)), // Space between icon and text
+                        SizedBox(width: r.wp(3)),
                         Text(
                           "Order Success!",
                           style: AppStyle.textStyleReemKufi.copyWith(
-                            fontSize: r.sp(5.5, max: 24),
+                            fontSize: r.sp(5.5, max: 32),
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
@@ -107,7 +101,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
 
                     Image.asset(
                       AppImage.receipt,
-                      height: r.hp(22),
+                      height: r.hp(25),
                       fit: BoxFit.cover,
                     ),
 
@@ -116,7 +110,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                     Text(
                       "Your Order No: ${widget.order?.orderId}",
                       style: AppStyle.textStyleReemKufi.copyWith(
-                        fontSize: r.sp(5, max: 22),
+                        fontSize: r.sp(5, max: 27),
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
@@ -124,19 +118,27 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                     Text(
                       "${widget.order?.orderNo}",
                       style: AppStyle.textStyleReemKufi.copyWith(
-                        fontSize: r.sp(5, max: 22),
+                        fontSize: r.sp(5, max: 27),
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
-
+                    if (cartProvider.selectedTable != null)
+                      Text(
+                        'Selected table: ${cartProvider.selectedTable}',
+                        style: AppStyle.textStyleReemKufi.copyWith(
+                          fontSize: r.sp(5, max: 27),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     SizedBox(height: r.hp(4)),
 
                     Text(
                       "Collect your Food on Counter",
                       textAlign: TextAlign.center,
                       style: AppStyle.textStyleReemKufi.copyWith(
-                        fontSize: r.sp(5, max: 20),
+                        fontSize: r.sp(5, max: 22),
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
                       ),
@@ -154,14 +156,15 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                       ),
                     ),
 
-                    SizedBox(height: r.hp(5)),
-                    Spacer(),
+                    SizedBox(height: r.hp(15)),
+
                     Consumer<CartProvider>(
                       builder: (context, cartProvider, _) {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 35.0),
                           child: SizedBox(
-                            height: 45,
+                            height:isTablet ? 50 :45,
+
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 minimumSize: Size(double.infinity, r.hp(4)),
@@ -178,16 +181,14 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                 cartProvider.clearSelection();
                                 Navigator.pushAndRemoveUntil(
                                   context,
-                                  MaterialPageRoute(
-                                      builder: (_) => SelectionScreen()),
-                                      (Route<dynamic> route) =>
-                                  false, // removes all previous routes
+                                  MaterialPageRoute(builder: (_) => SelectionScreen()),
+                                      (Route<dynamic> route) => false,
                                 );
                               },
                               child: Text(
                                 "Go Home",
                                 style: AppStyle.textStyleReemKufi.copyWith(
-                                  fontSize: r.sp(4.5, max: 18),
+                                  fontSize: r.sp(4.5, max: 22),
                                   color: AppColor.primaryColor,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -204,6 +205,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
           ],
         ),
       ),
+
     );
   }
 }

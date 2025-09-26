@@ -91,7 +91,10 @@ class _SelectionScreenState extends State<SelectionScreen> {
                                         key: StorageKey.isTakeAway,
                                         value: false,
                                       );
-
+                                      await getIt<SharedPreferenceHelper>().storeBoolData(
+                                        key: StorageKey.isNew,
+                                        value: true,
+                                      );
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(builder: (_) => const HomeScreen()),
@@ -117,7 +120,10 @@ class _SelectionScreenState extends State<SelectionScreen> {
                                         key: StorageKey.isTakeAway,
                                         value: true,
                                       );
-
+                                      await getIt<SharedPreferenceHelper>().storeBoolData(
+                                        key: StorageKey.isNew,
+                                        value: true,
+                                      );
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(builder: (_) => const HomeScreen()),
@@ -168,9 +174,9 @@ class _SelectionScreenState extends State<SelectionScreen> {
     final isWide = screenWidth > 600;
 
 
-    final double width = isWide ? screenWidth * 0.25 : screenWidth * 0.4;
-    final double height = isWide ? 150 : 120;
-    final double iconSize = isWide ? 100 : 52;
+    final double width = isWide ? screenWidth * 0.29 : screenWidth * 0.4;
+    final double height = isWide ? 190 : 120;
+    final double iconSize = isWide ? 120 : 52;
     final double fontSize = isWide ? 22 : 16;
 
     return GestureDetector(

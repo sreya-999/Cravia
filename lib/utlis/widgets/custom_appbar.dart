@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ravathi_store/utlis/widgets/responsiveness.dart';
 
 import '../App_style.dart';
 
@@ -15,6 +16,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = Responsiveness(context);
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
@@ -23,8 +25,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         title,
         style: AppStyle.textStyleLobster.copyWith(
           color: Colors
-              .black, // Set color to white, it will be replaced by shader
-          fontSize: 22,
+              .black,
+          fontSize:responsive.heading,
+
           fontWeight: FontWeight.w700,
         ),
       ),

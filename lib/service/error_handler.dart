@@ -13,7 +13,7 @@ class ErrorHandler {
       print('Response: ${error.response}');
       print('Error type: ${error.type}');
 
-      String message = 'Something went wronghh';
+      String message = 'Something went wrong';
 
       dynamic data = error.response?.data;
 

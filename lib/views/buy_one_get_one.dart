@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:ravathi_store/utlis/App_image.dart';
+import 'package:ravathi_store/utlis/widgets/floating_message.dart';
 import 'package:ravathi_store/views/home_screen.dart';
 import 'package:ravathi_store/views/view_order_screen.dart';
 import '../models/add_on.dart';
@@ -18,6 +19,7 @@ import '../utlis/App_style.dart';
 import '../utlis/share_preference_helper/sharereference_helper.dart';
 import '../utlis/widgets/app_text_style.dart';
 import '../utlis/widgets/custom_appbar.dart';
+import '../utlis/widgets/responsiveness.dart';
 import '../utlis/widgets/shimmer_loading.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -55,7 +57,10 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
   Widget build(BuildContext context) {
 
     final provider = Provider.of<CategoryProvider>(context);
-
+final responsive = Responsiveness(context);
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isDesktop = screenWidth >= 1024;
+    final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
     final cartProvider = Provider.of<CartProvider>(context);
     double subTotal = cartProvider.subTotal;
     return Scaffold(
@@ -70,14 +75,22 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
           final bool isDesktop = screenWidth >= 1024;
           final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
           final bool isMobile = screenWidth < 600;
-
+          double priceWidth = screenWidth * 0.2;
           // Dynamic sizes based on device type
           final double barHeight = isDesktop ? 110 : isTablet ? 90 : 80;
           final double paddingHorizontal = isDesktop ? 40 : isTablet ? 24 : 16;
           final double paddingVertical = isDesktop ? 16 : isTablet ? 12 : 10;
           final double titleFontSize = isDesktop ? 18 : isTablet ? 16 : 15;
-          final double priceFontSize = isDesktop ? 20 : isTablet ? 18 : 18;
-          final double buttonFontSize = isDesktop ? 22 : isTablet ? 17 : 17;
+          final double priceFontSize = isDesktop
+              ? 20
+              : isTablet
+              ? 22
+              : 18;
+          final double buttonFontSize = isDesktop
+              ? 22
+              : isTablet
+              ? 22
+              : 17;
           final double buttonPaddingH = isDesktop ? 36 : isTablet ? 32 : 28;
           final double buttonPaddingV = isDesktop ? 18 : isTablet ? 16 : 14;
 
@@ -114,6 +127,9 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
               children: [
                 // Price Box
                 Container(
+                  width: isTablet
+                      ? priceWidth        // If device is a tablet → use calculated priceWidth
+                      : null,
                   padding: EdgeInsets.symmetric(
                     horizontal: isDesktop ? 16 : 12,
                     vertical: isDesktop ? 10 : 4,
@@ -123,7 +139,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ShaderMask(
@@ -162,7 +178,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                 // Cart Button
                 Expanded(
                   child: Container(
-                    height: 60,
+                    height:isTablet?70:60,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -250,7 +266,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                           decoration:  InputDecoration(
                             hintText: 'Looking for BOGO? Type here...',
                             hintStyle: AppTextStyles.nunitoRegular(
-                              14,
+                              responsive.hintTextSize,
                               color: AppColor.lightGreyColor,
                             ),
 
@@ -271,7 +287,8 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
 
                     const SizedBox(width: 8),
                     Container(
-                      height: 54,
+                      height: isTablet ? 58 :54,
+                      width: isTablet ? 58 :54,
                       decoration: BoxDecoration(
                         border: Border.all(color: AppColor.primaryColor),
                         borderRadius: BorderRadius.circular(12),
@@ -376,7 +393,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                           imageHeight = 180;
                         } else if (screenWidth >= 700) {
                           crossAxisCount = 3;
-                          aspectRatio = 0.85;
+                          aspectRatio = 0.75;
                           imageHeight = 150;
                         } else {
                           crossAxisCount = 2;
@@ -432,15 +449,44 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                               crossAxisAlignment: CrossAxisAlignment.center,
                                               children: [
                                                 AspectRatio(
-                                                  aspectRatio: 1.2,
-                                                  child: ClipRRect(
-                                                      borderRadius: BorderRadius.circular(12),
-                                                      child: Image.network(
-                                                        "${ApiEndpoints.imageBaseUrl}${product?.image}", // ✅ prepend baseUrl
-                                                        //  fit: BoxFit.fill,
-                                                        errorBuilder: (context, error, stackTrace) =>
-                                                        const Icon(Icons.image_not_supported),
-                                                      )
+                                                  aspectRatio: 1.4,
+                                                  child: LayoutBuilder(
+                                                    builder: (context, constraints) {
+                                                      final screenWidth = MediaQuery.of(context).size.width;
+                                                      final screenHeight = MediaQuery.of(context).size.height;
+
+                                                      // Example logic: Adjust size based on screen width
+                                                      double imageWidth;
+                                                      double imageHeight;
+
+                                                      if (screenWidth > 1000) {
+                                                        // Large screens (like tablets or desktops)
+                                                        imageWidth = screenWidth * 0.25;
+                                                        imageHeight = screenHeight * 0.25;
+                                                      } else if (screenWidth > 600) {
+                                                        // Medium screens
+                                                        imageWidth = screenWidth * 0.35;
+                                                        imageHeight = screenHeight * 0.20;
+                                                      } else {
+                                                        // Small screens (like phones)
+                                                        imageWidth = screenWidth * 0.45;
+                                                        imageHeight = screenHeight * 0.18;
+                                                      }
+
+                                                      return SizedBox(
+                                                        width: imageWidth,
+                                                        height: imageHeight,
+                                                        child: ClipRRect(
+                                                          borderRadius: BorderRadius.circular(12),
+                                                          child: Image.network(
+                                                            "${ApiEndpoints.imageBaseUrl}${product.image}",
+                                                            //fit: BoxFit.fill, // Keep image proportional
+                                                            errorBuilder: (context, error, stackTrace) =>
+                                                            const Icon(Icons.image_not_supported),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
                                                   ),
                                                 ),
                                                 const SizedBox(height: 10),
@@ -448,14 +494,14 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                   (product.name.isNotEmpty)
                                                       ? product.name[0].toUpperCase() + product.name.substring(1).toLowerCase()
                                                       : '',
-                                                  style: AppTextStyles.nunitoBold(17, color: Colors.black),
+                                                  style: AppTextStyles.nunitoBold(responsive.adOn, color: Colors.black),
                                                   textAlign: TextAlign.center,
                                                 ),
                                                 const SizedBox(height: 2),
                                                 Text(
                                                   product.description.toString() ?? '',
                                                   textAlign: TextAlign.center,
-                                                  style: AppTextStyles.latoRegular(10, color: Colors.black),
+                                                  style: AppTextStyles.latoRegular(responsive.des, color: Colors.black),
                                                   maxLines: 2,
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
@@ -467,7 +513,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
 
                                                     style: AppStyle.textStyleReemKufi.copyWith(
                                                       fontWeight: FontWeight.bold,
-                                                      fontSize: 17,
+                                                      fontSize: responsive.adOn,
                                                       color: AppColor.blackColor,
                                                     ),
                                                   ),
@@ -481,12 +527,12 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                               ? -15 // desktop
                                               : screenWidth >= 600
                                               ? -15 // tablet
-                                              : -7, // mobile
+                                              : -11, // mobile
                                           left: screenWidth >= 1024
                                               ? 12 // desktop
                                               : screenWidth >= 600
                                               ? 8 // tablet
-                                              : 5, // mobile
+                                              : 10, // mobile
                                           child: Image.asset(
                                             AppImage.badge,
                                             width: screenWidth >= 1024
@@ -545,6 +591,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
 
   Future<String?> showSortByDialog(BuildContext context,String currentSort) {
     String selectedOption = currentSort;
+    final responsive = Responsiveness(context);
     final provider = Provider.of<DashboardProvider>(context, listen: false);
     List<String> options = [
       'Popular',
@@ -552,7 +599,9 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
       'Price: Lowest to high',
       'Price: Highest to low',
     ];
-
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
+    final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
     return showGeneralDialog<String>(
       context: context,
       barrierDismissible: true,
@@ -564,6 +613,9 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
               child: Material(
                 color: Colors.transparent,
                 child: Container(
+                  width: responsive.isMobile
+                      ? double.infinity // Full width for mobile
+                      : MediaQuery.of(context).size.width * 0.80,
                   margin: const EdgeInsets.symmetric(horizontal: 20),
                   padding: const EdgeInsets.only(top: 16, bottom: 16),
                   decoration: const BoxDecoration(
@@ -591,7 +643,10 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                               child: Text(
                                 'Sort By',
                                 textAlign: TextAlign.center,
-                                style: AppTextStyles.nunitoBold(20, color:  AppColor.whiteColor,),
+                                  style: AppTextStyles.nunitoBold(
+                                    responsive.mainTitleSize,
+                                    color: AppColor.whiteColor,
+                                  ),
 // Centers text within Expanded
                               ),
                             ),
@@ -600,7 +655,10 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                 Navigator.pop(context);
                               },
                               child: SvgPicture.asset(
-                                AppImage.cross,height: 20,width: 20,),
+                                AppImage.cross,
+                                height: responsive.mainTitleSize,
+                                width: responsive.mainTitleSize,
+                              ),
                             ),
                           ],
                         ),
@@ -617,7 +675,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                           child: ListTile(
                             title: Text(
                               option,
-                              style: AppTextStyles.nunitoMedium(15, color: isSelected
+                              style: AppTextStyles.nunitoMedium( responsive.subtitleSize, color: isSelected
                                   ? AppColor.primaryColor
                                   : AppColor.whiteColor,),
 
@@ -635,9 +693,14 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 8),
                         child: Row(
+                          mainAxisAlignment: isTablet
+                              ? MainAxisAlignment.spaceEvenly
+                              : MainAxisAlignment.spaceBetween,
                           children: [
                             SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.4,
+                              width: responsive.isMobile
+                                  ? MediaQuery.of(context).size.width * 0.40// wider on mobile
+                                  : MediaQuery.of(context).size.width * 0.3,  // normal on tablet/desktop
                               child: ElevatedButton(
                                 onPressed: () {
                                   setState(() {
@@ -655,14 +718,18 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                 ),
                                 child: Text(
                                   'Clear',
-                                  style: AppTextStyles.nunitoRegular(16,  color: AppColor.primaryColor,),
+                                    style: AppTextStyles.nunitoRegular(
+                                      responsive.subtitleSize,
+                                      color: AppColor.primaryColor,
+                                    ),
 
                                 ),
                               ),
                             ),
-                            const Spacer(),
                             SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.4,
+                              width: responsive.isMobile
+                                  ? MediaQuery.of(context).size.width * 0.40// wider on mobile
+                                  : MediaQuery.of(context).size.width * 0.3,  // normal on tablet/desktop
                               child: ElevatedButton(
                                 onPressed: () {
                                   Navigator.pop(context, selectedOption); // ✅ return
@@ -677,13 +744,18 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                 ),
                                 child: Text(
                                   'Done',
-                                  style: AppTextStyles.nunitoBold(16,  color: AppColor.primaryColor,),
+                                    style: AppTextStyles.nunitoBold(
+                                      responsive.subtitleSize,
+                                      color: AppColor.primaryColor,
+                                    ),
                                 ),
                               ),
                             ),
                           ],
+
                         ),
                       ),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
@@ -760,7 +832,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
   //     }
   //   }
   // }
-
+/// how to clear model
   void showBurgerDialog(BuildContext context,Item product) {
     final selectedProvider =
     Provider.of<CategoryProvider>(context, listen: false);
@@ -768,12 +840,28 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isDesktop = screenWidth >= 1024;
     final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
-    final double buttonFontSize = isDesktop ? 25 : isTablet ? 17 : 16;
-    final double priceSize = isDesktop ? 27 : isTablet ? 20 : 20;
-    final double description = isDesktop ? 20 : isTablet ? 15 : 15;
+    double imageHeight = 120;
+    double imageWidth = double.infinity;
+
+// Adjust based on screen type
+    if (screenWidth >= 1000) {
+      // Desktop
+      imageHeight = 220;
+      imageWidth = 220;
+    } else if (screenWidth >= 700) {
+      // Tablet
+      imageHeight = 180;
+      imageWidth = 180;
+    } else {
+      // Mobile
+      imageHeight = 120;
+      imageWidth = 120;
+    }
     final size = MediaQuery.of(context).size;
     final badgeSize = size.width * 0.15;
     bool isExpanded = false;
+    double priceWidth = screenWidth * 0.2;
+    final responsive = Responsiveness(context);
     // Set base price
     if (product.childCategory == null || product.childCategory.isEmpty) {
       selectedProvider.clearSelectedChildCategory();
@@ -801,7 +889,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
 
       selectedProvider.setQuantity(1);
     }
-
+    final buttonKey = GlobalKey();
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -839,7 +927,8 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                 AppColor.whiteColor,
                               ],
                               begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
+                            //  end: Alignment.bottomRight,
+                              end: Alignment.bottomCenter,
                               stops: [0.6, 0.25],
                             ),
 
@@ -853,13 +942,13 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                 children: [
 
                                   Container(
+                                 //     margin: const EdgeInsets.only(top:16.0),
                                     height: screenHeight * 0.29,
                                     width: double.infinity,
                                     decoration: const BoxDecoration(
                                       image: DecorationImage(
                                         image: AssetImage(AppImage.bgImg),
                                         fit: BoxFit.cover, // Cover the entire container
-
                                       ),
                                       gradient: LinearGradient(
                                         colors: [
@@ -870,30 +959,37 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                         begin: Alignment.topCenter,
                                         stops: [0.3, 0.8],
                                       ),
-                                      borderRadius: const BorderRadius.only(
+                                      borderRadius: BorderRadius.only(
                                         topLeft: Radius.circular(30),
                                         topRight: Radius.circular(30),
                                       ),
-
                                     ),
                                     child: Stack(
                                       children: [
                                         Positioned.fill(
                                           child: ClipRRect(
                                             borderRadius: const BorderRadius.vertical(
-                                                top: Radius.circular(80)),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(25.0),
-                                              child: Image.network(
-                                                "${ApiEndpoints.imageBaseUrl}${product.image}", // prepend baseUrl
-                                                //     fit: BoxFit.fill,
-                                                errorBuilder: (context, error, stackTrace) =>
-                                                const Icon(Icons.image_not_supported),
-                                              ),
+                                              top: Radius.circular(80),
+                                            ),
+                                            child: LayoutBuilder(
+                                              builder: (context, constraints) {
+                                                // Dynamically set image size based on container height
+                                                final double imageSize = constraints.maxHeight * 0.6;
+
+                                                return Center(
+                                                  child: Image.network(
+                                                    "${ApiEndpoints.imageBaseUrl}${product.image}", // prepend baseUrl
+                                                    height: imageSize,
+                                                    width: imageSize,
+                                                    fit: BoxFit.contain,
+                                                    errorBuilder: (context, error, stackTrace) =>
+                                                    const Icon(Icons.image_not_supported, size: 50),
+                                                  ),
+                                                );
+                                              },
                                             ),
                                           ),
                                         ),
-
                                       ],
                                     ),
                                   ),
@@ -936,7 +1032,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                                 : '',
                                                             overflow: TextOverflow.ellipsis,
                                                             style: AppTextStyles.nunitoBold(
-                                                              priceSize,
+                                                              responsive.productName,
                                                               color: AppColor.blackColor,
                                                             ),
                                                           ),
@@ -959,16 +1055,13 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                   Text(
                                                     "₹${(double.tryParse(product.price ?? '0') ?? 0.0).toStringAsFixed(2)}",
                                                     style: AppTextStyles.nunitoBold(
-                                                      priceSize,
+                                                      responsive.productName,
                                                       color: AppColor.blackColor,
                                                     ),
                                                   ),
                                                 ],
                                               ),
                                             ),
-
-
-
 
                                             SizedBox(height: 4,),
 
@@ -1110,7 +1203,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                               maxLines: isExpanded ? null : 4,
                                                               overflow: TextOverflow.visible,
                                                               textAlign: TextAlign.justify,
-                                                              style: AppTextStyles.latoRegular(description, color:  AppColor.lightGreyColor),
+                                                              style: AppTextStyles.latoRegular(responsive.des, color:  AppColor.lightGreyColor),
                                                             ),
                                                             if (isDescriptionLong)
                                                               GestureDetector(
@@ -1142,7 +1235,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                                   product.description,
                                                                   // maxLines: 4,
                                                                   // overflow: TextOverflow.ellipsis,
-                                                                  style: AppTextStyles.latoRegular(description, color:  AppColor.lightGreyColor)
+                                                                  style: AppTextStyles.latoRegular(responsive.hintTextSize, color:  AppColor.lightGreyColor)
                                                               ),
                                                             ),
                                                             const SizedBox(width: 10),
@@ -1184,7 +1277,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                           ? product
                                                           .time!
                                                           : "${product.time} mins",
-                                                      style: AppTextStyles.latoRegular(15, color:  AppColor.darkGreyColor),
+                                                      style: AppTextStyles.latoRegular(responsive.time, color:  AppColor.darkGreyColor),
                                                     ),
                                                     const SizedBox(
                                                         width: 9),
@@ -1217,7 +1310,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                                 chargeValue != null
                                                                     ? "Wrap & Pack Fee Rs  ${chargeValue.toStringAsFixed(2)}"
                                                                     : "Rs 0.00",
-                                                                style: AppTextStyles.latoRegular(12, color:  AppColor.darkGreyColor),
+                                                                style: AppTextStyles.latoRegular(responsive.time, color:  AppColor.darkGreyColor),
                                                               );
                                                             },
                                                           ),
@@ -1337,7 +1430,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                     }
 
                                                     return _buildOptionBox(
-                                                      child.name,
+                                                      _capitalizeFirstLetter(child.name),
                                                       "₹${(child.price ?? 0).toStringAsFixed(0)}",
                                                       isSelected: selectedChild?.id == child.id,
                                                       onTap: () {
@@ -1366,7 +1459,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                               left: 15.0),
                                                           child: Text(
                                                               "Spicy",
-                                                              style: AppTextStyles.nunitoMedium(buttonFontSize, color:  AppColor.blackColor)
+                                                              style: AppTextStyles.nunitoMedium(responsive.subtitleSize, color:  AppColor.blackColor)
                                                           ),
                                                         ),
                                                         const SizedBox(height: 5),
@@ -1389,7 +1482,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                                     .copyWith(
                                                                   fontWeight:
                                                                   FontWeight.w600,
-                                                                  fontSize: description,
+                                                                  fontSize: responsive.hintTextSize,
                                                                   color: AppColor
                                                                       .primaryColor,
                                                                 ),
@@ -1401,7 +1494,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                                     .copyWith(
                                                                   fontWeight:
                                                                   FontWeight.w600,
-                                                                  fontSize: description,
+                                                                  fontSize: responsive.hintTextSize,
                                                                   color: AppColor
                                                                       .primaryColor,
                                                                 ),
@@ -1413,7 +1506,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                                     .copyWith(
                                                                   fontWeight:
                                                                   FontWeight.w600,
-                                                                  fontSize: description,
+                                                                  fontSize: responsive.hintTextSize,
                                                                   color: AppColor
                                                                       .primaryColor,
                                                                 ),
@@ -1436,7 +1529,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                         children: [
                                                           Text(
                                                             "Quantity",
-                                                            style: AppTextStyles.nunitoMedium(buttonFontSize, color:  AppColor.blackColor),
+                                                            style: AppTextStyles.nunitoMedium(responsive.subtitleSize, color:  AppColor.blackColor),
                                                           ),
                                                           const SizedBox(
                                                             height: 10,
@@ -1512,7 +1605,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                           children: [
                                             SvgPicture.asset(
                                                 AppImage.addOn,
-                                                height: 20
+                                                height: isTablet ? 35 :20
                                             ),
                                             const SizedBox(width: 12),
                                             Column(
@@ -1521,12 +1614,12 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                               children:  [
                                                 Text(
                                                     "Add Add-Ons",
-                                                    style: AppTextStyles.latoBold(15,
+                                                    style: AppTextStyles.latoBold(responsive.hintTextSize,
                                                         color:  AppColor.blackColor)
                                                 ),
                                                 Text(
                                                     "Make It Special — Choose Your Add-Ons Now!",
-                                                    style: AppTextStyles.latoMedium(12, color:  AppColor.lightGreyColor)
+                                                    style: AppTextStyles.latoMedium(responsive.time, color:  AppColor.lightGreyColor)
                                                 ),
                                               ],
                                             ),
@@ -1563,6 +1656,9 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                       children: [
 
                                         Container(
+                                          width: isTablet
+                                              ? priceWidth        // If device is a tablet → use calculated priceWidth
+                                              : null,
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 12, vertical: 6),
                                           decoration: BoxDecoration(
@@ -1571,7 +1667,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                           ),
                                           child: Column(
                                             crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                            CrossAxisAlignment.center,
                                             children: [
                                               ShaderMask(
                                                 shaderCallback: (bounds) =>
@@ -1584,7 +1680,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                     style: AppStyle.textStyleReemKufi
                                                         .copyWith(
                                                       color: Colors.white,
-                                                      fontSize: 16,
+                                                      fontSize:   isDesktop ? 17 : 16,
                                                       fontWeight: FontWeight.w700,
                                                     )),
                                               ),
@@ -1601,7 +1697,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                       '₹${totalPrice.toStringAsFixed(2)}',
                                                       style: AppStyle.textStyleReemKufi.copyWith(
                                                         color: Colors.white,
-                                                        fontSize: isDesktop ? 17 : 18,
+                                                        fontSize:   isDesktop ? 22 : (isTablet ? 22 : 16),
                                                         fontWeight: FontWeight.bold,
                                                       ),
                                                     ),
@@ -1632,7 +1728,8 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                         // Add to Cart button
                                         Expanded(
                                           child: Container(
-                                            height: 60,
+                                            key:buttonKey,
+                                            height:isTablet?70:60,
                                             decoration: BoxDecoration(
                                               color: Colors.white,
                                               borderRadius: BorderRadius.circular(12),
@@ -1657,7 +1754,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                   images: [product.image],
                                                   categoryId: product.categoryId,
                                                   price: isTakeAway
-                                                      ? (selectedProvider.selectedPrices ?? 0.0)
+                                                      ? (selectedProvider.selectedPrice ?? 0.0)
                                                       : (selectedProvider.selectedPrices ?? 0.0),
                                                   quantity: selectedProvider.quantity,
                                                   isCombo: false,
@@ -1673,8 +1770,20 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                   prepareTime: product.time,
 
                                                 );
-                                                cartProvider.addToCart(cartItem);
-                                                Navigator.of(context).pop();
+                                                final wasAdded = cartProvider.isDuplicate(cartItem);
+
+                                                if (!wasAdded) {
+                                                  cartProvider.addToCart(context, cartItem); // Add only if not duplicate
+                                                  Navigator.of(context).pop(); // Close the dialog
+                                                } else {
+                                                  FloatingMessage.show(
+                                                    context: context,
+                                                    key: buttonKey,
+                                                    message: 'Product already added with same quantity!',
+                                                  );
+                                                  // Optional: showAboveButton(context, buttonKey, 'Product already added with same quantity!');
+                                                }
+
                                               },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor: AppColor.whiteColor,
@@ -1703,7 +1812,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                   style: AppStyle.textStyleReemKufi
                                                       .copyWith(
                                                     color: Colors.white,
-                                                    fontSize: isDesktop ? 22 : 17,
+                                                    fontSize:   isDesktop ? 22 : (isTablet ? 22 : 16),
                                                     fontWeight: FontWeight.w600,
                                                   ),
                                                 ),
@@ -1721,7 +1830,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                 child: Container(
                                   margin: const EdgeInsets.only(top: 20), // spacing from status bar
                                   height: 5,
-                                  width: 50,
+                                  width:isTablet ?100 :50,
                                   decoration: BoxDecoration(
                                     color: Colors.grey[300],
                                     borderRadius: BorderRadius.circular(2.5),
@@ -1729,11 +1838,12 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                 ),
                               ),
                               Positioned(
-                                top: -15,
+                                top: isTablet ?-16:-15,
                                 left: 10,
                                 child: Image.asset(
                                   AppImage.badge,
-                                  height: 70,
+                                  height:isTablet ?100 :70,
+
                                   width: badgeSize,
                                   // width: badgeSize,
                                 ),
@@ -1743,7 +1853,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                 top: 16,
                                 child: GestureDetector(
                                   onTap: () => Navigator.of(context).pop(),
-                                  child: SvgPicture.asset(AppImage.cross),
+                                  child: SvgPicture.asset(AppImage.cross,height:isTablet ? 30 :20),
                                 ),
                               ),
                             ],
@@ -1770,357 +1880,376 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
       },
     );
   }
+  void showAboveButton(BuildContext context, GlobalKey key, String message) {
+    final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final overlay = Overlay.of(context);
+    final position = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
+
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    final entry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: position.dy - 50, // above the button
+        left: (screenWidth - size.width) / 2, // center horizontally
+        width: size.width, // match button width
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.black87,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(entry);
+
+    Future.delayed(const Duration(seconds: 2), () {
+      entry.remove();
+    });
+  }
+
+
 
   void showAddOnDialog(BuildContext context, Item product) {
     final selectedProvider = Provider.of<CategoryProvider>(context, listen: false);
-
+    final responsive = Responsiveness(context);
     final screenSize = MediaQuery.of(context).size;
     final screenHeight = screenSize.height;
     final screenWidth = screenSize.width;
-    final size = MediaQuery.of(context).size;
-    final imageSize = size.width * 0.15;
-    // Keep selectedAddOns persistent during dialog lifecycle
+    final imageSize = screenWidth * 0.15;
+
+    final bool isDesktop = screenWidth >= 1024;
+    final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
     final List<String> selectedAddOns = [];
+    double priceWidth = screenWidth * 0.2;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      barrierLabel: 'Add-ons',
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.of(context).size.width, // Full width
+        maxHeight: MediaQuery.of(context).size.height * 0.95, // Height limit
       ),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            return Container(
-              height: screenHeight * 0.95,
-              decoration: const BoxDecoration(
-                //  color: AppColor.primaryColor,
-                gradient: LinearGradient(
-                  colors: [
-                    AppColor.primaryColor,
-                    AppColor.whiteColor,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  stops: [0.3, 0.25],
-                ),
-
-
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 22.0,top:18,bottom: 0),
-                    child: GestureDetector(
-                      onTap: (){
-                        Navigator.pop(context);
-                      },
-                      child: SvgPicture.asset(
-                          AppImage.backArrow,
-                          height: 25
-                      ),
-                    ),
-                  ),
-                  // Replace the current image + name section with this:
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            return Material(
+              color: Colors.black.withOpacity(0.5), // Semi-transparent background
+              child: Center(
+                child: SizedBox(
+                  width: screenWidth,
+                  height: screenHeight * 0.95,
+                  child: Container(
                     decoration: const BoxDecoration(
-                      color: AppColor.primaryColor,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(24),
-                        topRight: Radius.circular(24),
-                      ),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Product Image
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                            "${ApiEndpoints.imageBaseUrl}${product.image}",
-                            height: imageSize,
-                            width: imageSize,
-                            //   fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.image_not_supported, size: 70),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        // Product Name + Price (if needed)
-                        Expanded(
-                          child: Row(
-                            //crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                (product.name != null && product.name!.isNotEmpty)
-                                    ? product.name![0].toUpperCase() +
-                                    product.name!.substring(1).toLowerCase()
-                                    : '',
-                                style: AppTextStyles.nunitoBold(20, color:  AppColor.whiteColor),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
-                              // Optional: show price here
-                              Text(
-                                "₹${(double.tryParse(product.price ?? '0') ?? 0.0).toStringAsFixed(2)}",
-                                style: AppTextStyles.nunitoBold(20, color:  AppColor.whiteColor),
-                              ),
-                              // Text(
-                              //   "₹${product.discountPrice ?? '0'}",
-                              //   style: AppStyle.textStyleReemKufi.copyWith(
-                              //     fontSize: 16,
-                              //     fontWeight: FontWeight.w600,
-                              //     color: Colors.white,
-                              //   ),
-                              // ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-
-                  // const SizedBox(height: 10),
-
-                  // ===== Add-ons Section =====
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(70),
-                          // topRight: Radius.circular(24),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 20,),
-                          // Title
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
-                            child: Text(
-                              "Choose Your Add-ons",
-                              style: AppTextStyles.latoBold(18, color:  AppColor.blackColor),
-                            ),
-                          ),
-                          Divider(),
-                          // Add-ons List
-                          Expanded(
-                            child: ListView.builder(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              itemCount: sampleAddOnJson.length, // Use sample data length
-                              itemBuilder: (context, index) {
-                                // Create the AddOnModel list from sample JSON
-                                final addOns = sampleAddOnJson
-                                    .map((json) => AddOnModel.fromJson(json))
-                                    .toList();
-
-                                final addOn = addOns[index]; // <-- Fix: reference the specific addOn
-                                final isSelected = selectedAddOns.contains(addOn.name);
-
-                                return GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      if (isSelected) {
-                                        selectedAddOns.remove(addOn.name);
-                                      } else {
-                                        selectedAddOns.add(addOn.name);
-                                      }
-                                    });
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                                    decoration: BoxDecoration(
-                                      // border: Border(
-                                      //   bottom: BorderSide(color: Colors.grey.shade300),
-                                      // ),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        // Custom Checkbox
-                                        Container(
-                                          height: 20,
-                                          width: 20,
-                                          decoration: BoxDecoration(
-                                            color: isSelected ? AppColor.primaryColor : Colors.white,
-                                            borderRadius: BorderRadius.circular(4),
-                                            border: Border.all(
-                                              color: AppColor.primaryColor,
-                                              width: 1.5,
-                                            ),
-                                          ),
-                                          child: isSelected
-                                              ? const Icon(Icons.check, size: 16, color: Colors.white)
-                                              : null,
-                                        ),
-                                        const SizedBox(width: 12),
-
-                                        // Add-on Name
-                                        Expanded(
-                                          child: Text(
-                                            addOn.name,
-                                            style: AppTextStyles.latoMedium(15, color:  AppColor.blackColor),
-                                          ),
-                                        ),
-
-                                        // Price
-                                        Text(
-                                          "₹${addOn.price.toStringAsFixed(2)}",
-                                          style: AppTextStyles.nunitoBold(15, color:  AppColor.blackColor),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // ===== Footer Section =====
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenWidth * 0.04,
-                      vertical: screenHeight * 0.015,
-                    ),
-                    decoration: const BoxDecoration(
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         colors: [
-                          AppColor.secondary, // Top color
-                          AppColor.primaryColor // Fade out below
+                          AppColor.primaryColor,
+                          AppColor.whiteColor,
                         ],
-                        begin: Alignment.topCenter,    // Start at the very top
-                        end: Alignment.bottomCenter,   // End at the bottom
-                        stops: [0.0, 0.5],             // 0.0 = start, 0.4 = 40% height
-                        tileMode: TileMode.clamp,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomCenter,
+                        stops: [0.3, 0.25],
                       ),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                      ),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                     ),
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Price Box
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
+                        // Back button
+                        Padding(
+                          padding: const EdgeInsets.only(left: 22.0, top: 18),
+                          child: GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: SvgPicture.asset(
+                              AppImage.backArrow,
+                              height:isTablet ? 35 :25,
+
+                            ),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        ),
+
+                        // Product image + title + price
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: const BoxDecoration(
+                            color: AppColor.primaryColor,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(24),
+                              topRight: Radius.circular(24),
+                            ),
+                          ),
+                          child: Row(
                             children: [
-                              Text(
-                                'Price',
-                                style: AppStyle.textStyleReemKufi.copyWith(
-                                  color: AppColor.primaryColor,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.network(
+                                  "${ApiEndpoints.imageBaseUrl}${product.image}",
+                                  height: imageSize,
+                                  width: imageSize,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                  const Icon(Icons.image_not_supported, size: 70),
                                 ),
                               ),
-                              Selector<CategoryProvider, double>(
-                                selector: (_, provider) => provider.totalPriceWithTakeWay,
-                                builder: (context, totalPrice, child) {
-                                  return Text(
-                                    '₹${totalPrice.toStringAsFixed(2)}',
-                                    style: AppStyle.textStyleReemKufi.copyWith(
-                                      color: AppColor.primaryColor,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      product.name != null && product.name!.isNotEmpty
+                                          ? product.name![0].toUpperCase() +
+                                          product.name!.substring(1).toLowerCase()
+                                          : '',
+                                      style: AppTextStyles.nunitoBold(responsive.productName, color: AppColor.whiteColor),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                  );
-                                },
+                                    Text(
+                                      "₹${(double.tryParse(product.price ?? '0') ?? 0.0).toStringAsFixed(2)}",
+                                      style: AppTextStyles.nunitoBold(responsive.productName, color: AppColor.whiteColor),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(width: 15),
 
-                        // Add to Cart Button
+                        // Add-ons section
                         Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              final prefHelper = getIt<SharedPreferenceHelper>();
-                              final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
-                              final cartProvider =
-                              Provider.of<CartProvider>(context, listen: false);
-                              final dynamic packingCharge = product.takeAwayPrice;
-                              final totalTime = context.read<CategoryProvider>().totalTime;
-                              // Convert to double safely
-                              final double? packingChargeValue = packingCharge is String
-                                  ? double.tryParse(packingCharge)
-                                  : (packingCharge is double ? packingCharge : null);
-
-                              final selectedChild = context.read<CategoryProvider>().selectedChildCategory;
-
-                              final cartItem = CartItemModel(
-                                  id: product.id,
-                                  name: product.name,
-                                  images: [product.image],
-                                  categoryId: product.categoryId,
-                                  price: isTakeAway
-                                      ? (selectedProvider.selectedPrices ?? 0.0)
-                                      : (selectedProvider.selectedPrices ?? 0.0),
-                                  quantity: selectedProvider.quantity,
-                                  isCombo: false,
-                                  takeAwayPrice: packingChargeValue,
-                                  // takeAwayPrice: selectedChild?.takeAwayPrice,
-                                  subCategoryId: selectedChild?.subCategoryId ?? 0,
-                                  childCategoryId: selectedChild?.id.toString(),      // 👈 pass child id if selected
-                                  childCategoryName: selectedChild?.name,
-                                  totalDeliveryTime:totalTime
-                              );
-                              cartProvider.addToCart(cartItem);
-                              Navigator.of(context).pop();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: AppColor.primaryColor,
-                              elevation: 0,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(70),
                               ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
-                            child: Text(
-                              'Add To Cart',
-                              style: AppStyle.textStyleReemKufi.copyWith(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w600,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 20),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 12),
+                                  child: Text(
+                                    "Choose Your Add-ons",
+                                    style: AppTextStyles.latoBold(responsive.adOn, color: AppColor.blackColor),
+                                  ),
+                                ),
+                                const Divider(),
+                                Expanded(
+                                  child: ListView.builder(
+                                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                                    itemCount: sampleAddOnJson.length,
+                                    itemBuilder: (context, index) {
+                                      final addOns = sampleAddOnJson
+                                          .map((json) => AddOnModel.fromJson(json))
+                                          .toList();
+                                      final addOn = addOns[index];
+                                      final isSelected = selectedAddOns.contains(addOn.name);
+
+                                      return GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            if (isSelected) {
+                                              selectedAddOns.remove(addOn.name);
+                                            } else {
+                                              selectedAddOns.add(addOn.name);
+                                            }
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                height: 20,
+                                                width: 20,
+                                                decoration: BoxDecoration(
+                                                  color: isSelected ? AppColor.primaryColor : Colors.white,
+                                                  borderRadius: BorderRadius.circular(4),
+                                                  border: Border.all(
+                                                    color: AppColor.primaryColor,
+                                                    width: 1.5,
+                                                  ),
+                                                ),
+                                                child: isSelected
+                                                    ? const Icon(Icons.check, size: 16, color: Colors.white)
+                                                    : null,
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Expanded(
+                                                child: Text(
+                                                  addOn.name,
+                                                  style: AppTextStyles.latoMedium(responsive.hintTextSize, color: AppColor.blackColor),
+                                                ),
+                                              ),
+                                              Text(
+                                                "₹${addOn.price.toStringAsFixed(2)}",
+                                                style: AppTextStyles.nunitoBold(responsive.hintTextSize, color: AppColor.blackColor),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Footer
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04, vertical: screenHeight * 0.015),
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                AppColor.secondary,
+                                AppColor.primaryColor,
+                              ],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: isTablet
+                                    ? priceWidth        // If device is a tablet → use calculated priceWidth
+                                    : null,
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Price',
+                                      style: AppStyle.textStyleReemKufi.copyWith(
+                                        color: AppColor.primaryColor,
+                                        fontSize:responsive.descriptionSize,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Selector<CategoryProvider, double>(
+                                      selector: (_, provider) => provider.totalPriceWithTakeWay,
+                                      builder: (context, totalPrice, child) {
+                                        return Text(
+                                          '₹${totalPrice.toStringAsFixed(2)}',
+                                          style: AppStyle.textStyleReemKufi.copyWith(
+                                            color: AppColor.primaryColor,
+                                            fontSize:responsive.mainTitleSize,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
+                              const SizedBox(width: 15),
+                              Expanded(
+                                child: Container(
+                                  height:isTablet?70:60,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      final prefHelper = getIt<SharedPreferenceHelper>();
+                                      final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
+                                      final cartProvider =
+                                      Provider.of<CartProvider>(context, listen: false);
+                                      final dynamic packingCharge = product.takeAwayPrice;
+                                      final totalTime = context.read<CategoryProvider>().totalTime;
+                                      final double? packingChargeValue = packingCharge is String
+                                          ? double.tryParse(packingCharge)
+                                          : (packingCharge is double ? packingCharge : null);
+
+                                      final selectedChild = context.read<CategoryProvider>().selectedChildCategory;
+
+                                      final cartItem = CartItemModel(
+                                        id: product.id,
+                                        name: product.name,
+                                        images: [product.image],
+                                        categoryId: product.categoryId,
+                                        price: isTakeAway
+                                            ? (selectedProvider.selectedPrice ?? 0.0)
+                                            : (selectedProvider.selectedPrices ?? 0.0),
+                                        quantity: selectedProvider.quantity,
+                                        isCombo: false,
+                                        takeAwayPrice: packingChargeValue,
+                                        subCategoryId: selectedChild?.subCategoryId ?? 0,
+                                        childCategoryId: selectedChild?.id.toString(),
+                                        childCategoryName: selectedChild?.name,
+                                        totalDeliveryTime: totalTime,
+                                      );
+
+                                      cartProvider.addToCart(context,cartItem);
+                                      Navigator.of(context).pop();
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: AppColor.primaryColor,
+                                      elevation: 0,
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Add To Cart',
+                                      style: AppStyle.textStyleReemKufi.copyWith(
+                                        fontSize:responsive.mainTitleSize,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                ],
+                ),
               ),
             );
           },
         );
       },
     );
+  }
+  String _capitalizeFirstLetter(String text) {
+    if (text.isEmpty) return '';
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
   }
 
   Widget _buildOptionBox(
@@ -2155,7 +2284,13 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
             children: [
               Flexible(
                 child: Text(
-                  title,
+                  (title.isNotEmpty)
+                      ? title[0]
+                      .toUpperCase() +
+                      title
+                          .substring(1)
+                          .toLowerCase()
+                      : '',
                   style: AppStyle.textStyleReemKufi.copyWith(
                     fontSize: priceSize,
                     fontWeight: FontWeight.bold,
@@ -2201,7 +2336,13 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
               children: [
                 Flexible(child:
                 Text(
-                  title,
+                  (title.isNotEmpty)
+                      ? title[0]
+                      .toUpperCase() +
+                      title
+                          .substring(1)
+                          .toLowerCase()
+                      : '',
                   style: AppStyle.textStyleReemKufi.copyWith(
                     fontSize: priceSize,
                     fontWeight: FontWeight.bold,
@@ -2293,171 +2434,6 @@ class _HeatLevelSelectorState extends State<HeatLevelSelector> {
   }
 
 
-  void showSortByDialog(BuildContext context) {
-    String selectedOption = 'Popular';
-    List<String> options = [
-      'Popular',
-      'Newest',
-      'Price: Lowest to high',
-      'Price: Highest to low',
-    ];
-
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: "Sort By",
-      pageBuilder: (context, anim1, anim2) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Center(
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  padding: const EdgeInsets.only(top: 16,bottom: 16),
-                  decoration: const BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColor.secondary, AppColor.primaryColor],
-                      begin: AlignmentDirectional(0.0, -2.0), // top-center
-                      end: AlignmentDirectional(0.0, 1.0), // bottom-center
-
-                      stops: [0.0, 1.0], // smooth gradient
-                      tileMode: TileMode.clamp,
-                    ),
-                    borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(20), bottom: Radius.circular(20)),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8, bottom: 16, left: 16, right: 16),
-                        child: Row(
-                          children: [
-                            // This ensures the "Sort By" text stays centered
-                            Expanded(
-                              child: Text(
-                                'Sort By',
-                                textAlign: TextAlign.center, // Centers text within Expanded
-                                style: AppStyle.textStyleReemKufi.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColor.whiteColor,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: (){
-                                Navigator.pop(context);
-                              },
-                              child: SvgPicture.asset(
-                                AppImage.cross,height: 20,width: 20,),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const Divider(color: Colors.white54),
-                      const SizedBox(height: 10),
-                      ...options.map((option) {
-                        bool isSelected = selectedOption == option;
-                        return Container(
-                          width: double.infinity,
-                          color: isSelected ? Colors.white : Colors.transparent, // selected background
-                          child: ListTile(
-                            title: Text(
-                              option,
-                              style: AppStyle.textStyleReemKufi.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: isSelected ? AppColor.primaryColor : AppColor.whiteColor, // text color
-                                fontSize: 15,
-                              ),
-                            ),
-                            onTap: () {
-                              setState(() {
-                                selectedOption = option;
-                              });
-                            },
-                          ),
-                        );
-                      }).toList(),
-
-                      const SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.4, // 40% of screen width
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    selectedOption = '';
-                                  });
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Clear',
-                                  style: AppStyle.textStyleReemKufi.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColor.primaryColor,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const Spacer(),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.4, // 40% of screen width
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context, selectedOption);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Done',
-                                  style: AppStyle.textStyleReemKufi.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColor.primaryColor,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-      transitionBuilder: (context, anim1, anim2, child) {
-        return SlideTransition(
-          position:
-          Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim1),
-          child: child,
-        );
-      },
-      transitionDuration: const Duration(milliseconds: 300),
-    );
-  }
 }
 
 

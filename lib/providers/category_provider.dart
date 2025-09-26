@@ -86,11 +86,17 @@ class CategoryProvider with ChangeNotifier {
   int _quantity = 1;
   ChildCategory? _selectedChildCategory;
 
+  ChildCategory? get selectedChildCategory => _selectedChildCategory;
+
+
   void clearSelectedChildCategory() {
     _selectedChildCategory = null;
     notifyListeners();
   }
-
+  void setAddOnsTotal(double total) {
+    _addOnsTotal = total;
+    notifyListeners();
+  }
   void setBasePrice(double price) {
     _basePrice = price;
     print('Base price set to: $_basePrice');
@@ -226,10 +232,13 @@ class CategoryProvider with ChangeNotifier {
   }
 
 
-  void setTakeAwayPrice(double price) {
-    _takeAwayPrice = price;
+  void setTakeAwayPrice(String price) {
+    _comboTakeAwayPrice = double.tryParse(price) ?? 0.0; // Convert String to double
+    print('Takeaway price set: $_comboTakeAwayPrice');   // ✅ Print for debugging
     notifyListeners();
   }
+
+
 
 
   int _totalTime = 0;
@@ -268,6 +277,8 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  double get comboSelectedPrices =>  selectedComboPrice * _quantity;
+  double get comboSelectedTakeAwayPrices => selectedComboWithTakeAwayPrice * _quantity;
 
 
   double get selectedPrices {
@@ -276,6 +287,7 @@ class CategoryProvider with ChangeNotifier {
     }
     return _basePrice; // ✅ Always fallback correctly
   }
+
 
   double get selectedPrice {
     double price = _basePrice; // Start with base product price
@@ -287,20 +299,62 @@ class CategoryProvider with ChangeNotifier {
     }
 
     return price;
-  }///
+  }
+
+  double _addOnsTotal = 0.0;
+  // double get selectedPrices {
+  //   if (_selectedChildCategory != null && _selectedChildCategory!.price != null) {
+  //     return _selectedChildCategory!.price.toDouble() + _addOnsTotal;
+  //   }
+  //   return _basePrice + _addOnsTotal; // Always include add-ons
+  // }
+  //
+  // double get selectedPrice {
+  //   double price = _basePrice;
+  //
+  //   if (_selectedChildCategory != null) {
+  //     price = (_selectedChildCategory!.price.toDouble() ?? 0.0) +
+  //         (_selectedChildCategory!.takeAwayPrice.toDouble() ?? 0.0) +
+  //         _addOnsTotal; // include add-ons
+  //   } else {
+  //     price += _addOnsTotal;
+  //   }
+  //
+  //   return price;
+  // }
+
+  double get selectedComboPrice {
+    double price = _basePrice; // Start with base product price
+
+    return price;
+  }
+
+  double get selectedComboWithTakeAwayPrice {
+    // Print base price and takeaway price
+    //print('Base prices: $_basePrice');
+    //print('Takeaway prices: $_comboTakeAwayPrice');
+
+    // Total price = base price + takeaway price
+    double price = _basePrice + (_comboTakeAwayPrice ?? 0.0);
+    // print('Total price: $price'); // Optional: print total
+
+    return price;
+  }
+
+
 
   double get totalPrices => selectedPrices * _quantity;
 
-  double get totalPriceWithTakeWay => selectedPrices * _quantity;
+  double get totalPriceWithTakeWay => selectedPrice * _quantity;
 
 
 
   int get quantity => _quantity;
-  ChildCategory? get selectedChildCategory => _selectedChildCategory;
+
 
 
   double _takeAwayPrice = 0.0;
-
+  double _comboTakeAwayPrice = 0.0;
   double get grandTotalPrice {
     double takeAway = 0.0;
 
@@ -339,9 +393,9 @@ class CategoryProvider with ChangeNotifier {
       final double childPrice = selectedChild.price ?? 0.0;
 
       // Debugging
-      print('Selected Child Price: $childPrice');
-      print('Quantity (from provider): ${provider.quantity}');
-      print('Total (Child): ${childPrice * provider.quantity}');
+      // print('Selected Child Price: $childPrice');
+      // print('Quantity (from provider): ${provider.quantity}');
+      // print('Total (Child): ${childPrice * provider.quantity}');
 
       return childPrice * provider.quantity;
     }
@@ -351,25 +405,41 @@ class CategoryProvider with ChangeNotifier {
     final double total = (validDiscountPrice + takeAwayPrice) * provider.quantity;
 
     // Debugging
-    print('Discount Price: $discountPrice');
-    print('TakeAway Price: $takeAwayPrice');
-    print('Quantity (from provider): ${provider.quantity}');
-    print('Total (Fallback): $total');
+    // print('Discount Price: $discountPrice');
+    // print('TakeAway Price: $takeAwayPrice');
+    // print('Quantity (from provider): ${provider.quantity}');
+    // print('Total (Fallback): $total');
 
     return total;
   }
 
-  double getChildCategoryOrDiscountTotal(CartItemModel cartItem, ChildCategory? selectedChild,CategoryProvider provider) {
+  double getChildCategoryOrDiscountTotal(
+      CartItemModel cartItem, ChildCategory? selectedChild, CategoryProvider provider) {
+
+    double total = 0.0;
+
     if (selectedChild != null) {
       final double childPrice = selectedChild.price ?? 0.0;
-      return childPrice * provider.quantity;
+      total = childPrice * provider.quantity;
+
+      print('Selected Child Price: $childPrice');
+      print('Quantity: ${provider.quantity}');
+      print('Total: $total');
     } else {
-      final double discountPrice = cartItem.discountPrice != null
-          ? double.parse(cartItem.discountPrice!)
-          : 0.0;
-      return discountPrice *  provider.quantity;
+      final double discountPrice = (cartItem.discountPrice != null && cartItem.discountPrice!.isNotEmpty)
+          ? double.tryParse(cartItem.discountPrice!) ?? cartItem.price ?? 0.0
+          : cartItem.price ?? 0.0;
+
+      total = discountPrice * provider.quantity;
+
+      print('Discount Prices: $discountPrice');
+      print('Quantitys: ${provider.quantity}');
+      print('Totals: $total');
     }
+
+    return total;
   }
+
 
 
 
@@ -380,5 +450,23 @@ class CategoryProvider with ChangeNotifier {
     takeAwayPrice = takeAway;
     notifyListeners();
   }
+
+
+  final Map<int, String> _selectedChildCategoryPerProduct = {};
+
+  String? getSelectedChildCategoryId(int productId) {
+    return _selectedChildCategoryPerProduct[productId];
+  }
+
+  void setSelectedChildCategoryId(int productId, String? childCategoryId) {
+    if (childCategoryId == null) {
+      _selectedChildCategoryPerProduct.remove(productId);
+    } else {
+      _selectedChildCategoryPerProduct[productId] = childCategoryId;
+    }
+    notifyListeners();
+  }
+  /// Clear selected child category for a product
+
 
 }

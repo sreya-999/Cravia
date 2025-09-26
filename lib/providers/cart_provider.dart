@@ -3,31 +3,77 @@ import 'package:flutter/material.dart';
 import '../models/product_model.dart';
 
 class CartProvider with ChangeNotifier {
-  final Map<int, int> _quantities = {}; // productId -> quantity
+  //final Map<int, int> _quantities = {}; // productId -> quantity
+  Map<String, int> _quantities = {};
 
   int getQuantity(int productId) {
-    return _quantities[productId] ?? 0;
+    return _quantities[productId.toString()] ?? 0;
   }
   int get totalItems => _quantities.values.fold(0, (sum, qty) => sum + qty);
 
 
-  void increment(int productId) {
-    final index = _items.indexWhere((item) => item.id == productId);
+  // void increment(int productId) {
+  //   final index = _items.indexWhere((item) => item.id == productId);
+  //   if (index != -1) {
+  //     _items[index].quantity++;
+  //     _quantities[productId] = _items[index].quantity;
+  //     notifyListeners();
+  //   }
+  // }
+  //
+  // void decrement(int productId) {
+  //   final index = _items.indexWhere((item) => item.id == productId);
+  //   if (index != -1 && _items[index].quantity > 1) {
+  //     _items[index].quantity--;
+  //     _quantities[productId] = _items[index].quantity;
+  //     notifyListeners();
+  //   }
+  // }
+
+  void increment(int productId, {String? childCategoryId}) {
+    print('increment called for productId: $productId, childCategoryId: $childCategoryId');
+
+    // If childCategoryId is not passed, find the first matching product
+    final index = _items.indexWhere(
+          (item) =>
+      item.id == productId &&
+          (childCategoryId == null || item.childCategoryId == childCategoryId),
+    );
+
     if (index != -1) {
       _items[index].quantity++;
-      _quantities[productId] = _items[index].quantity;
+      _quantities[_getUniqueKey(_items[index].id, _items[index].childCategoryId)] =
+          _items[index].quantity;
       notifyListeners();
+    } else {
+      print("No matching product found for productId: $productId");
     }
   }
 
-  void decrement(int productId) {
-    final index = _items.indexWhere((item) => item.id == productId);
+  void decrement(int productId, {String? childCategoryId}) {
+    print('decrement called for productId: $productId, childCategoryId: $childCategoryId');
+
+    final index = _items.indexWhere(
+          (item) =>
+      item.id == productId &&
+          (childCategoryId == null || item.childCategoryId == childCategoryId),
+    );
+
     if (index != -1 && _items[index].quantity > 1) {
       _items[index].quantity--;
-      _quantities[productId] = _items[index].quantity;
+      _quantities[_getUniqueKey(_items[index].id, _items[index].childCategoryId)] =
+          _items[index].quantity;
       notifyListeners();
+    } else {
+      print("No matching product found or quantity is already 1 for productId: $productId");
     }
   }
+
+// Update _getUniqueKey to accept String? now
+  String _getUniqueKey(int productId, String? childCategoryId) {
+    return '$productId-${childCategoryId ?? 'none'}';
+  }
+
 
 
   double getTotalAmount(List<ProductModel> products) {
@@ -95,24 +141,60 @@ class CartProvider with ChangeNotifier {
   //   }
   //   notifyListeners();
   // }
-
-  void addToCart(CartItemModel newItem) {
-    // 1️⃣ Find index of an item with the same id AND same childCategoryId
+  void addToCart(BuildContext context, CartItemModel newItem) {
+    // Find existing item with same id & childCategoryId
     final index = _items.indexWhere(
           (item) => item.id == newItem.id && item.childCategoryId == newItem.childCategoryId,
     );
 
+    if (index != -1 && _items[index].quantity == newItem.quantity) {
+      // Product already added with same quantity
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Product already added with same quantity!'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return; // Do NOT add or replace, do NOT close dialog
+    }
+
     if (index != -1) {
-      // 2️⃣ If the item exists with the same id & category, replace it
+      // Quantity is different, update the item
       _items[index] = newItem;
     } else {
-      // 3️⃣ If it's a completely new combination, add it as a new item
+      // New item, add to cart
       _items.add(newItem);
     }
 
-    // 4️⃣ Notify listeners so the UI rebuilds
     notifyListeners();
   }
+
+
+  bool isDuplicate(CartItemModel newItem) {
+    final index = _items.indexWhere(
+          (item) => item.id == newItem.id && item.childCategoryId == newItem.childCategoryId,
+    );
+    return index != -1 && _items[index].quantity == newItem.quantity;
+  }
+
+
+  // void addToCart(CartItemModel newItem) { /// old cart
+  //   // 1️⃣ Find index of an item with the same id AND same childCategoryId
+  //   final index = _items.indexWhere(
+  //         (item) => item.id == newItem.id && item.childCategoryId == newItem.childCategoryId,
+  //   );
+  //
+  //   if (index != -1) {
+  //     // 2️⃣ If the item exists with the same id & category, replace it
+  //     _items[index] = newItem;
+  //   } else {
+  //     // 3️⃣ If it's a completely new combination, add it as a new item
+  //     _items.add(newItem);
+  //   }
+  //
+  //   // 4️⃣ Notify listeners so the UI rebuilds
+  //   notifyListeners();
+  // }
 
   // void addToCart(CartItemModel item) {
   //   final existingIndex = _items.indexWhere(

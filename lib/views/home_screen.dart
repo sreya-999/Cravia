@@ -23,6 +23,7 @@ import '../utlis/App_style.dart';
 import '../utlis/share_preference_helper/sharereference_helper.dart';
 import '../utlis/widgets/app_text_style.dart';
 import '../utlis/widgets/custom_exit_dialog.dart';
+import '../utlis/widgets/floating_message.dart';
 import '../utlis/widgets/responsiveness.dart';
 import '../utlis/widgets/shimmer_loading.dart';
 import 'buy_one_get_one.dart';
@@ -113,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
     double filterIconSize = screenWidth * 0.025;
     double horizontalPadding = screenWidth * 0.010;
 
-
+    final responsive = Responsiveness(context);
 
 // Horizontal padding: left + right + spacing
     final horizontalPaddings = 12 * 3;
@@ -131,7 +132,10 @@ class _HomeScreenState extends State<HomeScreen> {
           final shouldExit = await showExitDialog(context);
 
           if (shouldExit == true) {
-            // Exit the app
+            final categoryProvider =
+                Provider.of<CategoryProvider>(context, listen: false);
+            categoryProvider.setQuantity(1);
+            cartProvider.clearCart();
             Navigator.of(context).pop();
           }
         },
@@ -142,8 +146,8 @@ class _HomeScreenState extends State<HomeScreen> {
               toolbarHeight: isDesktop
                   ? 100
                   : isTablet
-                  ? 100
-                  : 70,
+                      ? 100
+                      : 70,
               automaticallyImplyLeading: false,
               centerTitle: false,
               titleSpacing: 0,
@@ -156,6 +160,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (cartProvider.items.isNotEmpty) {
                           final shouldExit = await showExitDialog(context);
                           if (shouldExit) {
+                            final categoryProvider =
+                                Provider.of<CategoryProvider>(context,
+                                    listen: false);
+                            categoryProvider.setQuantity(1);
+                            cartProvider.clearCart();
+                            Navigator.of(context).pop();
+
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
@@ -163,6 +174,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           }
                         } else {
+                          final categoryProvider =
+                              Provider.of<CategoryProvider>(context,
+                                  listen: false);
+                          categoryProvider.setQuantity(1);
+                          cartProvider.clearCart();
+                          Navigator.of(context).pop();
+
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
@@ -175,8 +193,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: isDesktop
                             ? 150
                             : isTablet
-                            ? 190
-                            : 100,
+                                ? 190
+                                : 100,
                       ),
                     ),
                     SizedBox(width: horizontalPadding),
@@ -193,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: AppColor
                           .primaryColor, // set your background color here
                       borderRadius:
-                      BorderRadius.circular(8), // optional rounded corners
+                          BorderRadius.circular(8), // optional rounded corners
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -202,13 +220,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           width: isDesktop
                               ? 36
                               : isTablet
-                              ? 32
-                              : 28,
+                                  ? 32
+                                  : 28,
                           height: isDesktop
                               ? 36
                               : isTablet
-                              ? 32
-                              : 25,
+                                  ? 32
+                                  : 25,
                           child: SvgPicture.asset(
                             orderImage,
                             fit: BoxFit.fill,
@@ -222,8 +240,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               isDesktop
                                   ? 20
                                   : isTablet
-                                  ? 18
-                                  : 12,
+                                      ? 18
+                                      : 12,
                               color: Colors.white),
                         ),
                       ],
@@ -247,183 +265,343 @@ class _HomeScreenState extends State<HomeScreen> {
                 final double barHeight = isDesktop
                     ? 110
                     : isTablet
-                    ? 90
-                    : 80;
+                        ? 90
+                        : 80;
                 final double paddingHorizontal = isDesktop
                     ? 40
                     : isTablet
-                    ? 24
-                    : 16;
+                        ? 24
+                        : 16;
                 final double paddingVertical = isDesktop
                     ? 16
                     : isTablet
-                    ? 12
-                    : 10;
+                        ? 12
+                        : 10;
                 final double titleFontSize = isDesktop
                     ? 18
                     : isTablet
-                    ? 16
-                    : 15;
+                        ? 16
+                        : 15;
                 final double priceFontSize = isDesktop
                     ? 20
                     : isTablet
-                    ? 18
-                    : 18;
+                        ? 22
+                        : 18;
                 final double buttonFontSize = isDesktop
                     ? 22
                     : isTablet
-                    ? 17
-                    : 17;
+                        ? 22
+                        : 17;
                 final double buttonPaddingH = isDesktop
                     ? 36
                     : isTablet
-                    ? 32
-                    : 28;
+                        ? 32
+                        : 28;
                 final double buttonPaddingV = isDesktop
                     ? 18
                     : isTablet
-                    ? 16
-                    : 14;
+                        ? 16
+                        : 14;
 
-                return Container(
-                  height: barHeight,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: paddingHorizontal,
-                    vertical: paddingVertical,
-                  ),
-                  decoration: const BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        AppColor.secondary, // Top color
-                        AppColor.primaryColor // Fade out below
-                      ],
-                      begin: Alignment.topCenter, // Start at the very top
-                      end: Alignment.bottomCenter, // End at the bottom
-                      stops: [0.0, 0.5], // 0.0 = start, 0.4 = 40% height
-                      tileMode: TileMode.clamp,
-                    ),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 6,
-                        offset: Offset(0, -2),
+                // return Container(
+                //   height: barHeight,
+                //   padding: EdgeInsets.symmetric(
+                //     horizontal: paddingHorizontal,
+                //     vertical: paddingVertical,
+                //   ),
+                //   decoration: const BoxDecoration(
+                //     gradient: const LinearGradient(
+                //       colors: [
+                //         AppColor.secondary, // Top color
+                //         AppColor.primaryColor // Fade out below
+                //       ],
+                //       begin: Alignment.topCenter, // Start at the very top
+                //       end: Alignment.bottomCenter, // End at the bottom
+                //       stops: [0.0, 0.5], // 0.0 = start, 0.4 = 40% height
+                //       tileMode: TileMode.clamp,
+                //     ),
+                //     borderRadius: BorderRadius.only(
+                //       topLeft: Radius.circular(20),
+                //       topRight: Radius.circular(20),
+                //     ),
+                //     boxShadow: [
+                //       BoxShadow(
+                //         color: Colors.black12,
+                //         blurRadius: 6,
+                //         offset: Offset(0, -2),
+                //       ),
+                //     ],
+                //   ),
+                //   child: Row(
+                //     children: [
+                //       // Price Box
+                //       Container(
+                //         padding: EdgeInsets.symmetric(
+                //           horizontal: isDesktop ? 16 : 12,
+                //           vertical: isDesktop ? 10 : 4,
+                //         ),
+                //         decoration: BoxDecoration(
+                //           color: Colors.white,
+                //           borderRadius: BorderRadius.circular(12),
+                //         ),
+                //         child: Column(
+                //           crossAxisAlignment: CrossAxisAlignment.start,
+                //           mainAxisAlignment: MainAxisAlignment.center,
+                //           children: [
+                //             ShaderMask(
+                //               shaderCallback: (bounds) => const LinearGradient(
+                //                 colors: [
+                //                   AppColor.primaryColor,
+                //                   AppColor.primaryColor
+                //                 ],
+                //               ).createShader(Rect.fromLTWH(
+                //                   0, 0, bounds.width, bounds.height)),
+                //               child: Text(
+                //                 'Price',
+                //                 style: AppStyle.textStyleReemKufi.copyWith(
+                //                   color: Colors.white,
+                //                   fontSize: titleFontSize,
+                //                   fontWeight: FontWeight.w700,
+                //                 ),
+                //               ),
+                //             ),
+                //             ShaderMask(
+                //               shaderCallback: (bounds) => const LinearGradient(
+                //                 colors: [
+                //                   AppColor.primaryColor,
+                //                   AppColor.primaryColor
+                //                 ],
+                //                 stops: [0.10, 0],
+                //               ).createShader(Rect.fromLTWH(
+                //                   0, 0, bounds.width, bounds.height)),
+                //               child: Text(
+                //                 '₹${subTotal.toStringAsFixed(2)}',
+                //                 style: AppStyle.textStyleReemKufi.copyWith(
+                //                   color: Colors.white,
+                //                   fontSize: priceFontSize,
+                //                   fontWeight: FontWeight.bold,
+                //                 ),
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //       ),
+                //
+                //       const SizedBox(width: 15),
+                //
+                //       // Cart Button
+                //       Expanded(
+                //         child: Container(
+                //           height: 60,
+                //           decoration: BoxDecoration(
+                //             color: Colors.white,
+                //             borderRadius: BorderRadius.circular(12),
+                //           ),
+                //           child: ElevatedButton(
+                //             onPressed: () {
+                //               Navigator.push(
+                //                 context,
+                //                 MaterialPageRoute(
+                //                     builder: (_) => const ViewOrderScreen()),
+                //               );
+                //             },
+                //             style: ElevatedButton.styleFrom(
+                //               backgroundColor: AppColor.whiteColor,
+                //               foregroundColor: AppColor.whiteColor,
+                //               elevation: 0,
+                //               padding: EdgeInsets.symmetric(
+                //                 horizontal: buttonPaddingH,
+                //                 vertical: buttonPaddingV,
+                //               ),
+                //               shape: RoundedRectangleBorder(
+                //                 borderRadius: BorderRadius.circular(12),
+                //               ),
+                //             ),
+                //             child: ShaderMask(
+                //               shaderCallback: (bounds) => const LinearGradient(
+                //                 colors: [
+                //                   AppColor.primaryColor,
+                //                   AppColor.primaryColor
+                //                 ],
+                //                 stops: [0.60, 0],
+                //                 begin: Alignment.topCenter,
+                //                 end: Alignment.bottomRight,
+                //               ).createShader(Rect.fromLTWH(
+                //                   0, 0, bounds.width, bounds.height)),
+                //               child: Text(
+                //                 'Go To Cart',
+                //                 style: AppStyle.textStyleReemKufi.copyWith(
+                //                   color: Colors.white,
+                //                   fontSize: buttonFontSize,
+                //                   fontWeight: FontWeight.w600,
+                //                 ),
+                //               ),
+                //             ),
+                //           ),
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // );
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    double screenWidth = constraints.maxWidth;
+
+                    // 30% for Price container
+                    double priceWidth = screenWidth * 0.2;
+
+                    return Container(
+                      height: barHeight,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontal,
+                        vertical: paddingVertical,
                       ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      // Price Box
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: isDesktop ? 16 : 12,
-                          vertical: isDesktop ? 10 : 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ShaderMask(
-                              shaderCallback: (bounds) => const LinearGradient(
-                                colors: [
-                                  AppColor.primaryColor,
-                                  AppColor.primaryColor
-                                ],
-                              ).createShader(Rect.fromLTWH(
-                                  0, 0, bounds.width, bounds.height)),
-                              child: Text(
-                                'Price',
-                                style: AppStyle.textStyleReemKufi.copyWith(
-                                  color: Colors.white,
-                                  fontSize: titleFontSize,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                            ShaderMask(
-                              shaderCallback: (bounds) => const LinearGradient(
-                                colors: [
-                                  AppColor.primaryColor,
-                                  AppColor.primaryColor
-                                ],
-                                stops: [0.10, 0],
-                              ).createShader(Rect.fromLTWH(
-                                  0, 0, bounds.width, bounds.height)),
-                              child: Text(
-                                '₹${subTotal.toStringAsFixed(2)}',
-                                style: AppStyle.textStyleReemKufi.copyWith(
-                                  color: Colors.white,
-                                  fontSize: priceFontSize,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppColor.secondary,
+                            AppColor.primaryColor,
                           ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          stops: [0.0, 0.5],
+                          tileMode: TileMode.clamp,
                         ),
-                      ),
-
-                      const SizedBox(width: 15),
-
-                      // Cart Button
-                      Expanded(
-                        child: Container(
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 6,
+                            offset: Offset(0, -2),
                           ),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => const ViewOrderScreen()),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColor.whiteColor,
-                              foregroundColor: AppColor.whiteColor,
-                              elevation: 0,
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          // Price Box - 30% of width
+                          SizedBox(
+                            width: isTablet
+                                ? priceWidth // If device is a tablet → use calculated priceWidth
+                                : null,
+                            child: Container(
                               padding: EdgeInsets.symmetric(
-                                horizontal: buttonPaddingH,
-                                vertical: buttonPaddingV,
+                                horizontal: isDesktop ? 16 : 12,
+                                vertical: isDesktop ? 10 : 4,
                               ),
-                              shape: RoundedRectangleBorder(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                            ),
-                            child: ShaderMask(
-                              shaderCallback: (bounds) => const LinearGradient(
-                                colors: [
-                                  AppColor.primaryColor,
-                                  AppColor.primaryColor
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ShaderMask(
+                                    shaderCallback: (bounds) =>
+                                        const LinearGradient(
+                                      colors: [
+                                        AppColor.primaryColor,
+                                        AppColor.primaryColor
+                                      ],
+                                    ).createShader(Rect.fromLTWH(
+                                            0, 0, bounds.width, bounds.height)),
+                                    child: Text(
+                                      'Price',
+                                      style:
+                                          AppStyle.textStyleReemKufi.copyWith(
+                                        color: Colors.white,
+                                        fontSize: titleFontSize,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                  ShaderMask(
+                                    shaderCallback: (bounds) =>
+                                        const LinearGradient(
+                                      colors: [
+                                        AppColor.primaryColor,
+                                        AppColor.primaryColor
+                                      ],
+                                      stops: [0.10, 0],
+                                    ).createShader(Rect.fromLTWH(
+                                            0, 0, bounds.width, bounds.height)),
+                                    child: Text(
+                                      '₹${subTotal.toStringAsFixed(2)}',
+                                      style:
+                                          AppStyle.textStyleReemKufi.copyWith(
+                                        color: Colors.white,
+                                        fontSize: priceFontSize,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
                                 ],
-                                stops: [0.60, 0],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomRight,
-                              ).createShader(Rect.fromLTWH(
-                                  0, 0, bounds.width, bounds.height)),
-                              child: Text(
-                                'Go To Cart',
-                                style: AppStyle.textStyleReemKufi.copyWith(
-                                  color: Colors.white,
-                                  fontSize: buttonFontSize,
-                                  fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 15),
+
+                          // Cart Button - Remaining width
+                          Expanded(
+                            child: Container(
+                              height: isTablet ? 70 : 60,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            const ViewOrderScreen()),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColor.whiteColor,
+                                  foregroundColor: AppColor.whiteColor,
+                                  elevation: 0,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: buttonPaddingH,
+                                    vertical: buttonPaddingV,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: ShaderMask(
+                                  shaderCallback: (bounds) =>
+                                      const LinearGradient(
+                                    colors: [
+                                      AppColor.primaryColor,
+                                      AppColor.primaryColor
+                                    ],
+                                    stops: [0.60, 0],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomRight,
+                                  ).createShader(Rect.fromLTWH(
+                                          0, 0, bounds.width, bounds.height)),
+                                  child: Text(
+                                    'Go To Cart',
+                                    style: AppStyle.textStyleReemKufi.copyWith(
+                                      color: Colors.white,
+                                      fontSize: buttonFontSize,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 );
               },
             ),
@@ -485,9 +663,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     decoration: InputDecoration(
                                       hintText:
-                                      'Craving something? Find it here',
+                                          'Craving something? Find it here',
                                       hintStyle: AppTextStyles.nunitoRegular(
-                                        hintFontSize.clamp(14, 20),
+                                        responsive.hintTextSize,
                                         color: AppColor.lightGreyColor,
                                       ),
 
@@ -498,7 +676,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     onChanged: (value) {
                                       final provider =
-                                      Provider.of<DashboardProvider>(
+                                          Provider.of<DashboardProvider>(
                                         context,
                                         listen: false,
                                       );
@@ -514,14 +692,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 2,
                         ),
                         // Filter Button
                         Container(
                           margin: EdgeInsets.only(right: horizontalPadding),
-                          height: searchHeight.clamp(47, 47),
-                          width: searchHeight.clamp(47, 47), // Make it a square
+                          height: isTablet ? 47 : 47,
+                          width: isTablet ? 47 : 47,
                           decoration: BoxDecoration(
                             border: Border.all(color: AppColor.primaryColor),
                             boxShadow: [
@@ -541,7 +719,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 AppColor.primaryColor
                               ],
                               begin:
-                              AlignmentDirectional(0.0, -2.0), // top-center
+                                  AlignmentDirectional(0.0, -2.0), // top-center
                               end: AlignmentDirectional(
                                   0.0, 1.0), // bottom-center
                               stops: [0.0, 1.0],
@@ -571,53 +749,54 @@ class _HomeScreenState extends State<HomeScreen> {
                   banners == null
                       ? const Center(child: CircularProgressIndicator())
                       : banners.isEmpty
-                      ? const Center(
-                    child: Text(
-                      "No banners available",
-                      style:
-                      TextStyle(color: Colors.grey, fontSize: 16),
-                    ),
-                  )
-                      : SizedBox(
-                    height: cardHeight,// let the card control height
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      padding:
-                      const EdgeInsets.only(left:15,right:15 ),
-                      itemCount: banners.length,
-                      separatorBuilder: (context, index) =>
-                      const SizedBox(width: 12),
-                      itemBuilder: (context, index) {
-                        final banner = banners[index];
-                        return _buildPromoCard(
-                          imagePath: banner.image,
-                          context: context,
-                          onTap: () {
-                            if (index == 0) {
-                              _searchFocusNode.unfocus();
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => BuyOneGetOne()),
-                              );
-                            } else {
-                              _searchFocusNode.unfocus();
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) =>
-                                        ComboOfferScreen()),
-                              );
-                            }
-                          },
-                        );
-                      },
-                    ),
-                  ),
+                          ? const Center(
+                              child: Text(
+                                "No banners available",
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 16),
+                              ),
+                            )
+                          : SizedBox(
+                              height: cardHeight, // let the card control height
+                              child: ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                physics: const NeverScrollableScrollPhysics(),
+                                padding:
+                                    const EdgeInsets.only(left: 12, right: 15),
+                                itemCount: banners.length,
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(width: 12),
+                                itemBuilder: (context, index) {
+                                  final banner = banners[index];
+                                  return _buildPromoCard(
+                                    imagePath: banner.image,
+                                    context: context,
+                                    onTap: () {
+                                      if (index == 0) {
+                                        _searchFocusNode.unfocus();
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) => BuyOneGetOne()),
+                                        );
+                                      } else {
+                                        _searchFocusNode.unfocus();
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) =>
+                                                  ComboOfferScreen()),
+                                        );
+                                      }
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
 
                   Padding(
                     padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                     child: Selector<DashboardProvider,
                         MapEntry<List<CategoryModel>?, int?>>(
                       selector: (_, provider) => MapEntry(
@@ -644,7 +823,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child:
-                    Selector<DashboardProvider, MapEntry<List<Item>, bool>>(
+                        Selector<DashboardProvider, MapEntry<List<Item>, bool>>(
                       selector: (_, provider) =>
                           MapEntry(provider.items ?? [], provider.isLoading),
                       builder: (context, entry, child) {
@@ -664,21 +843,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                 aspectRatio = 0.95;
                               } else if (screenWidth >= 700) {
                                 crossAxisCount = 3;
-                                aspectRatio = 0.85;
+                                aspectRatio = 0.75;
                               } else {
                                 crossAxisCount = 2;
                                 aspectRatio = 0.74;
                               }
 
                               final placeholderCount =
-                              products.isNotEmpty ? products.length : 6;
+                                  products.isNotEmpty ? products.length : 6;
 
                               return GridView.builder(
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemCount: placeholderCount,
                                 gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
+                                    SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: crossAxisCount,
                                   crossAxisSpacing: 16,
                                   mainAxisSpacing: 16,
@@ -699,14 +878,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (products.isEmpty) {
                           return Center(
                               child: Text(
-                                "No products found",
-                                style: AppStyle.textStyleReemKufi.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColor.greyColor,
-                                  fontSize: 15,
-                                  height: 1.0, // remove extra line height
-                                ),
-                              ));
+                            "No products found",
+                            style: AppStyle.textStyleReemKufi.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: AppColor.greyColor,
+                              fontSize: 15,
+                              height: 1.0, // remove extra line height
+                            ),
+                          ));
                         }
 
                         return LayoutBuilder(
@@ -721,7 +900,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               aspectRatio = 0.95;
                             } else if (screenWidth >= 700) {
                               crossAxisCount = 3;
-                              aspectRatio = 0.85;
+                              aspectRatio = 0.75;
                             } else {
                               crossAxisCount = 2;
                               aspectRatio = 0.704;
@@ -732,7 +911,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: products.length,
                               gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
+                                  SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: crossAxisCount,
                                 crossAxisSpacing: 16,
                                 mainAxisSpacing: 16,
@@ -741,7 +920,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               itemBuilder: (context, index) {
                                 final product = products[index];
                                 final quantity =
-                                cartProvider.getQuantity(product.id);
+                                    cartProvider.getQuantity(product.id);
 
                                 return AnimationConfiguration.staggeredGrid(
                                   position: index,
@@ -758,7 +937,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             decoration: BoxDecoration(
                                               color: AppColor.whiteColor,
                                               borderRadius:
-                                              BorderRadius.circular(30),
+                                                  BorderRadius.circular(30),
                                               border: Border.all(
                                                 color: Colors.grey.shade300,
                                                 width: 1.5,
@@ -778,38 +957,93 @@ class _HomeScreenState extends State<HomeScreen> {
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
                                                 crossAxisAlignment:
-                                                CrossAxisAlignment.center,
+                                                    CrossAxisAlignment.center,
                                                 children: [
                                                   AspectRatio(
-                                                    aspectRatio: 1.2,
-                                                    child: ClipRRect(
-                                                      borderRadius:
-                                                      BorderRadius.circular(
-                                                          12),
-                                                      child: Image.network(
-                                                        "${ApiEndpoints.imageBaseUrl}${product.image}", // prepend baseUrl
-                                                        //fit: BoxFit.fill,
-                                                        errorBuilder: (context,
-                                                            error,
-                                                            stackTrace) =>
-                                                        const Icon(Icons
-                                                            .image_not_supported),
-                                                      ),
+                                                    aspectRatio: 1.4,
+                                                    child: LayoutBuilder(
+                                                      builder: (context,
+                                                          constraints) {
+                                                        final screenWidth =
+                                                            MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width;
+                                                        final screenHeight =
+                                                            MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .height;
+
+                                                        // Example logic: Adjust size based on screen width
+                                                        double imageWidth;
+                                                        double imageHeight;
+
+                                                        if (screenWidth >
+                                                            1000) {
+                                                          // Large screens (like tablets or desktops)
+                                                          imageWidth =
+                                                              screenWidth *
+                                                                  0.25;
+                                                          imageHeight =
+                                                              screenHeight *
+                                                                  0.25;
+                                                        } else if (screenWidth >
+                                                            600) {
+                                                          // Medium screens
+                                                          imageWidth =
+                                                              screenWidth *
+                                                                  0.35;
+                                                          imageHeight =
+                                                              screenHeight *
+                                                                  0.20;
+                                                        } else {
+                                                          // Small screens (like phones)
+                                                          imageWidth =
+                                                              screenWidth *
+                                                                  0.45;
+                                                          imageHeight =
+                                                              screenHeight *
+                                                                  0.18;
+                                                        }
+
+                                                        return SizedBox(
+                                                          width: imageWidth,
+                                                          height: imageHeight,
+                                                          child: ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        12),
+                                                            child:
+                                                                Image.network(
+                                                              "${ApiEndpoints.imageBaseUrl}${product.image}",
+                                                              //fit: BoxFit.fill, // Keep image proportional
+                                                              errorBuilder: (context,
+                                                                      error,
+                                                                      stackTrace) =>
+                                                                  const Icon(Icons
+                                                                      .image_not_supported),
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
                                                     ),
                                                   ),
                                                   const SizedBox(height: 10),
                                                   Text(
                                                     (product.name.isNotEmpty)
                                                         ? product.name[0]
-                                                        .toUpperCase() +
-                                                        product.name
-                                                            .substring(1)
-                                                            .toLowerCase()
+                                                                .toUpperCase() +
+                                                            product.name
+                                                                .substring(1)
+                                                                .toLowerCase()
                                                         : '',
                                                     style: AppTextStyles
-                                                        .nunitoBold(17,
-                                                        color:
-                                                        Colors.black),
+                                                        .nunitoBold(
+                                                            responsive.adOn,
+                                                            color:
+                                                                Colors.black),
                                                     textAlign: TextAlign.center,
                                                   ),
                                                   const SizedBox(height: 2),
@@ -818,18 +1052,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         "", // show description
                                                     textAlign: TextAlign.center,
                                                     style: AppTextStyles
-                                                        .latoRegular(10,
-                                                        color:
-                                                        Colors.black),
+                                                        .latoRegular(
+                                                            responsive.des,
+                                                            color:
+                                                                Colors.black),
 
                                                     maxLines: 2,
                                                     overflow:
-                                                    TextOverflow.ellipsis,
+                                                        TextOverflow.ellipsis,
                                                   ),
                                                   const Spacer(),
                                                   Align(
                                                     alignment:
-                                                    Alignment.bottomLeft,
+                                                        Alignment.bottomLeft,
                                                     child: Text(
                                                       product.price != null
                                                           ? '₹${product.price}'
@@ -838,10 +1073,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           .textStyleReemKufi
                                                           .copyWith(
                                                         fontWeight:
-                                                        FontWeight.bold,
-                                                        fontSize: 17,
+                                                            FontWeight.bold,
+                                                        fontSize:
+                                                            responsive.adOn,
                                                         color:
-                                                        AppColor.blackColor,
+                                                            AppColor.blackColor,
                                                       ),
                                                     ),
                                                   ),
@@ -874,11 +1110,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     stops: [0, 0.60],
                                                   ),
                                                   borderRadius:
-                                                  BorderRadius.only(
+                                                      BorderRadius.only(
                                                     topLeft:
-                                                    Radius.circular(14),
+                                                        Radius.circular(14),
                                                     bottomRight:
-                                                    Radius.circular(16),
+                                                        Radius.circular(16),
                                                   ),
                                                 ),
                                                 child: const Icon(Icons.add,
@@ -909,7 +1145,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 
   Widget _buildPromoCard({
     required String imagePath,
@@ -977,7 +1212,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   elevation: 6,
                   shadowColor: Colors.black54,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(isTablet ? 25 : 20),
                     side: const BorderSide(
                       color: AppColor.primaryColor,
                       width: 2,
@@ -987,13 +1222,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     horizontal: isDesktop
                         ? 32
                         : isTablet
-                        ? 24
-                        : 10,
+                            ? 24
+                            : 10,
                     vertical: isDesktop
                         ? 14
                         : isTablet
-                        ? 12
-                        : 8,
+                            ? 12
+                            : 8,
                   ),
                 ),
                 child: Text(
@@ -1003,8 +1238,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontSize: isDesktop
                         ? 20
                         : isTablet
-                        ? 18
-                        : 14,
+                            ? 18
+                            : 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -1015,7 +1250,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 
   // Widget _buildPromoCard({
   //   required String badgeText,
@@ -1179,127 +1413,134 @@ class _HomeScreenState extends State<HomeScreen> {
   // }
 
   Widget _buildOptionBox(
-      String title,
-      String price, {
-        required bool isSelected,
-        required VoidCallback onTap,
-      }) {
+    String title,
+    String price, {
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isDesktop = screenWidth >= 1024;
     final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
     final double priceSize = isDesktop
         ? 20
         : isTablet
-        ? 17
-        : 14;
+            ? 17
+            : 14;
+    final formattedTitle = (title ?? '').trim();
     return GestureDetector(
       onTap: onTap,
       child: isSelected
           ? Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(
-          padding:
-          const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppColor.secondary, AppColor.primaryColor],
-              begin: AlignmentDirectional(0.0, -2.0), // top-center
-              end: AlignmentDirectional(0.0, 1.0), // bottom-center
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColor.secondary, AppColor.primaryColor],
+                    begin: AlignmentDirectional(0.0, -2.0), // top-center
+                    end: AlignmentDirectional(0.0, 1.0), // bottom-center
 
-              stops: [0.0, 1.0], // smooth gradient
-              tileMode: TileMode.clamp,
-            ),
-            borderRadius: BorderRadius.circular(12),
-            // boxShadow: [
-            //   BoxShadow(
-            //     color: Colors.black.withOpacity(0.1), // subtle shadow color
-            //     blurRadius: 8, // how soft the shadow looks
-            //     spreadRadius: 2, // how wide the shadow spreads
-            //     offset: const Offset(0, 4), // position of shadow (x, y)
-            //   ),
-            // ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                title,
-                style: AppStyle.textStyleReemKufi.copyWith(
-                  fontSize: priceSize,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                    stops: [0.0, 1.0], // smooth gradient
+                    tileMode: TileMode.clamp,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  // boxShadow: [
+                  //   BoxShadow(
+                  //     color: Colors.black.withOpacity(0.1), // subtle shadow color
+                  //     blurRadius: 8, // how soft the shadow looks
+                  //     spreadRadius: 2, // how wide the shadow spreads
+                  //     offset: const Offset(0, 4), // position of shadow (x, y)
+                  //   ),
+                  // ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      (title.isNotEmpty)
+                          ? title[0].toUpperCase() +
+                              title.substring(1).toLowerCase()
+                          : '',
+                      style: AppStyle.textStyleReemKufi.copyWith(
+                        fontSize: priceSize,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      price,
+                      style: AppStyle.textStyleReemKufi.copyWith(
+                        fontSize: priceSize,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 8),
-              Text(
-                price,
-                style: AppStyle.textStyleReemKufi.copyWith(
-                  fontSize: priceSize,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      )
+            )
           : Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(
-          padding: const EdgeInsets.all(2), // border thickness
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppColor.secondary, AppColor.primaryColor],
-              begin: AlignmentDirectional(0.0, -2.0), // top-center
-              end: AlignmentDirectional(0.0, 1.0), // bottom-center
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                padding: const EdgeInsets.all(2), // border thickness
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColor.secondary, AppColor.primaryColor],
+                    begin: AlignmentDirectional(0.0, -2.0), // top-center
+                    end: AlignmentDirectional(0.0, 1.0), // bottom-center
 
-              stops: [0.0, 1.0], // smooth gradient
-              tileMode: TileMode.clamp,
-            ),
-            borderRadius:
-            BorderRadius.circular(14), // slightly bigger for border
-          ),
-          child: Container(
-            padding:
-            const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black
-                      .withOpacity(0.1), // subtle shadow color
-                  blurRadius: 8, // how soft the shadow looks
-                  spreadRadius: 3, // how wide the shadow spreads
-                  offset: const Offset(0, 4), // position of shadow (x, y)
+                    stops: [0.0, 1.0], // smooth gradient
+                    tileMode: TileMode.clamp,
+                  ),
+                  borderRadius:
+                      BorderRadius.circular(14), // slightly bigger for border
                 ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: AppStyle.textStyleReemKufi.copyWith(
-                    fontSize: priceSize,
-                    fontWeight: FontWeight.bold,
-                    color: AppColor.blackColor,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black
+                            .withOpacity(0.1), // subtle shadow color
+                        blurRadius: 4, // how soft the shadow looks
+                        spreadRadius: 1, // how wide the shadow spreads
+                        offset: const Offset(0, 4), // position of shadow (x, y)
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        (title.isNotEmpty)
+                            ? title[0].toUpperCase() +
+                                title.substring(1).toLowerCase()
+                            : '',
+                        style: AppStyle.textStyleReemKufi.copyWith(
+                          fontSize: priceSize,
+                          fontWeight: FontWeight.bold,
+                          color: AppColor.blackColor,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        price,
+                        style: AppStyle.textStyleReemKufi.copyWith(
+                          fontSize: priceSize,
+                          fontWeight: FontWeight.bold,
+                          color: AppColor.blackColor,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  price,
-                  style: AppStyle.textStyleReemKufi.copyWith(
-                    fontSize: priceSize,
-                    fontWeight: FontWeight.bold,
-                    color: AppColor.blackColor,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -1308,7 +1549,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
     bool isExpanded = false;
     final selectedProvider =
-    Provider.of<CategoryProvider>(context, listen: false);
+        Provider.of<CategoryProvider>(context, listen: false);
     // selectedProvider.setBasePrice(product.price);
     selectedProvider.setQuantity(1);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
@@ -1339,24 +1580,28 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       selectedProvider.setQuantity(1);
     }
+    final responsive = Responsiveness(context);
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isDesktop = screenWidth >= 1024;
     final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
     final double buttonFontSize = isDesktop
         ? 25
         : isTablet
-        ? 17
-        : 16;
+            ? 17
+            : 16;
     final double priceSize = isDesktop
         ? 27
         : isTablet
-        ? 20
-        : 20;
+            ? 20
+            : 20;
     final double description = isDesktop
         ? 20
         : isTablet
-        ? 15
-        : 15;
+            ? 15
+            : 15;
+    List<String> selectedAddOns = [];
+    double addOnsTotal = 0.0;
+    final buttonKey = GlobalKey();
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -1373,7 +1618,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (context, constraints) {
                     final screenHeight = constraints.maxHeight;
                     final screenWidth = constraints.maxWidth;
-
+                    double priceWidth = screenWidth * 0.2;
                     return GestureDetector(
                       onVerticalDragUpdate: (details) {
                         if (details.primaryDelta! > 15) {
@@ -1395,28 +1640,29 @@ class _HomeScreenState extends State<HomeScreen> {
                                 AppColor.whiteColor,
                               ],
                               begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
+                              //  end: Alignment.bottomRight,
+                              end: Alignment.bottomCenter,
                               stops: [
                                 0.6,
                                 0.25
                               ], // 👈 transition from primary → secondary at 70% height
                             ),
                             borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(30)),
+                                BorderRadius.vertical(top: Radius.circular(30)),
                           ),
                           child: Stack(children: [
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-
                                 Container(
+                                  //     margin: const EdgeInsets.only(top:16.0),
                                   height: screenHeight * 0.29,
                                   width: double.infinity,
                                   decoration: const BoxDecoration(
                                     image: DecorationImage(
                                       image: AssetImage(AppImage.bgImg),
-                                      fit: BoxFit.cover, // Cover the entire container
-
+                                      fit: BoxFit
+                                          .cover, // Cover the entire container
                                     ),
                                     gradient: LinearGradient(
                                       colors: [
@@ -1427,30 +1673,43 @@ class _HomeScreenState extends State<HomeScreen> {
                                       begin: Alignment.topCenter,
                                       stops: [0.3, 0.8],
                                     ),
-                                    borderRadius: const BorderRadius.only(
+                                    borderRadius: BorderRadius.only(
                                       topLeft: Radius.circular(30),
                                       topRight: Radius.circular(30),
                                     ),
-
                                   ),
                                   child: Stack(
                                     children: [
                                       Positioned.fill(
                                         child: ClipRRect(
-                                          borderRadius: const BorderRadius.vertical(
-                                              top: Radius.circular(80)),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(50.0),
-                                            child: Image.network(
-                                              "${ApiEndpoints.imageBaseUrl}${product.image}", // prepend baseUrl
-                                              //     fit: BoxFit.fill,
-                                              errorBuilder: (context, error, stackTrace) =>
-                                              const Icon(Icons.image_not_supported),
-                                            ),
+                                          borderRadius:
+                                              const BorderRadius.vertical(
+                                            top: Radius.circular(80),
+                                          ),
+                                          child: LayoutBuilder(
+                                            builder: (context, constraints) {
+                                              // Dynamically set image size based on container height
+                                              final double imageSize =
+                                                  constraints.maxHeight * 0.6;
+
+                                              return Center(
+                                                child: Image.network(
+                                                  "${ApiEndpoints.imageBaseUrl}${product.image}", // prepend baseUrl
+                                                  height: imageSize,
+                                                  width: imageSize,
+                                                  fit: BoxFit.contain,
+                                                  errorBuilder: (context, error,
+                                                          stackTrace) =>
+                                                      const Icon(
+                                                          Icons
+                                                              .image_not_supported,
+                                                          size: 50),
+                                                ),
+                                              );
+                                            },
                                           ),
                                         ),
                                       ),
-
                                     ],
                                   ),
                                 ),
@@ -1467,10 +1726,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     child: SingleChildScrollView(
                                       padding:
-                                      EdgeInsets.all(screenWidth * 0.04),
+                                          EdgeInsets.all(screenWidth * 0.04),
                                       child: Column(
                                         crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                         children: [
                                           const SizedBox(
                                             height: 25,
@@ -1480,33 +1739,36 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 left: 12.0),
                                             child: Row(
                                               mainAxisAlignment:
-                                              MainAxisAlignment
-                                                  .spaceBetween,
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 Flexible(
                                                   child: Text(
                                                     (product.name.isNotEmpty)
                                                         ? product.name[0]
-                                                        .toUpperCase() +
-                                                        product.name
-                                                            .substring(1)
-                                                            .toLowerCase()
+                                                                .toUpperCase() +
+                                                            product.name
+                                                                .substring(1)
+                                                                .toLowerCase()
                                                         : '',
                                                     overflow:
-                                                    TextOverflow.ellipsis,
+                                                        TextOverflow.ellipsis,
                                                     style: AppTextStyles
-                                                        .nunitoBold(priceSize,
-                                                        color: AppColor
-                                                            .blackColor),
+                                                        .nunitoBold(
+                                                            responsive
+                                                                .mainTitleSize,
+                                                            color: AppColor
+                                                                .blackColor),
                                                   ),
                                                 ),
                                                 Text(
                                                   "₹${(double.tryParse(product.price ?? '0') ?? 0.0).toStringAsFixed(2)}",
                                                   style:
-                                                  AppTextStyles.nunitoBold(
-                                                      priceSize,
-                                                      color: AppColor
-                                                          .blackColor),
+                                                      AppTextStyles.nunitoBold(
+                                                          responsive
+                                                              .mainTitleSize,
+                                                          color: AppColor
+                                                              .blackColor),
                                                 ),
                                               ],
                                             ),
@@ -1524,24 +1786,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 return StatefulBuilder(
                                                   builder: (context, setState) {
                                                     final bool
-                                                    isDescriptionLong =
+                                                        isDescriptionLong =
                                                         product.description
-                                                            .length >
+                                                                .length >
                                                             350;
                                                     final String
-                                                    displayDescription =
-                                                    isExpanded ||
-                                                        !isDescriptionLong
-                                                        ? product
-                                                        .description
-                                                        : '${product.description.substring(0, 350)}...';
+                                                        displayDescription =
+                                                        isExpanded ||
+                                                                !isDescriptionLong
+                                                            ? product
+                                                                .description
+                                                            : '${product.description.substring(0, 350)}...';
 
                                                     if (isDescriptionLong) {
                                                       // Long description -> show in column
                                                       return Column(
                                                         crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
+                                                            CrossAxisAlignment
+                                                                .start,
                                                         children: [
                                                           Text(
                                                             displayDescription,
@@ -1549,22 +1811,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 ? null
                                                                 : 4,
                                                             overflow:
-                                                            TextOverflow
-                                                                .visible,
+                                                                TextOverflow
+                                                                    .visible,
                                                             textAlign: TextAlign
                                                                 .justify,
                                                             style: AppTextStyles
                                                                 .latoRegular(
-                                                                description,
-                                                                color: AppColor
-                                                                    .lightGreyColor),
+                                                                    responsive
+                                                                        .des,
+                                                                    color: AppColor
+                                                                        .lightGreyColor),
                                                           ),
                                                           if (isDescriptionLong)
                                                             GestureDetector(
                                                               onTap: () {
                                                                 setState(() {
                                                                   isExpanded =
-                                                                  !isExpanded;
+                                                                      !isExpanded;
                                                                 });
                                                               },
                                                               child: Text(
@@ -1572,12 +1835,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     ? "See Less"
                                                                     : "See More",
                                                                 style:
-                                                                const TextStyle(
+                                                                    const TextStyle(
                                                                   color: AppColor
                                                                       .primaryColor,
                                                                   fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
+                                                                      FontWeight
+                                                                          .bold,
                                                                   fontSize: 13,
                                                                 ),
                                                               ),
@@ -1590,8 +1853,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       // Short description -> show in row with prep time first, then takeaway price
                                                       return Row(
                                                         crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
+                                                            CrossAxisAlignment
+                                                                .start,
                                                         children: [
                                                           /// Description
                                                           Flexible(
@@ -1600,10 +1863,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     .description,
                                                                 // maxLines: 4,
                                                                 // overflow: TextOverflow.ellipsis,
-                                                                style: AppTextStyles.latoRegular(
-                                                                    description,
-                                                                    color: AppColor
-                                                                        .lightGreyColor)),
+                                                                style: AppTextStyles
+                                                                    .latoRegular(
+                                                                        responsive
+                                                                            .des,
+                                                                        color: AppColor
+                                                                            .lightGreyColor)),
                                                           ),
                                                           const SizedBox(
                                                               width: 10),
@@ -1639,18 +1904,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   const SizedBox(width: 6),
                                                   Text(
                                                     product.time!
-                                                        .toLowerCase()
-                                                        .contains("mins")
+                                                            .toLowerCase()
+                                                            .contains("mins")
                                                         ? product.time!
                                                         : "${product.time} mins",
                                                     style: AppTextStyles
-                                                        .latoRegular(15,
-                                                        color: AppColor
-                                                            .darkGreyColor),
+                                                        .latoRegular(
+                                                            responsive.time,
+                                                            color: AppColor
+                                                                .darkGreyColor),
                                                   ),
                                                   const SizedBox(width: 9),
                                                   if (product.takeAwayPrice !=
-                                                      null &&
+                                                          null &&
                                                       isTakeAway)
                                                     Row(
                                                       children: [
@@ -1663,28 +1929,29 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         Builder(
                                                           builder: (context) {
                                                             final dynamic
-                                                            packingCharge =
+                                                                packingCharge =
                                                                 product
                                                                     .takeAwayPrice;
                                                             final double? chargeValue = packingCharge
-                                                            is String
+                                                                    is String
                                                                 ? double.tryParse(
-                                                                packingCharge)
+                                                                    packingCharge)
                                                                 : (packingCharge
-                                                            is double
-                                                                ? packingCharge
-                                                                : null);
+                                                                        is double
+                                                                    ? packingCharge
+                                                                    : null);
 
                                                             return Text(
                                                               chargeValue !=
-                                                                  null
+                                                                      null
                                                                   ? "Wrap & Pack Fee Rs  ${chargeValue.toStringAsFixed(2)}"
                                                                   : "Rs 0.00",
                                                               style: AppTextStyles
                                                                   .latoRegular(
-                                                                  12,
-                                                                  color: AppColor
-                                                                      .darkGreyColor),
+                                                                      responsive
+                                                                          .time,
+                                                                      color: AppColor
+                                                                          .darkGreyColor),
                                                             );
                                                           },
                                                         ),
@@ -1842,15 +2109,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                               scrollDirection: Axis
                                                   .horizontal, // 👈 Enable horizontal scrolling
                                               child: Padding(
-                                                padding: const EdgeInsets.only(left: 8.0),
+                                                padding: const EdgeInsets.only(
+                                                    left: 1.0),
                                                 child: Row(
                                                   mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                                  children: product.childCategory
+                                                      MainAxisAlignment.start,
+                                                  children: product
+                                                      .childCategory
                                                       .map((child) {
                                                     final provider =
-                                                    context.watch<
-                                                        CategoryProvider>();
+                                                        context.watch<
+                                                            CategoryProvider>();
                                                     var selectedChild = provider
                                                         .selectedChildCategory;
 
@@ -1860,33 +2129,43 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       WidgetsBinding.instance
                                                           .addPostFrameCallback(
                                                               (_) {
-                                                            context
-                                                                .read<
+                                                        context
+                                                            .read<
                                                                 CategoryProvider>()
-                                                                .setSelectedChildCategory(
+                                                            .setSelectedChildCategory(
                                                                 selectedChild);
-                                                          });
+                                                      });
                                                     }
 
                                                     return _buildOptionBox(
                                                       child.name,
                                                       "₹${(child.price ?? 0).toStringAsFixed(0)}",
                                                       isSelected:
-                                                      selectedChild?.id ==
-                                                          child.id,
+                                                          selectedChild?.id ==
+                                                              child.id,
                                                       onTap: () {
-                                                        context
-                                                            .read<
-                                                            CategoryProvider>()
-                                                            .setSelectedChildCategory(
-                                                            child);
+                                                        if (selectedChild?.id ==
+                                                            child.id) {
+                                                          provider.setSelectedChildCategory(
+                                                              null); // unselect
+                                                        } else {
+                                                          provider
+                                                              .setSelectedChildCategory(
+                                                                  child); // select
+                                                        }
                                                       },
+                                                      // onTap: () {
+                                                      //   context
+                                                      //       .read<
+                                                      //       CategoryProvider>()
+                                                      //       .setSelectedChildCategory(
+                                                      //       child);
+                                                      // },
                                                     );
                                                   }).toList(),
                                                 ),
                                               ),
                                             )
-
                                           ],
                                           SizedBox(
                                               height: screenHeight * 0.025),
@@ -2043,7 +2322,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           //   ],
                                           // ),
                                           Padding(
-                                            padding: const EdgeInsets.only(left: 12.0),
+                                            padding: const EdgeInsets.only(
+                                                left: 12.0),
                                             child: Row(
                                               children: [
                                                 Visibility(
@@ -2051,30 +2331,38 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   child: Expanded(
                                                     child: Column(
                                                       crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
+                                                          CrossAxisAlignment
+                                                              .start,
                                                       children: [
                                                         // Spicy Label with left padding
                                                         Padding(
                                                           padding:
-                                                          const EdgeInsets.only(
-                                                              left: 15.0),
-                                                          child: Text(
-                                                              "Spicy",
-                                                              style: AppTextStyles.nunitoMedium(buttonFontSize, color:  AppColor.blackColor)
-                                                          ),
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 15.0),
+                                                          child: Text("Spicy",
+                                                              style: AppTextStyles
+                                                                  .nunitoMedium(
+                                                                      responsive
+                                                                          .subtitleSize,
+                                                                      color: AppColor
+                                                                          .blackColor)),
                                                         ),
-                                                        const SizedBox(height: 5),
+                                                        const SizedBox(
+                                                            height: 5),
                                                         // HeatLevelSelector fills width but no left padding here
-                                                        HeatLevelSelector(context),
+                                                        HeatLevelSelector(
+                                                            context),
                                                         Padding(
                                                           padding:
-                                                          const EdgeInsets.only(
-                                                              left: 17.0,
-                                                              right: 18),
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 17.0,
+                                                                  right: 18),
                                                           child: Row(
                                                             mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
                                                             children: [
                                                               Text(
                                                                 "Mild",
@@ -2082,8 +2370,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     .textStyleReemKufi
                                                                     .copyWith(
                                                                   fontWeight:
-                                                                  FontWeight.w600,
-                                                                  fontSize: description,
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  fontSize:
+                                                                      responsive
+                                                                          .hintTextSize,
                                                                   color: AppColor
                                                                       .primaryColor,
                                                                 ),
@@ -2094,8 +2385,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     .textStyleReemKufi
                                                                     .copyWith(
                                                                   fontWeight:
-                                                                  FontWeight.w600,
-                                                                  fontSize: description,
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  fontSize:
+                                                                      responsive
+                                                                          .hintTextSize,
                                                                   color: AppColor
                                                                       .primaryColor,
                                                                 ),
@@ -2106,8 +2400,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     .textStyleReemKufi
                                                                     .copyWith(
                                                                   fontWeight:
-                                                                  FontWeight.w600,
-                                                                  fontSize: description,
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  fontSize:
+                                                                      responsive
+                                                                          .hintTextSize,
                                                                   color: AppColor
                                                                       .primaryColor,
                                                                 ),
@@ -2122,53 +2419,71 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 Expanded(
                                                   child: Row(
                                                     mainAxisAlignment:
-                                                    MainAxisAlignment.end,
+                                                        MainAxisAlignment.end,
                                                     children: [
                                                       Column(
                                                         crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
+                                                            CrossAxisAlignment
+                                                                .start,
                                                         children: [
                                                           Text(
                                                             "Quantity",
-                                                            style: AppTextStyles.nunitoMedium(buttonFontSize, color:  AppColor.blackColor),
+                                                            style: AppTextStyles
+                                                                .nunitoMedium(
+                                                                    responsive
+                                                                        .subtitleSize,
+                                                                    color: AppColor
+                                                                        .blackColor),
                                                           ),
                                                           const SizedBox(
                                                             height: 10,
                                                           ),
                                                           Row(
                                                             mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
+                                                                MainAxisAlignment
+                                                                    .start,
                                                             children: [
                                                               _buildIconButton(
-                                                                  Icons.remove, () {
+                                                                  Icons.remove,
+                                                                  () {
                                                                 selectedProvider
                                                                     .decreaseQuantity();
                                                               }),
                                                               const SizedBox(
                                                                   width: 12),
-                                                              Consumer<CategoryProvider>(
-                                                                builder: (context, provider, child) {
+                                                              Consumer<
+                                                                  CategoryProvider>(
+                                                                builder:
+                                                                    (context,
+                                                                        provider,
+                                                                        child) {
                                                                   return Text(
                                                                     "${provider.quantity}",
-                                                                    style: AppStyle.textStyleReemKufi.copyWith(
-                                                                      fontWeight: FontWeight.w600,
-                                                                      fontSize: 20,
+                                                                    style: AppStyle
+                                                                        .textStyleReemKufi
+                                                                        .copyWith(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      fontSize:
+                                                                          20,
                                                                     ),
                                                                   );
                                                                 },
                                                               ),
-
                                                               const SizedBox(
                                                                   width: 12),
                                                               _buildIconButton(
-                                                                  Icons.add, () {
+                                                                  Icons.add,
+                                                                  () {
                                                                 selectedProvider
                                                                     .increaseQuantity();
                                                               }),
                                                             ],
                                                           ),
-                                                          SizedBox(height: 28,)
+                                                          SizedBox(
+                                                            height: 28,
+                                                          )
                                                         ],
                                                       ),
                                                     ],
@@ -2184,15 +2499,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 GestureDetector(
-                                  onTap: () {
-                                    // Navigate or open add-ons screen
-                                    // Navigator.pop(context);
-                                    Future.delayed(
-                                        const Duration(milliseconds: 200), () {
-                                      showAddOnDialog(context,
-                                          product); // Your add-on dialog
-                                    });
+                                  onTap: () async {
+                                    final result =
+                                        await showAddOnDialog(context, product, initialSelectedAddOns: cartItem?.addOnNames,);
+                                    if (result != null) {
+                                      setState(() {
+                                        selectedAddOns =
+                                            result['selectedAddOns']
+                                                as List<String>;
+                                        addOnsTotal =
+                                            result['addOnsTotal'] as double;
+                                        cartItem?.addOnNames = selectedAddOns;
+                                      });
+                                      print(
+                                          "Selected Add-Ons: $selectedAddOns");
+                                    }
                                   },
+                                  // Navigate or open add-ons screen
+                                  // Navigator.pop(context);
+                                  // Future.delayed(
+                                  //     const Duration(milliseconds: 200), () {
+                                  //   showAddOnDialog(context,
+                                  //       product); // Your add-on dialog
+                                  // });
+
                                   child: Padding(
                                     padding: const EdgeInsets.only(bottom: 8.0),
                                     child: Container(
@@ -2205,24 +2535,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                       child: Row(
                                         children: [
                                           SvgPicture.asset(AppImage.addOn,
-                                              height: 20),
+                                              height: responsive.mainTitleSize),
                                           const SizedBox(width: 12),
                                           Column(
                                             crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text("Add Add-Ons",
                                                   style: AppTextStyles.latoBold(
-                                                      15,
+                                                      responsive.hintTextSize,
                                                       color:
-                                                      AppColor.blackColor)),
+                                                          AppColor.blackColor)),
                                               Text(
                                                   "Make It Special — Choose Your Add-Ons Now!",
                                                   style:
-                                                  AppTextStyles.latoMedium(
-                                                      12,
-                                                      color: AppColor
-                                                          .lightGreyColor)),
+                                                      AppTextStyles.latoMedium(
+                                                          responsive.time,
+                                                          color: AppColor
+                                                              .lightGreyColor)),
                                             ],
                                           ),
                                           const Spacer(),
@@ -2262,23 +2592,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Row(
                                     children: [
                                       Container(
+                                        width: isTablet
+                                            ? priceWidth // If device is a tablet → use calculated priceWidth
+                                            : null,
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 12, vertical: 6),
                                         decoration: BoxDecoration(
                                           color: Colors.white,
                                           borderRadius:
-                                          BorderRadius.circular(12),
+                                              BorderRadius.circular(12),
                                         ),
                                         child: Column(
                                           crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                              CrossAxisAlignment.center,
                                           children: [
                                             ShaderMask(
                                               shaderCallback: (bounds) =>
                                                   const LinearGradient(colors: [
-                                                    AppColor.primaryColor,
-                                                    AppColor.primaryColor
-                                                  ]).createShader(Rect.fromLTWH(
+                                                AppColor.primaryColor,
+                                                AppColor.primaryColor
+                                              ]).createShader(Rect.fromLTWH(
                                                       0,
                                                       0,
                                                       bounds.width,
@@ -2289,7 +2622,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       .copyWith(
                                                     color: Colors.white,
                                                     fontSize:
-                                                    isDesktop ? 17 : 16,
+                                                        isDesktop ? 17 : 16,
                                                     fontWeight: FontWeight.w700,
                                                   )),
                                             ),
@@ -2298,13 +2631,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 final prefHelper = getIt<
                                                     SharedPreferenceHelper>();
                                                 final isTakeAway = prefHelper
-                                                    .getBool(StorageKey
-                                                    .isTakeAway) ??
+                                                        .getBool(StorageKey
+                                                            .isTakeAway) ??
                                                     false;
 
                                                 // If TakeAway is true, use totalPrice else use totalPrices
                                                 return isTakeAway
-                                                    ? provider.totalPriceWithTakeWay
+                                                    ? provider
+                                                        .totalPriceWithTakeWay
                                                     : provider.totalPrices;
                                               },
                                               builder:
@@ -2312,11 +2646,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 return ShaderMask(
                                                   shaderCallback: (bounds) =>
                                                       const LinearGradient(
-                                                        colors: [
-                                                          AppColor.primaryColor,
-                                                          AppColor.primaryColor
-                                                        ],
-                                                      ).createShader(Rect.fromLTWH(
+                                                    colors: [
+                                                      AppColor.primaryColor,
+                                                      AppColor.primaryColor
+                                                    ],
+                                                  ).createShader(Rect.fromLTWH(
                                                           0,
                                                           0,
                                                           bounds.width,
@@ -2327,10 +2661,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         .textStyleReemKufi
                                                         .copyWith(
                                                       color: Colors.white,
-                                                      fontSize:
-                                                      isDesktop ? 18 : 18,
+                                                      fontSize: isDesktop
+                                                          ? 22
+                                                          : (isTablet
+                                                              ? 22
+                                                              : 16),
                                                       fontWeight:
-                                                      FontWeight.bold,
+                                                          FontWeight.bold,
                                                     ),
                                                   ),
                                                 );
@@ -2344,37 +2681,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                       // Add to Cart button
                                       Expanded(
                                         child: Container(
-                                          height: 60,
+                                          key: buttonKey,
+                                          height: isTablet ? 70 : 60,
                                           decoration: BoxDecoration(
                                             color: Colors.white,
                                             borderRadius:
-                                            BorderRadius.circular(12),
+                                                BorderRadius.circular(12),
                                           ),
                                           child: ElevatedButton(
-                                            onPressed: () {
-                                              /// include childcategorytakeawayprice
-                                              //                                           final dynamic packingCharge = (product.childCategory != null &&
-                                              //                                               product.childCategory.isNotEmpty &&
-                                              //                                               product.childCategory.first.takeAwayPrice != null)
-                                              //                                               ? product.childCategory.first.takeAwayPrice
-                                              //                                               : product.takeAwayPrice;
-                                              //
-                                              // // Convert to double safely
-                                              //                                           final double? packingChargeValue = packingCharge is String
-                                              //                                               ? double.tryParse(packingCharge)
-                                              //                                               : (packingCharge is double ? packingCharge : null);
-                                              // Take only product-level takeAwayPrice
+                                            onPressed: () async {
+                                              print(
+                                                  "Selected Add-Ons: $selectedAddOns");
                                               final dynamic packingCharge =
                                                   product.takeAwayPrice;
 
                                               // Convert to double safely
                                               final double? packingChargeValue =
-                                              packingCharge is String
-                                                  ? double.tryParse(
-                                                  packingCharge)
-                                                  : (packingCharge is double
-                                                  ? packingCharge
-                                                  : null);
+                                                  packingCharge is String
+                                                      ? double.tryParse(
+                                                          packingCharge)
+                                                      : (packingCharge is double
+                                                          ? packingCharge
+                                                          : null);
 
                                               final selectedChild = context
                                                   .read<CategoryProvider>()
@@ -2383,7 +2711,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   .read<CategoryProvider>()
                                                   .totalTime;
                                               final cartProvider =
-                                              context.read<CartProvider>();
+                                                  context.read<CartProvider>();
                                               final selectedProvider = context
                                                   .read<CategoryProvider>();
 
@@ -2391,24 +2719,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   id: product.id,
                                                   name: product.name,
                                                   description:
-                                                  product.description,
+                                                      product.description,
                                                   images: [product.image],
                                                   categoryId:
-                                                  product.categoryId,
+                                                      product.categoryId,
                                                   price: isTakeAway
                                                       ? (selectedProvider
-                                                      .selectedPrices ??
-                                                      0.0)
+                                                              .selectedPrice ??
+                                                          0.0)
                                                       : (selectedProvider
-                                                      .selectedPrices ??
-                                                      0.0),
+                                                              .selectedPrices ??
+                                                          0.0),
                                                   quantity:
-                                                  selectedProvider.quantity,
+                                                      selectedProvider.quantity,
                                                   takeAwayPrice: isTakeAway
                                                       ? packingChargeValue
                                                       : null,
                                                   childCategory:
-                                                  product.childCategory,
+                                                      product.childCategory,
 
                                                   // takeAwayPrice:
                                                   //     selectedChild?.takeAwayPrice,
@@ -2416,46 +2744,68 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   //         ?.subCategoryId ??
                                                   //     0,
                                                   subCategoryId: product.id,
-                                                  childCategoryId: selectedChild
-                                                      ?.id
+                                                  childCategoryId: selectedChild?.id
                                                       .toString(),
                                                   childCategoryName:
-                                                  selectedChild?.name,
+                                                      selectedChild?.name,
                                                   isCombo: null,
                                                   heatLevel: selectedProvider
                                                       .selectedHeatLabel,
                                                   totalDeliveryTime: totalTime,
                                                   type: "normal",
                                                   discountPrice: product.price,
+                                                  addOnNames: selectedAddOns,
+                                                  addOnPrices: selectedAddOns
+                                                      .map((name) {
+                                                    final addOn =
+                                                        addOns.firstWhere((e) =>
+                                                            e.name == name);
+                                                    return addOn.price;
+                                                  }).toList(),
                                                   prepareTime: product.time);
-                                              cartProvider.addToCart(cartItem);
-                                              Navigator.of(context).pop();
+                                              final wasAdded = cartProvider
+                                                  .isDuplicate(cartItem);
+
+                                              if (!wasAdded) {
+                                                cartProvider.addToCart(context,
+                                                    cartItem); // Add only if not duplicate
+                                                Navigator.of(context)
+                                                    .pop(); // Close the dialog
+                                              } else {
+                                                FloatingMessage.show(
+                                                  context: context,
+                                                  key: buttonKey,
+                                                  message:
+                                                      'Product already added with same quantity!',
+                                                );
+                                                // Optional: showAboveButton(context, buttonKey, 'Product already added with same quantity!');
+                                              }
                                             },
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:
-                                              AppColor.whiteColor,
+                                                  AppColor.whiteColor,
                                               foregroundColor:
-                                              AppColor.whiteColor,
+                                                  AppColor.whiteColor,
                                               elevation: 0,
                                               padding:
-                                              const EdgeInsets.symmetric(
-                                                  horizontal: 28,
-                                                  vertical: 14),
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 28,
+                                                      vertical: 14),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
-                                                BorderRadius.circular(12),
+                                                    BorderRadius.circular(12),
                                               ),
                                             ),
                                             child: ShaderMask(
                                               shaderCallback: (bounds) =>
                                                   const LinearGradient(
-                                                    colors: [
-                                                      AppColor.primaryColor,
-                                                      AppColor.primaryColor
-                                                    ],
-                                                    begin: Alignment.topCenter,
-                                                    end: Alignment.bottomRight,
-                                                  ).createShader(Rect.fromLTWH(
+                                                colors: [
+                                                  AppColor.primaryColor,
+                                                  AppColor.primaryColor
+                                                ],
+                                                begin: Alignment.topCenter,
+                                                end: Alignment.bottomRight,
+                                              ).createShader(Rect.fromLTWH(
                                                       0,
                                                       0,
                                                       bounds.width,
@@ -2466,7 +2816,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     .textStyleReemKufi
                                                     .copyWith(
                                                   color: Colors.white,
-                                                  fontSize: isDesktop ? 22 : 17,
+                                                  fontSize: isDesktop
+                                                      ? 22
+                                                      : (isTablet ? 22 : 16),
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                               ),
@@ -2482,22 +2834,25 @@ class _HomeScreenState extends State<HomeScreen> {
                             Align(
                               alignment: Alignment.topCenter,
                               child: Container(
-                                margin: const EdgeInsets.only(top: 20), // spacing from status bar
+                                margin: const EdgeInsets.only(
+                                    top: 20), // spacing from status bar
                                 height: 5,
-                                width: 50,
+                                width: isTablet ? 100 : 50,
                                 decoration: BoxDecoration(
                                   color: Colors.grey[300],
                                   borderRadius: BorderRadius.circular(2.5),
                                 ),
                               ),
                             ),
-
                             Positioned(
                               right: 16,
                               top: 16,
                               child: GestureDetector(
                                 onTap: () => Navigator.of(context).pop(),
-                                child: SvgPicture.asset(AppImage.cross),
+                                child: SvgPicture.asset(
+                                  AppImage.cross,
+                                  height: isTablet ? 30 : 20,
+                                ),
                               ),
                             ),
                           ]),
@@ -2560,7 +2915,7 @@ class _HomeScreenState extends State<HomeScreen> {
               itemBuilder: (context, index) {
                 return Padding(
                   padding:
-                  const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey.shade300,
                     highlightColor: Colors.grey.shade100,
@@ -2666,64 +3021,57 @@ class _HomeScreenState extends State<HomeScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         double screenWidth = constraints.maxWidth;
+        double screenHeight = constraints.maxHeight;
 
-        if (screenWidth < 600) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Stack(
-                children: [
-                  /// Grey divider (background line)
-                  /// Horizontal category list
-                  SizedBox(
-                    height: 120,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: allCategories.length,
-                      itemBuilder: (context, index) {
-                        return _buildCategoryItem(
-                          context,
-                          allCategories[index],
-                          selectedCategoryId: selectedCategoryId,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          );
+        // Adjust list height based on screen width
+        double listHeight;
+        if (screenWidth < 400) {
+          listHeight = 120; // Small phone
+        } else if (screenWidth < 600) {
+          listHeight = 140; // Large phone / small tablet
         } else {
-          /// Tablet / Web layout
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Wrap(
-              spacing: 16,
-              runSpacing: 16,
-              children: allCategories
-                  .map((cat) => _buildCategoryItem(
-                context,
-                cat,
-                fixedSize: 90,
-                selectedCategoryId: selectedCategoryId,
-              ))
-                  .toList(),
-            ),
-          );
+          listHeight = 170; // Tablet
         }
+
+        // Adjust item width dynamically
+        double itemWidth;
+        if (screenWidth < 400) {
+          itemWidth = 70;
+        } else if (screenWidth < 600) {
+          itemWidth = 90;
+        } else {
+          itemWidth = 110;
+        }
+
+        return SizedBox(
+          height: listHeight,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            itemCount: allCategories.length,
+            itemBuilder: (context, index) {
+              return _buildCategoryItem(
+                context,
+                allCategories[index],
+                selectedCategoryId: selectedCategoryId,
+                fixedSize: itemWidth,
+              );
+            },
+          ),
+        );
       },
     );
   }
 
   Widget _buildCategoryItem(
-      BuildContext context,
-      CategoryModel cat, {
-        double? fixedSize,
-        required int? selectedCategoryId,
-      }) {
+    BuildContext context,
+    CategoryModel cat, {
+    double? fixedSize,
+    required int? selectedCategoryId,
+  }) {
     final provider = Provider.of<DashboardProvider>(context, listen: false);
     final isSelected = selectedCategoryId == cat.id;
-
+    final responsive = Responsiveness(context);
     return GestureDetector(
       onTap: () async {
         provider.selectCategory(cat.id);
@@ -2754,21 +3102,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 //   ),
                 // ],
               ),
-              child: ClipOval(
-                child: cat.id == -1
-                    ? Image.asset(
-                  AppImage.all, // ✅ Asset image for "All" option
-                  //  fit: BoxFit.cover,
-                )
-                    : Image.network(
-                  cat.image.startsWith("https")
-                      ? cat.image
-                      : "${ApiEndpoints.imageBaseUrl}${cat.image}",
-                  //  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                  const Icon(Icons.image_not_supported, size: 30),
-                ),
-              ),
+              child: cat.id == -1
+                  ? Image.asset(
+                      AppImage.all, // ✅ Asset image for "All" option
+                      //  fit: BoxFit.cover,
+                    )
+                  : Image.network(
+                      cat.image.startsWith("https")
+                          ? cat.image
+                          : "${ApiEndpoints.imageBaseUrl}${cat.image}",
+                      //  fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.image_not_supported, size: 30),
+                    ),
+
               // child: ClipOval(
               //   child: Image.network(
               //     cat.image.startsWith("https")
@@ -2787,11 +3134,11 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(
               cat.name.isNotEmpty
                   ? cat.name[0].toUpperCase() +
-                  cat.name.substring(1).toLowerCase()
+                      cat.name.substring(1).toLowerCase()
                   : '',
-              style: AppTextStyles.nunitoMedium(14,
-                  color:
-                  isSelected ? AppColor.primaryColor : Colors.black87)
+              style: AppTextStyles.nunitoMedium(responsive.category,
+                      color:
+                          isSelected ? AppColor.primaryColor : Colors.black87)
                   .copyWith(
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
               ),
@@ -2815,35 +3162,32 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
   Widget HeatLevelSelector(BuildContext context) {
     final heatProvider = context.watch<CategoryProvider>(); // ✅ use Provider
 
     final List<String> heatLabels = ['Mild', 'Medium', 'Hot'];
 
-    return
-      SliderTheme(
-        data: SliderTheme.of(context).copyWith(
-          trackHeight: 8,
-          activeTrackColor: AppColor.primaryColor,
-          inactiveTrackColor: Colors.grey,
-          valueIndicatorColor: AppColor.primaryColor,
-          thumbColor: AppColor.primaryColor,
-        ),
-        child: Slider(
-          value: heatProvider.selectedHeatLevel.toDouble(),
-          min: 0,
-          max: 2,
-          divisions: 2,
-          label: heatLabels[heatProvider.selectedHeatLevel],
-          onChanged: (double value) {
-            heatProvider.setHeatLevel(value.round());
-          },
-        ),
-
-      );
+    return SliderTheme(
+      data: SliderTheme.of(context).copyWith(
+        trackHeight: 8,
+        activeTrackColor: AppColor.primaryColor,
+        inactiveTrackColor: Colors.grey,
+        valueIndicatorColor: AppColor.primaryColor,
+        thumbColor: AppColor.primaryColor,
+      ),
+      child: Slider(
+        value: heatProvider.selectedHeatLevel.toDouble(),
+        min: 0,
+        max: 2,
+        divisions: 2,
+        label: heatLabels[heatProvider.selectedHeatLevel],
+        onChanged: (double value) {
+          heatProvider.setHeatLevel(value.round());
+        },
+      ),
+    );
   }
-
-
 
 // when click on the ctagoey that item scroingthe list  then set the first  item
 // Widget buildCategoryList({
@@ -2975,10 +3319,10 @@ class _HeatLevelSelectorState extends State<HeatLevelSelector> {
           data: SliderTheme.of(context).copyWith(
               trackHeight: 8,
               activeTrackColor:
-              AppColor.primaryColor, // Hide default active track color
+                  AppColor.primaryColor, // Hide default active track color
               inactiveTrackColor: Colors.grey,
               valueIndicatorColor:
-              AppColor.primaryColor, // Hide default inactive track color
+                  AppColor.primaryColor, // Hide default inactive track color
 
               thumbColor: AppColor.primaryColor),
           child: Slider(
@@ -3009,18 +3353,18 @@ Future<bool> showExitDialog(BuildContext context) async {
     iconColor: Colors.orange,
     cancelText: "No, Stay",
     confirmText: "Yes, Exit",
-     imagePath: AppImage.logout,
+    imagePath: AppImage.logout,
   );
 
   return shouldExit ?? false; // Return false if null
 }
 
-
-
 Future<String?> showSortByDialog(BuildContext context, String currentSort) {
   final responsive = Responsiveness(context);
-  final screenHeight = MediaQuery.of(context).size.height;
   String selectedOption = currentSort;
+  final screenSize = MediaQuery.of(context).size;
+  final screenWidth = screenSize.width;
+  final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
   final provider = Provider.of<DashboardProvider>(context, listen: false);
   List<String> options = [
     'Popular',
@@ -3040,11 +3384,9 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
             child: Material(
               color: Colors.transparent,
               child: Container(
-                height: responsive.isDesktop
-                    ? screenHeight * 0.5 // 50% of screen on desktop
-                    : responsive.isTablet
-                    ? screenHeight * 0.45 // 45% on tablet
-                    : screenHeight * 0.4, // 40% on mobile
+                width: responsive.isMobile
+                    ? double.infinity // Full width for mobile
+                    : MediaQuery.of(context).size.width * 0.80,
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 padding: const EdgeInsets.only(top: 16, bottom: 16),
                 decoration: const BoxDecoration(
@@ -3086,8 +3428,8 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
                             },
                             child: SvgPicture.asset(
                               AppImage.cross,
-                              height: 20,
-                              width: 20,
+                              height: responsive.mainTitleSize,
+                              width: responsive.mainTitleSize,
                             ),
                           ),
                         ],
@@ -3118,14 +3460,21 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
                         ),
                       );
                     }).toList(),
-                   Spacer(),
+                    const SizedBox(height: 10),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 8),
                       child: Row(
+                        mainAxisAlignment: isTablet
+                            ? MainAxisAlignment.spaceEvenly
+                            : MainAxisAlignment.spaceBetween,
                         children: [
                           SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.4,
+                            width: responsive.isMobile
+                                ? MediaQuery.of(context).size.width *
+                                    0.40 // wider on mobile
+                                : MediaQuery.of(context).size.width *
+                                    0.3, // normal on tablet/desktop
                             child: ElevatedButton(
                               onPressed: () {
                                 setState(() {
@@ -3136,7 +3485,7 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 padding:
-                                const EdgeInsets.symmetric(vertical: 12),
+                                    const EdgeInsets.symmetric(vertical: 12),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -3144,15 +3493,19 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
                               child: Text(
                                 'Clear',
                                 style: AppTextStyles.nunitoRegular(
-                                  16,
+                                  responsive.subtitleSize,
                                   color: AppColor.primaryColor,
                                 ),
                               ),
                             ),
                           ),
-                          const Spacer(),
+                          // const Spacer(),
                           SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.4,
+                            width: responsive.isMobile
+                                ? MediaQuery.of(context).size.width *
+                                    0.40 // wider on mobile
+                                : MediaQuery.of(context).size.width *
+                                    0.3, // normal on tablet/desktop
                             child: ElevatedButton(
                               onPressed: () {
                                 Navigator.pop(
@@ -3161,7 +3514,7 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 padding:
-                                const EdgeInsets.symmetric(vertical: 12),
+                                    const EdgeInsets.symmetric(vertical: 12),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -3169,7 +3522,7 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
                               child: Text(
                                 'Done',
                                 style: AppTextStyles.nunitoBold(
-                                  16,
+                                  responsive.subtitleSize,
                                   color: AppColor.primaryColor,
                                 ),
                               ),
@@ -3178,6 +3531,7 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
                         ],
                       ),
                     ),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -3189,7 +3543,7 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
     transitionBuilder: (context, anim1, anim2, child) {
       return SlideTransition(
         position:
-        Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim1),
+            Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim1),
         child: child,
       );
     },
@@ -3197,350 +3551,361 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
   );
 }
 
-void showAddOnDialog(BuildContext context, Item product) {
-  final selectedProvider = Provider.of<CategoryProvider>(context, listen: false);
-
+Future<Map<String, dynamic>?> showAddOnDialog(
+    BuildContext context, Item product, {List<String>? initialSelectedAddOns}) {
+  final selectedProvider =
+      Provider.of<CategoryProvider>(context, listen: false);
+  final responsive = Responsiveness(context);
   final screenSize = MediaQuery.of(context).size;
   final screenHeight = screenSize.height;
   final screenWidth = screenSize.width;
-  final size = MediaQuery.of(context).size;
-  final imageSize = size.width * 0.15;
-  // Keep selectedAddOns persistent during dialog lifecycle
-  final List<String> selectedAddOns = [];
+  final imageSize = screenWidth * 0.15;
 
-  showModalBottomSheet(
+  final bool isDesktop = screenWidth >= 1024;
+  final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
+  final List<String> selectedAddOns = [];
+  double priceWidth = screenWidth * 0.2;
+  final buttonKey = GlobalKey();
+  double addOnsTotal = 0.0;
+
+  // **Return the Future from showModalBottomSheet**
+  return showModalBottomSheet<Map<String, dynamic>>(
     context: context,
     isScrollControlled: true,
+    useSafeArea: true,
     backgroundColor: Colors.transparent,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
+    constraints: BoxConstraints(
+      maxWidth: MediaQuery.of(context).size.width, // Full width
+      maxHeight: MediaQuery.of(context).size.height * 0.95, // Height limit
+    ),
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setState) {
-          return Container(
-            height: screenHeight * 0.95,
-            decoration: const BoxDecoration(
-              //  color: AppColor.primaryColor,
-              gradient: LinearGradient(
-                colors: [
-                  AppColor.primaryColor,
-                  AppColor.whiteColor,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                stops: [0.3, 0.25],
-              ),
-
-
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 22.0,top:18,bottom: 0),
-                  child: GestureDetector(
-                    onTap: (){
-                      Navigator.pop(context);
-                    },
-                    child: SvgPicture.asset(
-                        AppImage.backArrow,
-                        height: 25
-                    ),
-                  ),
-                ),
-                // Replace the current image + name section with this:
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          return Material(
+            color: Colors.black.withOpacity(0.5), // Semi-transparent background
+            child: Center(
+              child: SizedBox(
+                width: screenWidth,
+                height: screenHeight * 0.95,
+                child: Container(
                   decoration: const BoxDecoration(
-                    color: AppColor.primaryColor,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(24),
-                      topRight: Radius.circular(24),
-                    ),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Product Image
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          "${ApiEndpoints.imageBaseUrl}${product.image}",
-                          height: imageSize,
-                          width: imageSize,
-                          //   fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.image_not_supported, size: 70),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      // Product Name + Price (if needed)
-                      Expanded(
-                        child: Row(
-                          //crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              (product.name != null && product.name!.isNotEmpty)
-                                  ? product.name![0].toUpperCase() +
-                                  product.name!.substring(1).toLowerCase()
-                                  : '',
-                              style: AppTextStyles.nunitoBold(20, color:  AppColor.whiteColor),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            // Optional: show price here
-                            Text(
-                              "₹${(double.tryParse(product.price ?? '0') ?? 0.0).toStringAsFixed(2)}",
-                              style: AppTextStyles.nunitoBold(20, color:  AppColor.whiteColor),
-                            ),
-                            // Text(
-                            //   "₹${product.discountPrice ?? '0'}",
-                            //   style: AppStyle.textStyleReemKufi.copyWith(
-                            //     fontSize: 16,
-                            //     fontWeight: FontWeight.w600,
-                            //     color: Colors.white,
-                            //   ),
-                            // ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-
-                // const SizedBox(height: 10),
-
-                // ===== Add-ons Section =====
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(70),
-                        // topRight: Radius.circular(24),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 20,),
-                        // Title
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
-                          child: Text(
-                            "Choose Your Add-ons",
-                            style: AppTextStyles.latoBold(18, color:  AppColor.blackColor),
-                          ),
-                        ),
-                        Divider(),
-                        // Add-ons List
-                        Expanded(
-                          child: ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            itemCount: sampleAddOnJson.length, // Use sample data length
-                            itemBuilder: (context, index) {
-                              // Create the AddOnModel list from sample JSON
-                              final addOns = sampleAddOnJson
-                                  .map((json) => AddOnModel.fromJson(json))
-                                  .toList();
-
-                              final addOn = addOns[index]; // <-- Fix: reference the specific addOn
-                              final isSelected = selectedAddOns.contains(addOn.name);
-
-                              return GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    if (isSelected) {
-                                      selectedAddOns.remove(addOn.name);
-                                    } else {
-                                      selectedAddOns.add(addOn.name);
-                                    }
-                                  });
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                                  decoration: BoxDecoration(
-                                    // border: Border(
-                                    //   bottom: BorderSide(color: Colors.grey.shade300),
-                                    // ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      // Custom Checkbox
-                                      Container(
-                                        height: 20,
-                                        width: 20,
-                                        decoration: BoxDecoration(
-                                          color: isSelected ? AppColor.primaryColor : Colors.white,
-                                          borderRadius: BorderRadius.circular(4),
-                                          border: Border.all(
-                                            color: AppColor.primaryColor,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        child: isSelected
-                                            ? const Icon(Icons.check, size: 16, color: Colors.white)
-                                            : null,
-                                      ),
-                                      const SizedBox(width: 12),
-
-                                      // Add-on Name
-                                      Expanded(
-                                        child: Text(
-                                          addOn.name,
-                                          style: AppTextStyles.latoMedium(15, color:  AppColor.blackColor),
-                                        ),
-                                      ),
-
-                                      // Price
-                                      Text(
-                                        "₹${addOn.price.toStringAsFixed(2)}",
-                                        style: AppTextStyles.nunitoBold(15, color:  AppColor.blackColor),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-
-                      ],
-                    ),
-                  ),
-                ),
-
-                // ===== Footer Section =====
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: screenWidth * 0.04,
-                    vertical: screenHeight * 0.015,
-                  ),
-                  decoration: const BoxDecoration(
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       colors: [
-                        AppColor.secondary, // Top color
-                        AppColor.primaryColor // Fade out below
+                        AppColor.primaryColor,
+                        AppColor.whiteColor,
                       ],
-                      begin: Alignment.topCenter,    // Start at the very top
-                      end: Alignment.bottomCenter,   // End at the bottom
-                      stops: [0.0, 0.5],             // 0.0 = start, 0.4 = 40% height
-                      tileMode: TileMode.clamp,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomCenter,
+                      stops: [0.3, 0.25],
                     ),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(24)),
                   ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Price Box
+                      // Back button
+                      Padding(
+                        padding: const EdgeInsets.only(left: 22.0, top: 18),
+                        child: GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: SvgPicture.asset(
+                            AppImage.backArrow,
+                            height: isTablet ? 35 : 25,
+                          ),
+                        ),
+                      ),
+
+                      // Product image + title + price
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
+                            horizontal: 16, vertical: 12),
+                        decoration: const BoxDecoration(
+                          color: AppColor.primaryColor,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(24),
+                            topRight: Radius.circular(24),
+                          ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Row(
                           children: [
-                            Text(
-                              'Price',
-                              style: AppStyle.textStyleReemKufi.copyWith(
-                                color: AppColor.primaryColor,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.network(
+                                "${ApiEndpoints.imageBaseUrl}${product.image}",
+                                height: imageSize,
+                                width: imageSize,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(Icons.image_not_supported,
+                                        size: 70),
                               ),
                             ),
-                            Selector<CategoryProvider, double>(
-                              selector: (_, provider) => provider.totalPriceWithTakeWay,
-                              builder: (context, totalPrice, child) {
-                                return Text(
-                                  '₹${totalPrice.toStringAsFixed(2)}',
-                                  style: AppStyle.textStyleReemKufi.copyWith(
-                                    color: AppColor.primaryColor,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    product.name != null &&
+                                            product.name!.isNotEmpty
+                                        ? product.name![0].toUpperCase() +
+                                            product.name!
+                                                .substring(1)
+                                                .toLowerCase()
+                                        : '',
+                                    style: AppTextStyles.nunitoBold(
+                                        responsive.productName,
+                                        color: AppColor.whiteColor),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                );
-                              },
+                                  Text(
+                                    "₹${(double.tryParse(product.price ?? '0') ?? 0.0).toStringAsFixed(2)}",
+                                    style: AppTextStyles.nunitoBold(
+                                        responsive.productName,
+                                        color: AppColor.whiteColor),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 15),
 
-                      // Add to Cart Button
+                      // Add-ons section
                       Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            final prefHelper = getIt<SharedPreferenceHelper>();
-                            final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
-                            final cartProvider =
-                            Provider.of<CartProvider>(context, listen: false);
-                            final dynamic packingCharge = product.takeAwayPrice;
-                            final totalTime = context.read<CategoryProvider>().totalTime;
-                            // Convert to double safely
-                            final double? packingChargeValue = packingCharge is String
-                                ? double.tryParse(packingCharge)
-                                : (packingCharge is double ? packingCharge : null);
-
-                            final selectedChild = context.read<CategoryProvider>().selectedChildCategory;
-
-                            final cartItem = CartItemModel(
-                                id: product.id,
-                                name: product.name,
-                                images: [product.image],
-                                categoryId: product.categoryId,
-                                price: isTakeAway
-                                    ? (selectedProvider.selectedPrices ?? 0.0)
-                                    : (selectedProvider.selectedPrices ?? 0.0),
-                                quantity: selectedProvider.quantity,
-                                isCombo: false,
-                                takeAwayPrice: packingChargeValue,
-                                // takeAwayPrice: selectedChild?.takeAwayPrice,
-                                subCategoryId: selectedChild?.subCategoryId ?? 0,
-                                childCategoryId: selectedChild?.id.toString(),      // 👈 pass child id if selected
-                                childCategoryName: selectedChild?.name,
-                                totalDeliveryTime:totalTime
-                            );
-                            cartProvider.addToCart(cartItem);
-                            Navigator.of(context).pop();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: AppColor.primaryColor,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(70),
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
-                          child: Text(
-                            'Add To Cart',
-                            style: AppStyle.textStyleReemKufi.copyWith(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 20),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 30, vertical: 12),
+                                child: Text(
+                                  "Choose Your Add-ons",
+                                  style: AppTextStyles.latoBold(responsive.adOn,
+                                      color: AppColor.blackColor),
+                                ),
+                              ),
+                              const Divider(),
+                              Expanded(
+                                child: ListView.builder(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 30),
+                                  itemCount: sampleAddOnJson.length,
+                                  itemBuilder: (context, index) {
+                                    final addOns = sampleAddOnJson
+                                        .map(
+                                            (json) => AddOnModel.fromJson(json))
+                                        .toList();
+                                    final addOn = addOns[index];
+                                    final isSelected =
+                                        selectedAddOns.contains(addOn.name);
+
+                                    return GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          if (isSelected) {
+                                            selectedAddOns.remove(addOn.name);
+                                            addOnsTotal -= addOn.price;
+                                          } else {
+                                            selectedAddOns.add(addOn.name);
+                                            addOnsTotal += addOn.price;
+                                          }
+                                          selectedProvider
+                                              .setAddOnsTotal(addOnsTotal);
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 12, horizontal: 8),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              height: 20,
+                                              width: 20,
+                                              decoration: BoxDecoration(
+                                                color: isSelected
+                                                    ? AppColor.primaryColor
+                                                    : Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                                border: Border.all(
+                                                  color: AppColor.primaryColor,
+                                                  width: 1.5,
+                                                ),
+                                              ),
+                                              child: isSelected
+                                                  ? const Icon(Icons.check,
+                                                      size: 16,
+                                                      color: Colors.white)
+                                                  : null,
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: Text(
+                                                addOn.name,
+                                                style: AppTextStyles.latoMedium(
+                                                    responsive.hintTextSize,
+                                                    color: AppColor.blackColor),
+                                              ),
+                                            ),
+                                            Text(
+                                              "₹${addOn.price.toStringAsFixed(2)}",
+                                              style: AppTextStyles.nunitoBold(
+                                                  responsive.hintTextSize,
+                                                  color: AppColor.blackColor),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Footer
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.04,
+                            vertical: screenHeight * 0.015),
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColor.secondary,
+                              AppColor.primaryColor,
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: isTablet
+                                  ? priceWidth // If device is a tablet → use calculated priceWidth
+                                  : null,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Price',
+                                    style: AppStyle.textStyleReemKufi.copyWith(
+                                      color: AppColor.primaryColor,
+                                      fontSize: responsive.descriptionSize,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Selector<CategoryProvider, double>(
+                                    selector: (context, provider) {
+                                      final prefHelper =
+                                          getIt<SharedPreferenceHelper>();
+                                      final isTakeAway = prefHelper
+                                              .getBool(StorageKey.isTakeAway) ??
+                                          false;
+
+                                      // If TakeAway is true, use totalPrice else use totalPrices
+                                      return isTakeAway
+                                          ? provider.totalPriceWithTakeWay
+                                          : provider.totalPrices;
+                                    },
+                                    builder: (context, finalTotal, child) {
+                                      return ShaderMask(
+                                        shaderCallback: (bounds) =>
+                                            const LinearGradient(
+                                          colors: [
+                                            AppColor.primaryColor,
+                                            AppColor.primaryColor
+                                          ],
+                                        ).createShader(Rect.fromLTWH(0, 0,
+                                                bounds.width, bounds.height)),
+                                        child: Text(
+                                          '₹${finalTotal.toStringAsFixed(2)}',
+                                          style: AppStyle.textStyleReemKufi
+                                              .copyWith(
+                                            color: Colors.white,
+                                            fontSize: isDesktop
+                                                ? 22
+                                                : (isTablet ? 22 : 16),
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 15),
+                            Expanded(
+                              key: buttonKey,
+                              child: Container(
+                                height: isTablet ? 70 : 60,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop({
+                                      'selectedAddOns': selectedAddOns,
+                                      'addOnsTotal': addOnsTotal,
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    foregroundColor: AppColor.primaryColor,
+                                    elevation: 0,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Add To Cart',
+                                    style: AppStyle.textStyleReemKufi.copyWith(
+                                      fontSize: responsive.mainTitleSize,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-              ],
+              ),
             ),
           );
         },
@@ -3931,7 +4296,7 @@ void _openSortDialog(BuildContext context) async {
 
   // Pass current selected sort (label) to dialog
   final selectedOption =
-  await showSortByDialog(context, provider.selectedSortLabel);
+      await showSortByDialog(context, provider.selectedSortLabel);
 
   if (selectedOption != null && selectedOption.isNotEmpty) {
     // Map UI label to API value

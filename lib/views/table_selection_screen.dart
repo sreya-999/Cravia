@@ -2,28 +2,46 @@ import 'package:flutter/material.dart';
 import 'package:ravathi_store/providers/cart_provider.dart';
 import 'package:ravathi_store/utlis/App_color.dart';
 import 'package:ravathi_store/utlis/widgets/custom_appbar.dart';
+import 'package:ravathi_store/utlis/widgets/responsiveness.dart';
+import '../models/order_model.dart';
+import '../utlis/App_image.dart';
 import '../utlis/App_style.dart';
+import '../utlis/widgets/app_text_style.dart';
 import 'order_success_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class TableSelectionScreen extends StatefulWidget {
+  final OrderModel? order;
+  const TableSelectionScreen({Key? key, this.order}) : super(key: key);
   @override
   State<TableSelectionScreen> createState() => _TableSelectionScreenState();
 
-  static Widget _buildLegend(Color color, String label, double fontSize) {
+  static Widget _buildLegend(Color color, String label, double size) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Container(width: fontSize, height: fontSize, color: color),
+        Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3), // optional: rounded corners
+          ),
+        ),
         const SizedBox(width: 6),
-        Text(label,
-    style: AppStyle.textStyleReemKufi.copyWith(
-    color: AppColor.blackColor,
-    fontSize: fontSize * 0.85
-    ),),
+        Text(
+          label,
+          style: AppTextStyles.nunitoMedium(
+            size, // you can use the same size or a different font size
+            color: AppColor.blackColor,
+          ),
+        ),
       ],
     );
   }
+
 }
 
 class _TableSelectionScreenState extends State<TableSelectionScreen> {
@@ -60,9 +78,10 @@ class _TableSelectionScreenState extends State<TableSelectionScreen> {
     final size = MediaQuery.of(context).size;
     final isTablet = size.width > 600;
     final isDesktop = size.width > 1024;
-
+    final responsive = Responsiveness(context);
     // Scale values based on screen size
-    final double baseFontSize = isTablet ? 18 : 14;
+    final double baseFontSize = isTablet ? 20 : 14;
+    final double buttonSize = isTablet ? 20 : 18;
     final double iconSize = isTablet ? 24 : 20;
     final int gridCount = isDesktop ? 6 : (isTablet ? 5 : 4);
 
@@ -81,14 +100,16 @@ class _TableSelectionScreenState extends State<TableSelectionScreen> {
           children: [
             Row(
               children: [
-                Icon(Icons.table_restaurant, size: iconSize),
-                SizedBox(width: isTablet ? 12 : 8),
+                SvgPicture.asset(
+                  AppImage.spoon,
+                  height:isTablet ? 35 :20,
+                ),
+                SizedBox(width: 5,),
                 Text(
                   "Choose your table",
-                  style: AppStyle.textStyleReemKufi.copyWith(
+                  style: AppTextStyles.nunitoMedium(
+                    responsive.mainTitleSize,
                     color: AppColor.blackColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: baseFontSize + 3,
                   ),
                 ),
               ],
@@ -97,16 +118,16 @@ class _TableSelectionScreenState extends State<TableSelectionScreen> {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                "7 Free / 12 Total Table",
+                "4 Free / 12 Total Table",
                 style: AppStyle.textStyleReemKufi.copyWith(
-                  color: Colors.grey,
+                  color: Colors.black54,
                   fontSize: baseFontSize,
                 ),
               ),
             ),
             const SizedBox(height: 30),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 TableSelectionScreen._buildLegend(Colors.green, "Available", baseFontSize),
                 TableSelectionScreen._buildLegend(Colors.red, "Occupied", baseFontSize),
@@ -161,7 +182,7 @@ class _TableSelectionScreenState extends State<TableSelectionScreen> {
                               table['selected'] = true;
                             });
 
-                            // Store selected table in Provider
+
                             tableProvider.selectTable(table['name']);
                           },
 
@@ -207,17 +228,17 @@ class _TableSelectionScreenState extends State<TableSelectionScreen> {
               ),
               onPressed: () {
 
-                // Navigator.pushReplacement(
-                //   context,
-                //   MaterialPageRoute(builder: (_) => OrderSuccessScreen()),
-                // );
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => OrderSuccessScreen(order: widget.order,)),
+                );
               },
               child: Text(
                 "Confirm Table",
                 style: AppStyle.textStyleReemKufi.copyWith(
                   color: AppColor.primaryColor,
                   fontWeight: FontWeight.bold,
-                  fontSize: baseFontSize,
+                  fontSize: buttonSize,
                 ),
               ),
             ),

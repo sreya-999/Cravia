@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ravathi_store/utlis/widgets/responsiveness.dart';
 
 import '../App_color.dart';
 import 'app_text_style.dart';
@@ -20,7 +21,10 @@ class CustomActionDialog {
       barrierDismissible: false, // Can't close by tapping outside
       builder: (context) {
         final screenSize = MediaQuery.of(context).size;
-
+        final responsive = Responsiveness(context);
+        final double screenWidth = MediaQuery.of(context).size.width;
+        final bool isDesktop = screenWidth >= 1024;
+        final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
         return Dialog(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -33,6 +37,7 @@ class CustomActionDialog {
             children: [
               /// Main Container
               Container(
+                height: isTablet ? 250 :null,
                 width: screenSize.width * 0.9, // Increased width (90% of screen width)
                 padding: const EdgeInsets.fromLTRB(24, 50, 24, 24), // More padding
                 decoration: BoxDecoration(
@@ -55,7 +60,7 @@ class CustomActionDialog {
                       title,
                       textAlign: TextAlign.center,
                       style: AppTextStyles.nunitoMedium(
-                        18, // Increased title font size
+                        responsive.adOn, // Increased title font size
                         color: AppColor.blackColor,
                       ),
                     ),
@@ -81,7 +86,7 @@ class CustomActionDialog {
                             child: Text(
                               cancelText,
                               style: AppTextStyles.nunitoRegular(
-                                16,
+                                responsive.subtitleSize,
                                 color: AppColor.blackColor,
                               ),
                             ),
@@ -103,7 +108,7 @@ class CustomActionDialog {
                             child: Text(
                               confirmText,
                               style: AppTextStyles.nunitoMedium(
-                                16,
+                                responsive.subtitleSize,
                                 color: AppColor.whiteColor,
                               ),
                             ),

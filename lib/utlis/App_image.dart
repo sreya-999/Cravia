@@ -29,7 +29,6 @@ class AppImage{
   static const String all ='assets/icons/all.png';
   static const String cancel ='assets/icons/cancel.svg';
   static const String logout ='assets/icons/logout.svg';
-
-
+  static const String spoon ='assets/icons/spoon.svg';
 
 }

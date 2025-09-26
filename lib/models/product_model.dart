@@ -106,10 +106,10 @@ class ComboProductModel {
       category: json['category'] != null
           ? CategoryModel.fromJson(json['category'])
           : null,
-      childCategory: (json['childCategory'] as List<dynamic>?)
-          ?.map((e) => ChildCategory.fromJson(e))
-          .toList() ??
-          [],
+      // childCategory: (json['childCategory'] as List<dynamic>?)
+      //     ?.map((e) => ChildCategory.fromJson(e))
+      //     .toList() ??
+      //     [],
       subCategoryIds: json['sub_category_id'] != null
           ? List<String>.from((json['sub_category_id'] as String)
           .replaceAll('[', '')
@@ -131,7 +131,7 @@ class ComboProductModel {
           ? List<String>.from(json['description'])
           : [],
 
-      addOns: parsedAddOns,
+      addOns: parsedAddOns, childCategory: [],
     );
   }
 }
@@ -164,6 +164,8 @@ class CartItemModel {
   String? image;
   final String? disountPercent;
   final String? discountPrice;
+  List<String>? addOnNames;
+  List<double>? addOnPrices;
 
 
   CartItemModel({
@@ -193,6 +195,8 @@ class CartItemModel {
     this.disountPercent,
     this.descriptions,
     this.discountPrice,
+    this.addOnNames,
+    this.addOnPrices
   });
 
   // Factory constructor from ProductModel

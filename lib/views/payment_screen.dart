@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ravathi_store/utlis/App_image.dart';
 import 'package:ravathi_store/utlis/widgets/custom_appbar.dart';
+import 'package:ravathi_store/utlis/widgets/responsiveness.dart';
 import 'package:ravathi_store/views/table_selection_screen.dart';
 
 import '../models/order_model.dart';
@@ -30,15 +31,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
         final isDineIn = Provider.of<CategoryProvider>(context, listen: false).isDineIn;
 
         if (isDineIn) {
-          // Navigator.pushReplacement(
-          //   context,
-          //   MaterialPageRoute(builder: (_) => TableSelectionScreen()),
-          // );
-          context.read<CartProvider>().clearCart();
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => OrderSuccessScreen(order: widget.order,)),
+            MaterialPageRoute(builder: (_) => TableSelectionScreen(order: widget.order)),
           );
+          context.read<CartProvider>().clearCart();
+          // Navigator.pushReplacement(
+          //   context,
+          //   MaterialPageRoute(builder: (_) => OrderSuccessScreen(order: widget.order,)),
+          // );
         } else {
           Navigator.pushReplacement(
             context,
@@ -51,7 +52,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
   Widget build(BuildContext context) {
 
-
+final responsive = Responsiveness(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(title: 'Payment'),
@@ -67,7 +68,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       final isMobile = screenWidth < 600;
 
                       // Dynamic sizes
-                      final qrSize = screenWidth * 0.6; // 60% of width
+                      final qrSize = screenWidth * 0.4; // 60% of width
                       final titleFontSize = isMobile ? 16.0 : 22.0;
                       final totalLabelFontSize = isMobile ? 14.0 : 18.0;
                       final totalAmountFontSize = isMobile ? 18.0 : 24.0;
@@ -135,7 +136,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         style: AppStyle.textStyleReemKufi.copyWith(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
-                          fontSize: isMobile ? 14 : 18,
+                          fontSize: responsive.subtitleSize
                         ),
                       ),
                       SizedBox(height: isMobile ? 5 : 8),
@@ -144,7 +145,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         style: AppStyle.textStyleReemKufi.copyWith(
                           color: Colors.green,
                           fontWeight: FontWeight.bold,
-                          fontSize: isMobile ? 18 : 24,
+                          fontSize: responsive.subtitleSize
                         ),
                       ),
 
