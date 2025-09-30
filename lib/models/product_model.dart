@@ -57,7 +57,8 @@ class ComboProductModel {
   final List<String> subCategoryIds; // ✅ Added
   final List<String> childCategoryIds; // ✅ Added
   final List<ChildCategory> childCategory;
-  final List<AddOnModel> addOns; // <-- new
+  final List<AddOnModel> addOns;
+  final List<String> spicy;// <-- new
 
   ComboProductModel({
     required this.id,
@@ -77,6 +78,8 @@ class ComboProductModel {
     required this.subCategoryIds,
     required this.childCategoryIds,
     required this.addOns,
+    required this.spicy,
+
   });
 
   factory ComboProductModel.fromJson(Map<String, dynamic> json) {
@@ -130,7 +133,9 @@ class ComboProductModel {
       description: json['description'] != null
           ? List<String>.from(json['description'])
           : [],
-
+      spicy: json['spicy_level'] != null
+          ? List<String>.from(json['spicy_level'])
+          : [],
       addOns: parsedAddOns, childCategory: [],
     );
   }

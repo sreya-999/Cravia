@@ -467,6 +467,24 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
   }
   /// Clear selected child category for a product
+  final Map<int, ChildCategory?> _lastSelectedByProduct = {};
 
+  void setSelectedChildCategorys(ChildCategory? child, {int? productId}) {
+    _selectedChildCategory = child;
+
+    if (productId != null && child != null) {
+      _lastSelectedByProduct[productId] = child;
+    }
+
+    notifyListeners();
+  }
+
+  ChildCategory? getLastSelectedChildCategoryForProduct(int productId) {
+    return _lastSelectedByProduct[productId];
+  }
+  void resetLastSelectedChildCategory(int productId) {
+    _lastSelectedByProduct[productId] = null;
+    notifyListeners();
+  }
 
 }

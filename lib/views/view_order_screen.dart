@@ -59,6 +59,13 @@ class ViewOrderScreen extends StatelessWidget {
         : isTablet
             ? 16
             : 14;
+    int totalQuantity = orderedItems.fold<int>(
+      0,
+          (sum, item) => sum + item.quantity,
+    );
+
+// Display the total quantity with proper text
+    String quantityText = "$totalQuantity ${totalQuantity == 1 ? 'Item' : 'Items'} in cart";
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -372,7 +379,8 @@ class ViewOrderScreen extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Text(
-                  "${orderedItems.length} ${orderedItems.length == 1 ? 'Item' : 'Items'} in cart",
+                  quantityText,
+                 // "${orderedItems.length} ${orderedItems.length == 1 ? 'Item' : 'Items'} in cart",
                   style: AppStyle.textStyleReemKufi.copyWith(
                     fontWeight: FontWeight.w600,
                     fontSize: responsive.subtitleSize,
@@ -597,7 +605,7 @@ class ViewOrderScreen extends StatelessWidget {
                                                         // If confirmed, remove the item
                                                         if (confirm == true) {
                                                           cartProvider
-                                                              .removeItem(
+                                                              .removeItem(context,
                                                             item.id,
                                                             childCategoryId: item
                                                                 .childCategoryId,
@@ -1013,7 +1021,7 @@ class ViewOrderScreen extends StatelessWidget {
 
                                                   // If confirmed, remove the item
                                                   if (confirm == true) {
-                                                    cartProvider.removeItem(
+                                                    cartProvider.removeItem(context,
                                                       item.id,
                                                       childCategoryId:
                                                           item.childCategoryId,
@@ -2112,992 +2120,992 @@ class ViewOrderScreen extends StatelessWidget {
     );
   }
 
-  void showBurgerDialog(BuildContext context, CartItemModel product) {
-    final prefHelper = getIt<SharedPreferenceHelper>();
-    final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
-    bool isExpanded = false;
-    final selectedProvider =
-        Provider.of<CategoryProvider>(context, listen: false);
-    // selectedProvider.setBasePrice(product.price);
-    final cartProvider = Provider.of<CartProvider>(context, listen: false);
-
-    if (isTakeAway) {
-      selectedProvider.setBasePriceWithTakeAwayS(product);
-    } else {
-      selectedProvider.setBasePrice(
-        product.price ?? 0.0,
-      );
-    }
-    selectedProvider.setPrices(
-      discount: double.tryParse(
-            product.discountPrice?.toString() ??
-                product.price?.toString() ??
-                '0',
-          ) ??
-          0.0,
-      takeAway:
-          double.tryParse(product.takeAwayPrice?.toString() ?? '0') ?? 0.0,
-    );
-    // selectedProvider.setBasePrice(
-    //   (product.price != null && product.price!.isNotEmpty)
-    //       ? double.tryParse(product.price!) ?? 0.0
-    //       : 0.0,
-    // );
-    //selectedProvider.setBasePriceWithTakeAway(product);
-
-    double total = selectedProvider.getChildCategoryOrDiscountTotal(
-        product, selectedProvider.selectedChildCategory, selectedProvider);
-    print('Final Total: $total');
-
-    selectedProvider.setSelectedChildCategoryId(
-      product.id,
-      product.childCategoryId.toString(),
-    );
-
-    // Check if product is already in cart and get current quantity
-    // final cartItem = cartProvider.getCartItemById(product.id, childCategoryId: selectedProvider.selectedChildCategory?.id.toString());
-    //
-    // if (cartItem != null) {
-    //   // Set dialog quantity to existing cart quantity
-    //   selectedProvider.setQuantity(cartItem.quantity);
-    // } else {
-    //   print("quantity 9");
-    //   selectedProvider.setQuantity(1);
-    // }
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final bool isDesktop = screenWidth >= 1024;
-    final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
-    final double buttonFontSize = isDesktop
-        ? 25
-        : isTablet
-            ? 17
-            : 16;
-    final double priceSize = isDesktop
-        ? 27
-        : isTablet
-            ? 17
-            : 17;
-    final double description = isDesktop
-        ? 20
-        : isTablet
-            ? 15
-            : 15;
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: '',
-      barrierColor: Colors.black54, // dim background
-      transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (context, anim1, anim2) {
-        return Align(
-          alignment: Alignment.bottomCenter,
-          child: StatefulBuilder(
-            builder: (context, setState) {
-              return SafeArea(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final screenHeight = constraints.maxHeight;
-                    final screenWidth = constraints.maxWidth;
-
-                    return GestureDetector(
-                      onVerticalDragUpdate: (details) {
-                        if (details.primaryDelta! > 15) {
-                          // drag down with some threshold
-                          Navigator.of(context).pop();
-                        }
-                      },
-                      child: Material(
-                        color: Colors.transparent,
-                        child: Container(
-                          width: screenWidth,
-                          constraints: BoxConstraints(
-                            maxHeight: screenHeight * 0.95,
-                          ),
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                AppColor.primaryColor,
-                                AppColor.whiteColor,
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              stops: [
-                                0.3,
-                                0.25
-                              ], // 👈 transition from primary → secondary at 70% height
-                            ),
-                            borderRadius:
-                                BorderRadius.vertical(top: Radius.circular(30)),
-                          ),
-                          child: Stack(children: [
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  height: screenHeight * 0.28,
-                                  width: double.infinity,
-                                  decoration: const BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(AppImage.bgImg),
-                                      fit: BoxFit
-                                          .cover, // Cover the entire container
-                                    ),
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        AppColor.primaryColor,
-                                        AppColor.secondary,
-                                      ],
-                                      end: Alignment.bottomRight,
-                                      begin: Alignment.topCenter,
-                                      stops: [0.3, 0.9],
-                                    ),
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(30),
-                                      topRight: Radius.circular(30),
-                                    ),
-                                  ),
-                                  child: Stack(
-                                    children: [
-                                      Positioned.fill(
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              const BorderRadius.vertical(
-                                                  top: Radius.circular(80)),
-                                          child: Container(
-                                            padding: const EdgeInsets.all(25.0),
-                                            child: Image.network(
-                                              "${ApiEndpoints.imageBaseUrl}${product.images.isNotEmpty ? product.images.first : ''}",
-                                              //  fit: BoxFit.fill,
-                                              errorBuilder: (context, error,
-                                                      stackTrace) =>
-                                                  const Icon(Icons
-                                                      .image_not_supported),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Container(
-                                    clipBehavior: Clip.hardEdge,
-                                    decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(70),
-                                        //topRight: Radius.circular(10),
-                                        //  bottomRight: Radius.circular(10),
-                                      ),
-                                    ),
-                                    child: SingleChildScrollView(
-                                      padding:
-                                          EdgeInsets.all(screenWidth * 0.04),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const SizedBox(
-                                            height: 25,
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 12.0),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Flexible(
-                                                  child: Text(
-                                                    (product.name.isNotEmpty)
-                                                        ? product.name[0]
-                                                                .toUpperCase() +
-                                                            product.name
-                                                                .substring(1)
-                                                                .toLowerCase()
-                                                        : '',
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: AppTextStyles
-                                                        .nunitoBold(priceSize,
-                                                            color: AppColor
-                                                                .blackColor),
-                                                  ),
-                                                ),
-                                                Text(
-                                                  "₹${(double.tryParse(product.price.toStringAsFixed(2)))}",
-                                                  style:
-                                                      AppTextStyles.nunitoBold(
-                                                          priceSize,
-                                                          color: AppColor
-                                                              .blackColor),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: 4,
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 12.0,
-                                                right: 12.0,
-                                                top: 0),
-                                            child: LayoutBuilder(
-                                              builder: (context, constraints) {
-                                                return StatefulBuilder(
-                                                  builder: (context, setState) {
-                                                    final bool
-                                                        isDescriptionLong =
-                                                        product.description!
-                                                                .length >
-                                                            350;
-                                                    final String?
-                                                        displayDescription =
-                                                        isExpanded ||
-                                                                !isDescriptionLong
-                                                            ? product
-                                                                .description
-                                                            : '${product.description?.substring(0, 350)}...';
-
-                                                    if (isDescriptionLong) {
-                                                      // Long description -> show in column
-                                                      return Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            displayDescription ??
-                                                                '',
-                                                            maxLines: isExpanded
-                                                                ? null
-                                                                : 4,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .visible,
-                                                            textAlign: TextAlign
-                                                                .justify,
-                                                            style: AppTextStyles
-                                                                .latoRegular(
-                                                                    description,
-                                                                    color: AppColor
-                                                                        .lightGreyColor),
-                                                          ),
-                                                          if (isDescriptionLong)
-                                                            GestureDetector(
-                                                              onTap: () {
-                                                                setState(() {
-                                                                  isExpanded =
-                                                                      !isExpanded;
-                                                                });
-                                                              },
-                                                              child: Text(
-                                                                isExpanded
-                                                                    ? "See Less"
-                                                                    : "See More",
-                                                                style:
-                                                                    const TextStyle(
-                                                                  color: AppColor
-                                                                      .primaryColor,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontSize: 13,
-                                                                ),
-                                                              ),
-                                                            ),
-
-                                                          /// Takeaway Fee
-                                                        ],
-                                                      );
-                                                    } else {
-                                                      // Short description -> show in row with prep time first, then takeaway price
-                                                      return Row(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          /// Description
-                                                          Flexible(
-                                                            child: Text(
-                                                                product
-                                                                    .description
-                                                                    .toString(),
-                                                                // maxLines: 4,
-                                                                // overflow: TextOverflow.ellipsis,
-                                                                style: AppTextStyles.latoRegular(
-                                                                    description,
-                                                                    color: AppColor
-                                                                        .lightGreyColor)),
-                                                          ),
-                                                          const SizedBox(
-                                                              width: 10),
-
-                                                          /// Prep Time
-                                                        ],
-                                                      );
-                                                    }
-                                                  },
-                                                );
-                                              },
-                                            ),
-                                          ),
-
-                                          if (product.prepareTime != null ||
-                                              product.takeAwayPrice !=
-                                                  null) ...[
-                                            const SizedBox(
-                                              height: 4,
-                                            ),
-                                          ],
-
-                                          if (product.prepareTime != null &&
-                                              product.prepareTime!
-                                                  .trim()
-                                                  .isNotEmpty)
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 12.0, top: 8),
-                                              child: Row(
-                                                children: [
-                                                  SvgPicture.asset(
-                                                    AppImage.time,
-                                                    height: 20,
-                                                  ),
-                                                  const SizedBox(width: 6),
-                                                  Text(
-                                                    product.prepareTime!
-                                                            .toLowerCase()
-                                                            .contains("mins")
-                                                        ? product.name
-                                                        : "${product.name} mins",
-                                                    style: AppTextStyles
-                                                        .latoRegular(15,
-                                                            color: AppColor
-                                                                .darkGreyColor),
-                                                  ),
-                                                  const SizedBox(width: 9),
-                                                  if (product.takeAwayPrice !=
-                                                          null &&
-                                                      isTakeAway)
-                                                    Row(
-                                                      children: [
-                                                        SvgPicture.asset(
-                                                          AppImage.take,
-                                                          height: 20,
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 4),
-                                                        Builder(
-                                                          builder: (context) {
-                                                            final dynamic
-                                                                packingCharge =
-                                                                product
-                                                                    .takeAwayPrice;
-                                                            final double? chargeValue = packingCharge
-                                                                    is String
-                                                                ? double.tryParse(
-                                                                    packingCharge)
-                                                                : (packingCharge
-                                                                        is double
-                                                                    ? packingCharge
-                                                                    : null);
-
-                                                            return Text(
-                                                              chargeValue !=
-                                                                      null
-                                                                  ? "Wrap & Pack Fee Rs  ${chargeValue.toStringAsFixed(2)}"
-                                                                  : "Rs 0.00",
-                                                              style: AppTextStyles
-                                                                  .latoRegular(
-                                                                      12,
-                                                                      color: AppColor
-                                                                          .darkGreyColor),
-                                                            );
-                                                          },
-                                                        ),
-                                                      ],
-                                                    ),
-                                                ],
-                                              ),
-                                            ),
-                                          if (product.childCategory != null &&
-                                              product.childCategory!
-                                                  .isNotEmpty) ...[
-                                            SizedBox(
-                                                height: screenHeight * 0.025),
-                                            SingleChildScrollView(
-                                              scrollDirection: Axis.horizontal,
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 8.0),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  children: product
-                                                      .childCategory!
-                                                      .map((child) {
-                                                    final provider =
-                                                        context.watch<
-                                                            CategoryProvider>();
-
-                                                    final selectedChildCategoryId =
-                                                        provider
-                                                            .getSelectedChildCategoryId(
-                                                                product.id);
-
-                                                    // ✅ Print the selected category ID
-                                                    print(
-                                                        "Selected Child Category ID for product ${product.id}: $selectedChildCategoryId");
-
-                                                    return _buildOptionBox(
-                                                      context,
-                                                      child.name.toString(),
-                                                      "₹${(child.price ?? 0).toStringAsFixed(0)}",
-                                                      isSelected:
-                                                          selectedChildCategoryId ==
-                                                              child.id
-                                                                  .toString(),
-                                                      onTap: () {
-                                                        provider
-                                                            .setSelectedChildCategoryId(
-                                                          product.id,
-                                                          child.id.toString(),
-                                                        );
-                                                      },
-                                                    );
-                                                  }).toList(),
-                                                ),
-                                              ),
-                                            ),
-
-                                            /// when user selcted the chilcatgey case need t case the getChildCategoryOrDiscountTotal
-                                          ],
-                                          SizedBox(
-                                              height: screenHeight * 0.025),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 12.0),
-                                            child: Row(
-                                              children: [
-                                                Visibility(
-                                                  visible: product.spicy == "0",
-                                                  child: Expanded(
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        // Spicy Label with left padding
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .only(
-                                                                  left: 15.0),
-                                                          child: Text("Spicy",
-                                                              style: AppTextStyles
-                                                                  .nunitoMedium(
-                                                                      buttonFontSize,
-                                                                      color: AppColor
-                                                                          .blackColor)),
-                                                        ),
-                                                        const SizedBox(
-                                                            height: 5),
-                                                        // HeatLevelSelector fills width but no left padding here
-                                                        HeatLevelSelector(),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .only(
-                                                                  left: 17.0,
-                                                                  right: 18),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            children: [
-                                                              Text(
-                                                                "Mild",
-                                                                style: AppStyle
-                                                                    .textStyleReemKufi
-                                                                    .copyWith(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                  fontSize:
-                                                                      description,
-                                                                  color: AppColor
-                                                                      .primaryColor,
-                                                                ),
-                                                              ),
-                                                              Text(
-                                                                "Medium",
-                                                                style: AppStyle
-                                                                    .textStyleReemKufi
-                                                                    .copyWith(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                  fontSize:
-                                                                      description,
-                                                                  color: AppColor
-                                                                      .primaryColor,
-                                                                ),
-                                                              ),
-                                                              Text(
-                                                                "Hot",
-                                                                style: AppStyle
-                                                                    .textStyleReemKufi
-                                                                    .copyWith(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                  fontSize:
-                                                                      description,
-                                                                  color: AppColor
-                                                                      .primaryColor,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.end,
-                                                    children: [
-                                                      Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "Quantity",
-                                                            style: AppTextStyles
-                                                                .nunitoMedium(
-                                                                    buttonFontSize,
-                                                                    color: AppColor
-                                                                        .blackColor),
-                                                          ),
-                                                          const SizedBox(
-                                                            height: 10,
-                                                          ),
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              _buildIconButton(
-                                                                  Icons.remove,
-                                                                  () {
-                                                                selectedProvider
-                                                                    .decreaseQuantity();
-                                                              }),
-                                                              const SizedBox(
-                                                                  width: 12),
-                                                              Consumer<
-                                                                  CategoryProvider>(
-                                                                builder:
-                                                                    (context,
-                                                                        provider,
-                                                                        child) {
-                                                                  return Text(
-                                                                    "${provider.quantity}",
-                                                                    style: AppStyle
-                                                                        .textStyleReemKufi
-                                                                        .copyWith(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w600,
-                                                                      fontSize:
-                                                                          20,
-                                                                    ),
-                                                                  );
-                                                                },
-                                                              ),
-                                                              const SizedBox(
-                                                                  width: 12),
-                                                              _buildIconButton(
-                                                                  Icons.add,
-                                                                  () {
-                                                                selectedProvider
-                                                                    .increaseQuantity();
-                                                              }),
-                                                            ],
-                                                          ),
-                                                          SizedBox(
-                                                            height: 28,
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-
-                                          /// when user decrement or decrement i want t increase the
-                                          SizedBox(height: screenHeight * 0.02),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    // Navigate or open add-ons screen
-                                    // Navigator.pop(context);
-                                    Future.delayed(
-                                        const Duration(milliseconds: 200), () {
-                                      showAddOnDialog(context,
-                                          product); // Your add-on dialog
-                                    });
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 8.0),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 10),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFF9EFE9),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          SvgPicture.asset(AppImage.addOn,
-                                              height: 20),
-                                          const SizedBox(width: 12),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text("Add Add-Ons",
-                                                  style: AppTextStyles.latoBold(
-                                                      15,
-                                                      color:
-                                                          AppColor.blackColor)),
-                                              Text(
-                                                  "Make It Special — Choose Your Add-Ons Now!",
-                                                  style:
-                                                      AppTextStyles.latoMedium(
-                                                          12,
-                                                          color: AppColor
-                                                              .lightGreyColor)),
-                                            ],
-                                          ),
-                                          const Spacer(),
-                                          const Icon(Icons.arrow_forward_ios,
-                                              size: 18, color: Colors.black54),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: screenWidth * 0.04,
-                                    vertical: screenHeight * 0.015,
-                                  ),
-                                  decoration: const BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        AppColor.secondary,
-                                        AppColor.primaryColor
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomCenter,
-                                    ),
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(20),
-                                      topRight: Radius.circular(20),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 12, vertical: 6),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            ShaderMask(
-                                              shaderCallback: (bounds) =>
-                                                  const LinearGradient(colors: [
-                                                AppColor.primaryColor,
-                                                AppColor.primaryColor
-                                              ]).createShader(Rect.fromLTWH(
-                                                      0,
-                                                      0,
-                                                      bounds.width,
-                                                      bounds.height)),
-                                              child: Text('Price',
-                                                  style: AppStyle
-                                                      .textStyleReemKufi
-                                                      .copyWith(
-                                                    color: Colors.white,
-                                                    fontSize:
-                                                        isDesktop ? 17 : 16,
-                                                    fontWeight: FontWeight.w700,
-                                                  )),
-                                            ),
-                                            Selector<CategoryProvider, double>(
-                                              selector: (_, provider) =>
-                                                  provider.totalComboPrice(
-                                                selectedChild: provider
-                                                    .selectedChildCategory,
-                                                provider: provider,
-                                              ),
-                                              builder: (context,
-                                                  totalComboPrice, child) {
-                                                final provider = Provider.of<
-                                                        CategoryProvider>(
-                                                    context,
-                                                    listen: false);
-                                                double displayPrice = isTakeAway
-                                                    ? provider.totalComboPrice(
-                                                        selectedChild: provider
-                                                            .selectedChildCategory,
-                                                        provider: provider,
-                                                      )
-                                                    : provider.getChildCategoryOrDiscountTotal(
-                                                        product,
-                                                        provider
-                                                            .selectedChildCategory,
-                                                        provider); // assume you have totalPrice getter for normal cas
-                                                print(
-                                                    'Quantity: ${provider.quantity}');
-                                                print(
-                                                    'Discount Price: ${provider.discountPrice}');
-                                                print(
-                                                    'TakeAway Price: ${provider.takeAwayPrice}');
-                                                print(
-                                                    'Total Combo Price: $totalComboPrice');
-
-                                                return ShaderMask(
-                                                  shaderCallback: (bounds) =>
-                                                      const LinearGradient(
-                                                    colors: [
-                                                      AppColor.primaryColor,
-                                                      AppColor.primaryColor,
-                                                    ],
-                                                  ).createShader(Rect.fromLTWH(
-                                                          0,
-                                                          0,
-                                                          bounds.width,
-                                                          bounds.height)),
-                                                  child: Text(
-                                                    '₹${displayPrice.toStringAsFixed(2)}',
-                                                    style: AppStyle
-                                                        .textStyleReemKufi
-                                                        .copyWith(
-                                                      color: Colors.white,
-                                                      fontSize:
-                                                          isDesktop ? 18 : 18,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: 15),
-
-                                      // Add to Cart button
-                                      Expanded(
-                                        child: Container(
-                                          height: 60,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              /// include childcategorytakeawayprice
-                                              //                                           final dynamic packingCharge = (product.childCategory != null &&
-                                              //                                               product.childCategory.isNotEmpty &&
-                                              //                                               product.childCategory.first.takeAwayPrice != null)
-                                              //                                               ? product.childCategory.first.takeAwayPrice
-                                              //                                               : product.takeAwayPrice;
-                                              //
-                                              // // Convert to double safely
-                                              //                                           final double? packingChargeValue = packingCharge is String
-                                              //                                               ? double.tryParse(packingCharge)
-                                              //                                               : (packingCharge is double ? packingCharge : null);
-                                              // Take only product-level takeAwayPrice
-                                              final dynamic packingCharge =
-                                                  product.takeAwayPrice;
-
-                                              // Convert to double safely
-                                              final double? packingChargeValue =
-                                                  packingCharge is String
-                                                      ? double.tryParse(
-                                                          packingCharge)
-                                                      : (packingCharge is double
-                                                          ? packingCharge
-                                                          : null);
-
-                                              final selectedChild = context
-                                                  .read<CategoryProvider>()
-                                                  .selectedChildCategory;
-                                              final totalTime = context
-                                                  .read<CategoryProvider>()
-                                                  .totalTime;
-                                              final cartProvider =
-                                                  context.read<CartProvider>();
-                                              final selectedProvider = context
-                                                  .read<CategoryProvider>();
-
-                                              final cartItem = CartItemModel(
-                                                  id: product.id,
-                                                  name: product.name,
-                                                  description:
-                                                      product.description,
-                                                  images: product.images,
-                                                  categoryId:
-                                                      product.categoryId,
-                                                  price: isTakeAway
-                                                      ? ((double.tryParse(product.discountPrice?.toString() ?? '0') ??
-                                                              0.0) +
-                                                          (double.tryParse(product.takeAwayPrice?.toString() ?? '0') ??
-                                                              0.0))
-                                                      : (selectedProvider
-                                                              .selectedPrices ??
-                                                          0.0),
-                                                  quantity:
-                                                      selectedProvider.quantity,
-                                                  takeAwayPrice: isTakeAway
-                                                      ? packingChargeValue
-                                                      : null,
-                                                  childCategory:
-                                                      product.childCategory,
-                                                  subCategoryId: product.id,
-                                                  childCategoryId: selectedChild
-                                                      ?.id
-                                                      .toString(),
-                                                  childCategoryName:
-                                                      selectedChild?.name,
-                                                  isCombo: null,
-                                                  heatLevel: selectedProvider
-                                                      .selectedHeatLabel,
-                                                  totalDeliveryTime: totalTime,
-                                                  type: "normal",
-                                                  discountPrice:
-                                                      product.price.toString(),
-                                                  prepareTime:
-                                                      product.prepareTime,
-                                                  image: '');
-                                              cartProvider.addToCart(
-                                                  context, cartItem);
-                                              Navigator.of(context).pop();
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  AppColor.whiteColor,
-                                              foregroundColor:
-                                                  AppColor.whiteColor,
-                                              elevation: 0,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 28,
-                                                      vertical: 14),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                            ),
-                                            child: ShaderMask(
-                                              shaderCallback: (bounds) =>
-                                                  const LinearGradient(
-                                                colors: [
-                                                  AppColor.primaryColor,
-                                                  AppColor.primaryColor
-                                                ],
-                                                begin: Alignment.topCenter,
-                                                end: Alignment.bottomRight,
-                                              ).createShader(Rect.fromLTWH(
-                                                      0,
-                                                      0,
-                                                      bounds.width,
-                                                      bounds.height)),
-                                              child: Text(
-                                                'Add To Cart',
-                                                style: AppStyle
-                                                    .textStyleReemKufi
-                                                    .copyWith(
-                                                  color: Colors.white,
-                                                  fontSize: isDesktop ? 22 : 16,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Align(
-                              alignment: Alignment.topCenter,
-                              child: Container(
-                                margin: const EdgeInsets.only(
-                                    top: 20), // spacing from status bar
-                                height: 5,
-                                width: 50,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(2.5),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              right: 16,
-                              top: 16,
-                              child: GestureDetector(
-                                onTap: () => Navigator.of(context).pop(),
-                                child: SvgPicture.asset(AppImage.cross),
-                              ),
-                            ),
-                          ]),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
-          ),
-        );
-      },
-      transitionBuilder: (context, anim1, anim2, child) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0, 1),
-            end: Offset.zero,
-          ).animate(anim1),
-          child: child,
-        );
-      },
-    );
-  }
+  // void showBurgerDialog(BuildContext context, CartItemModel product) {
+  //   final prefHelper = getIt<SharedPreferenceHelper>();
+  //   final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
+  //   bool isExpanded = false;
+  //   final selectedProvider =
+  //       Provider.of<CategoryProvider>(context, listen: false);
+  //   // selectedProvider.setBasePrice(product.price);
+  //   final cartProvider = Provider.of<CartProvider>(context, listen: false);
+  //
+  //   if (isTakeAway) {
+  //     selectedProvider.setBasePriceWithTakeAwayS(product);
+  //   } else {
+  //     selectedProvider.setBasePrice(
+  //       product.price ?? 0.0,
+  //     );
+  //   }
+  //   selectedProvider.setPrices(
+  //     discount: double.tryParse(
+  //           product.discountPrice?.toString() ??
+  //               product.price?.toString() ??
+  //               '0',
+  //         ) ??
+  //         0.0,
+  //     takeAway:
+  //         double.tryParse(product.takeAwayPrice?.toString() ?? '0') ?? 0.0,
+  //   );
+  //   // selectedProvider.setBasePrice(
+  //   //   (product.price != null && product.price!.isNotEmpty)
+  //   //       ? double.tryParse(product.price!) ?? 0.0
+  //   //       : 0.0,
+  //   // );
+  //   //selectedProvider.setBasePriceWithTakeAway(product);
+  //
+  //   double total = selectedProvider.getChildCategoryOrDiscountTotal(
+  //       product, selectedProvider.selectedChildCategory, selectedProvider);
+  //   print('Final Total: $total');
+  //
+  //   selectedProvider.setSelectedChildCategoryId(
+  //     product.id,
+  //     product.childCategoryId.toString(),
+  //   );
+  //
+  //   // Check if product is already in cart and get current quantity
+  //   // final cartItem = cartProvider.getCartItemById(product.id, childCategoryId: selectedProvider.selectedChildCategory?.id.toString());
+  //   //
+  //   // if (cartItem != null) {
+  //   //   // Set dialog quantity to existing cart quantity
+  //   //   selectedProvider.setQuantity(cartItem.quantity);
+  //   // } else {
+  //   //   print("quantity 9");
+  //   //   selectedProvider.setQuantity(1);
+  //   // }
+  //   final double screenWidth = MediaQuery.of(context).size.width;
+  //   final bool isDesktop = screenWidth >= 1024;
+  //   final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
+  //   final double buttonFontSize = isDesktop
+  //       ? 25
+  //       : isTablet
+  //           ? 17
+  //           : 16;
+  //   final double priceSize = isDesktop
+  //       ? 27
+  //       : isTablet
+  //           ? 17
+  //           : 17;
+  //   final double description = isDesktop
+  //       ? 20
+  //       : isTablet
+  //           ? 15
+  //           : 15;
+  //   showGeneralDialog(
+  //     context: context,
+  //     barrierDismissible: true,
+  //     barrierLabel: '',
+  //     barrierColor: Colors.black54, // dim background
+  //     transitionDuration: const Duration(milliseconds: 300),
+  //     pageBuilder: (context, anim1, anim2) {
+  //       return Align(
+  //         alignment: Alignment.bottomCenter,
+  //         child: StatefulBuilder(
+  //           builder: (context, setState) {
+  //             return SafeArea(
+  //               child: LayoutBuilder(
+  //                 builder: (context, constraints) {
+  //                   final screenHeight = constraints.maxHeight;
+  //                   final screenWidth = constraints.maxWidth;
+  //
+  //                   return GestureDetector(
+  //                     onVerticalDragUpdate: (details) {
+  //                       if (details.primaryDelta! > 15) {
+  //                         // drag down with some threshold
+  //                         Navigator.of(context).pop();
+  //                       }
+  //                     },
+  //                     child: Material(
+  //                       color: Colors.transparent,
+  //                       child: Container(
+  //                         width: screenWidth,
+  //                         constraints: BoxConstraints(
+  //                           maxHeight: screenHeight * 0.95,
+  //                         ),
+  //                         decoration: const BoxDecoration(
+  //                           gradient: LinearGradient(
+  //                             colors: [
+  //                               AppColor.primaryColor,
+  //                               AppColor.whiteColor,
+  //                             ],
+  //                             begin: Alignment.topLeft,
+  //                             end: Alignment.bottomRight,
+  //                             stops: [
+  //                               0.3,
+  //                               0.25
+  //                             ], // 👈 transition from primary → secondary at 70% height
+  //                           ),
+  //                           borderRadius:
+  //                               BorderRadius.vertical(top: Radius.circular(30)),
+  //                         ),
+  //                         child: Stack(children: [
+  //                           Column(
+  //                             mainAxisSize: MainAxisSize.min,
+  //                             children: [
+  //                               Container(
+  //                                 height: screenHeight * 0.28,
+  //                                 width: double.infinity,
+  //                                 decoration: const BoxDecoration(
+  //                                   image: DecorationImage(
+  //                                     image: AssetImage(AppImage.bgImg),
+  //                                     fit: BoxFit
+  //                                         .cover, // Cover the entire container
+  //                                   ),
+  //                                   gradient: LinearGradient(
+  //                                     colors: [
+  //                                       AppColor.primaryColor,
+  //                                       AppColor.secondary,
+  //                                     ],
+  //                                     end: Alignment.bottomRight,
+  //                                     begin: Alignment.topCenter,
+  //                                     stops: [0.3, 0.9],
+  //                                   ),
+  //                                   borderRadius: const BorderRadius.only(
+  //                                     topLeft: Radius.circular(30),
+  //                                     topRight: Radius.circular(30),
+  //                                   ),
+  //                                 ),
+  //                                 child: Stack(
+  //                                   children: [
+  //                                     Positioned.fill(
+  //                                       child: ClipRRect(
+  //                                         borderRadius:
+  //                                             const BorderRadius.vertical(
+  //                                                 top: Radius.circular(80)),
+  //                                         child: Container(
+  //                                           padding: const EdgeInsets.all(25.0),
+  //                                           child: Image.network(
+  //                                             "${ApiEndpoints.imageBaseUrl}${product.images.isNotEmpty ? product.images.first : ''}",
+  //                                             //  fit: BoxFit.fill,
+  //                                             errorBuilder: (context, error,
+  //                                                     stackTrace) =>
+  //                                                 const Icon(Icons
+  //                                                     .image_not_supported),
+  //                                           ),
+  //                                         ),
+  //                                       ),
+  //                                     ),
+  //                                   ],
+  //                                 ),
+  //                               ),
+  //                               Expanded(
+  //                                 child: Container(
+  //                                   clipBehavior: Clip.hardEdge,
+  //                                   decoration: const BoxDecoration(
+  //                                     color: Colors.white,
+  //                                     borderRadius: BorderRadius.only(
+  //                                       topLeft: Radius.circular(70),
+  //                                       //topRight: Radius.circular(10),
+  //                                       //  bottomRight: Radius.circular(10),
+  //                                     ),
+  //                                   ),
+  //                                   child: SingleChildScrollView(
+  //                                     padding:
+  //                                         EdgeInsets.all(screenWidth * 0.04),
+  //                                     child: Column(
+  //                                       crossAxisAlignment:
+  //                                           CrossAxisAlignment.start,
+  //                                       children: [
+  //                                         const SizedBox(
+  //                                           height: 25,
+  //                                         ),
+  //                                         Padding(
+  //                                           padding: const EdgeInsets.only(
+  //                                               left: 12.0),
+  //                                           child: Row(
+  //                                             mainAxisAlignment:
+  //                                                 MainAxisAlignment
+  //                                                     .spaceBetween,
+  //                                             children: [
+  //                                               Flexible(
+  //                                                 child: Text(
+  //                                                   (product.name.isNotEmpty)
+  //                                                       ? product.name[0]
+  //                                                               .toUpperCase() +
+  //                                                           product.name
+  //                                                               .substring(1)
+  //                                                               .toLowerCase()
+  //                                                       : '',
+  //                                                   overflow:
+  //                                                       TextOverflow.ellipsis,
+  //                                                   style: AppTextStyles
+  //                                                       .nunitoBold(priceSize,
+  //                                                           color: AppColor
+  //                                                               .blackColor),
+  //                                                 ),
+  //                                               ),
+  //                                               Text(
+  //                                                 "₹${(double.tryParse(product.price.toStringAsFixed(2)))}",
+  //                                                 style:
+  //                                                     AppTextStyles.nunitoBold(
+  //                                                         priceSize,
+  //                                                         color: AppColor
+  //                                                             .blackColor),
+  //                                               ),
+  //                                             ],
+  //                                           ),
+  //                                         ),
+  //                                         const SizedBox(
+  //                                           height: 4,
+  //                                         ),
+  //                                         Padding(
+  //                                           padding: const EdgeInsets.only(
+  //                                               left: 12.0,
+  //                                               right: 12.0,
+  //                                               top: 0),
+  //                                           child: LayoutBuilder(
+  //                                             builder: (context, constraints) {
+  //                                               return StatefulBuilder(
+  //                                                 builder: (context, setState) {
+  //                                                   final bool
+  //                                                       isDescriptionLong =
+  //                                                       product.description!
+  //                                                               .length >
+  //                                                           350;
+  //                                                   final String?
+  //                                                       displayDescription =
+  //                                                       isExpanded ||
+  //                                                               !isDescriptionLong
+  //                                                           ? product
+  //                                                               .description
+  //                                                           : '${product.description?.substring(0, 350)}...';
+  //
+  //                                                   if (isDescriptionLong) {
+  //                                                     // Long description -> show in column
+  //                                                     return Column(
+  //                                                       crossAxisAlignment:
+  //                                                           CrossAxisAlignment
+  //                                                               .start,
+  //                                                       children: [
+  //                                                         Text(
+  //                                                           displayDescription ??
+  //                                                               '',
+  //                                                           maxLines: isExpanded
+  //                                                               ? null
+  //                                                               : 4,
+  //                                                           overflow:
+  //                                                               TextOverflow
+  //                                                                   .visible,
+  //                                                           textAlign: TextAlign
+  //                                                               .justify,
+  //                                                           style: AppTextStyles
+  //                                                               .latoRegular(
+  //                                                                   description,
+  //                                                                   color: AppColor
+  //                                                                       .lightGreyColor),
+  //                                                         ),
+  //                                                         if (isDescriptionLong)
+  //                                                           GestureDetector(
+  //                                                             onTap: () {
+  //                                                               setState(() {
+  //                                                                 isExpanded =
+  //                                                                     !isExpanded;
+  //                                                               });
+  //                                                             },
+  //                                                             child: Text(
+  //                                                               isExpanded
+  //                                                                   ? "See Less"
+  //                                                                   : "See More",
+  //                                                               style:
+  //                                                                   const TextStyle(
+  //                                                                 color: AppColor
+  //                                                                     .primaryColor,
+  //                                                                 fontWeight:
+  //                                                                     FontWeight
+  //                                                                         .bold,
+  //                                                                 fontSize: 13,
+  //                                                               ),
+  //                                                             ),
+  //                                                           ),
+  //
+  //                                                         /// Takeaway Fee
+  //                                                       ],
+  //                                                     );
+  //                                                   } else {
+  //                                                     // Short description -> show in row with prep time first, then takeaway price
+  //                                                     return Row(
+  //                                                       crossAxisAlignment:
+  //                                                           CrossAxisAlignment
+  //                                                               .start,
+  //                                                       children: [
+  //                                                         /// Description
+  //                                                         Flexible(
+  //                                                           child: Text(
+  //                                                               product
+  //                                                                   .description
+  //                                                                   .toString(),
+  //                                                               // maxLines: 4,
+  //                                                               // overflow: TextOverflow.ellipsis,
+  //                                                               style: AppTextStyles.latoRegular(
+  //                                                                   description,
+  //                                                                   color: AppColor
+  //                                                                       .lightGreyColor)),
+  //                                                         ),
+  //                                                         const SizedBox(
+  //                                                             width: 10),
+  //
+  //                                                         /// Prep Time
+  //                                                       ],
+  //                                                     );
+  //                                                   }
+  //                                                 },
+  //                                               );
+  //                                             },
+  //                                           ),
+  //                                         ),
+  //
+  //                                         if (product.prepareTime != null ||
+  //                                             product.takeAwayPrice !=
+  //                                                 null) ...[
+  //                                           const SizedBox(
+  //                                             height: 4,
+  //                                           ),
+  //                                         ],
+  //
+  //                                         if (product.prepareTime != null &&
+  //                                             product.prepareTime!
+  //                                                 .trim()
+  //                                                 .isNotEmpty)
+  //                                           Padding(
+  //                                             padding: const EdgeInsets.only(
+  //                                                 left: 12.0, top: 8),
+  //                                             child: Row(
+  //                                               children: [
+  //                                                 SvgPicture.asset(
+  //                                                   AppImage.time,
+  //                                                   height: 20,
+  //                                                 ),
+  //                                                 const SizedBox(width: 6),
+  //                                                 Text(
+  //                                                   product.prepareTime!
+  //                                                           .toLowerCase()
+  //                                                           .contains("mins")
+  //                                                       ? product.name
+  //                                                       : "${product.name} mins",
+  //                                                   style: AppTextStyles
+  //                                                       .latoRegular(15,
+  //                                                           color: AppColor
+  //                                                               .darkGreyColor),
+  //                                                 ),
+  //                                                 const SizedBox(width: 9),
+  //                                                 if (product.takeAwayPrice !=
+  //                                                         null &&
+  //                                                     isTakeAway)
+  //                                                   Row(
+  //                                                     children: [
+  //                                                       SvgPicture.asset(
+  //                                                         AppImage.take,
+  //                                                         height: 20,
+  //                                                       ),
+  //                                                       const SizedBox(
+  //                                                           width: 4),
+  //                                                       Builder(
+  //                                                         builder: (context) {
+  //                                                           final dynamic
+  //                                                               packingCharge =
+  //                                                               product
+  //                                                                   .takeAwayPrice;
+  //                                                           final double? chargeValue = packingCharge
+  //                                                                   is String
+  //                                                               ? double.tryParse(
+  //                                                                   packingCharge)
+  //                                                               : (packingCharge
+  //                                                                       is double
+  //                                                                   ? packingCharge
+  //                                                                   : null);
+  //
+  //                                                           return Text(
+  //                                                             chargeValue !=
+  //                                                                     null
+  //                                                                 ? "Wrap & Pack Fee Rs  ${chargeValue.toStringAsFixed(2)}"
+  //                                                                 : "Rs 0.00",
+  //                                                             style: AppTextStyles
+  //                                                                 .latoRegular(
+  //                                                                     12,
+  //                                                                     color: AppColor
+  //                                                                         .darkGreyColor),
+  //                                                           );
+  //                                                         },
+  //                                                       ),
+  //                                                     ],
+  //                                                   ),
+  //                                               ],
+  //                                             ),
+  //                                           ),
+  //                                         if (product.childCategory != null &&
+  //                                             product.childCategory!
+  //                                                 .isNotEmpty) ...[
+  //                                           SizedBox(
+  //                                               height: screenHeight * 0.025),
+  //                                           SingleChildScrollView(
+  //                                             scrollDirection: Axis.horizontal,
+  //                                             child: Padding(
+  //                                               padding: const EdgeInsets.only(
+  //                                                   left: 8.0),
+  //                                               child: Row(
+  //                                                 mainAxisAlignment:
+  //                                                     MainAxisAlignment.start,
+  //                                                 children: product
+  //                                                     .childCategory!
+  //                                                     .map((child) {
+  //                                                   final provider =
+  //                                                       context.watch<
+  //                                                           CategoryProvider>();
+  //
+  //                                                   final selectedChildCategoryId =
+  //                                                       provider
+  //                                                           .getSelectedChildCategoryId(
+  //                                                               product.id);
+  //
+  //                                                   // ✅ Print the selected category ID
+  //                                                   print(
+  //                                                       "Selected Child Category ID for product ${product.id}: $selectedChildCategoryId");
+  //
+  //                                                   return _buildOptionBox(
+  //                                                     context,
+  //                                                     child.name.toString(),
+  //                                                     "₹${(child.price ?? 0).toStringAsFixed(0)}",
+  //                                                     isSelected:
+  //                                                         selectedChildCategoryId ==
+  //                                                             child.id
+  //                                                                 .toString(),
+  //                                                     onTap: () {
+  //                                                       provider
+  //                                                           .setSelectedChildCategoryId(
+  //                                                         product.id,
+  //                                                         child.id.toString(),
+  //                                                       );
+  //                                                     },
+  //                                                   );
+  //                                                 }).toList(),
+  //                                               ),
+  //                                             ),
+  //                                           ),
+  //
+  //                                           /// when user selcted the chilcatgey case need t case the getChildCategoryOrDiscountTotal
+  //                                         ],
+  //                                         SizedBox(
+  //                                             height: screenHeight * 0.025),
+  //                                         Padding(
+  //                                           padding: const EdgeInsets.only(
+  //                                               left: 12.0),
+  //                                           child: Row(
+  //                                             children: [
+  //                                               Visibility(
+  //                                                 visible: product.spicy == "0",
+  //                                                 child: Expanded(
+  //                                                   child: Column(
+  //                                                     crossAxisAlignment:
+  //                                                         CrossAxisAlignment
+  //                                                             .start,
+  //                                                     children: [
+  //                                                       // Spicy Label with left padding
+  //                                                       Padding(
+  //                                                         padding:
+  //                                                             const EdgeInsets
+  //                                                                 .only(
+  //                                                                 left: 15.0),
+  //                                                         child: Text("Spicy",
+  //                                                             style: AppTextStyles
+  //                                                                 .nunitoMedium(
+  //                                                                     buttonFontSize,
+  //                                                                     color: AppColor
+  //                                                                         .blackColor)),
+  //                                                       ),
+  //                                                       const SizedBox(
+  //                                                           height: 5),
+  //                                                       // HeatLevelSelector fills width but no left padding here
+  //                                                       HeatLevelSelector(),
+  //                                                       Padding(
+  //                                                         padding:
+  //                                                             const EdgeInsets
+  //                                                                 .only(
+  //                                                                 left: 17.0,
+  //                                                                 right: 18),
+  //                                                         child: Row(
+  //                                                           mainAxisAlignment:
+  //                                                               MainAxisAlignment
+  //                                                                   .spaceBetween,
+  //                                                           children: [
+  //                                                             Text(
+  //                                                               "Mild",
+  //                                                               style: AppStyle
+  //                                                                   .textStyleReemKufi
+  //                                                                   .copyWith(
+  //                                                                 fontWeight:
+  //                                                                     FontWeight
+  //                                                                         .w600,
+  //                                                                 fontSize:
+  //                                                                     description,
+  //                                                                 color: AppColor
+  //                                                                     .primaryColor,
+  //                                                               ),
+  //                                                             ),
+  //                                                             Text(
+  //                                                               "Medium",
+  //                                                               style: AppStyle
+  //                                                                   .textStyleReemKufi
+  //                                                                   .copyWith(
+  //                                                                 fontWeight:
+  //                                                                     FontWeight
+  //                                                                         .w600,
+  //                                                                 fontSize:
+  //                                                                     description,
+  //                                                                 color: AppColor
+  //                                                                     .primaryColor,
+  //                                                               ),
+  //                                                             ),
+  //                                                             Text(
+  //                                                               "Hot",
+  //                                                               style: AppStyle
+  //                                                                   .textStyleReemKufi
+  //                                                                   .copyWith(
+  //                                                                 fontWeight:
+  //                                                                     FontWeight
+  //                                                                         .w600,
+  //                                                                 fontSize:
+  //                                                                     description,
+  //                                                                 color: AppColor
+  //                                                                     .primaryColor,
+  //                                                               ),
+  //                                                             ),
+  //                                                           ],
+  //                                                         ),
+  //                                                       ),
+  //                                                     ],
+  //                                                   ),
+  //                                                 ),
+  //                                               ),
+  //                                               Expanded(
+  //                                                 child: Row(
+  //                                                   mainAxisAlignment:
+  //                                                       MainAxisAlignment.end,
+  //                                                   children: [
+  //                                                     Column(
+  //                                                       crossAxisAlignment:
+  //                                                           CrossAxisAlignment
+  //                                                               .start,
+  //                                                       children: [
+  //                                                         Text(
+  //                                                           "Quantity",
+  //                                                           style: AppTextStyles
+  //                                                               .nunitoMedium(
+  //                                                                   buttonFontSize,
+  //                                                                   color: AppColor
+  //                                                                       .blackColor),
+  //                                                         ),
+  //                                                         const SizedBox(
+  //                                                           height: 10,
+  //                                                         ),
+  //                                                         Row(
+  //                                                           mainAxisAlignment:
+  //                                                               MainAxisAlignment
+  //                                                                   .start,
+  //                                                           children: [
+  //                                                             _buildIconButton(
+  //                                                                 Icons.remove,
+  //                                                                 () {
+  //                                                               selectedProvider
+  //                                                                   .decreaseQuantity();
+  //                                                             }),
+  //                                                             const SizedBox(
+  //                                                                 width: 12),
+  //                                                             Consumer<
+  //                                                                 CategoryProvider>(
+  //                                                               builder:
+  //                                                                   (context,
+  //                                                                       provider,
+  //                                                                       child) {
+  //                                                                 return Text(
+  //                                                                   "${provider.quantity}",
+  //                                                                   style: AppStyle
+  //                                                                       .textStyleReemKufi
+  //                                                                       .copyWith(
+  //                                                                     fontWeight:
+  //                                                                         FontWeight
+  //                                                                             .w600,
+  //                                                                     fontSize:
+  //                                                                         20,
+  //                                                                   ),
+  //                                                                 );
+  //                                                               },
+  //                                                             ),
+  //                                                             const SizedBox(
+  //                                                                 width: 12),
+  //                                                             _buildIconButton(
+  //                                                                 Icons.add,
+  //                                                                 () {
+  //                                                               selectedProvider
+  //                                                                   .increaseQuantity();
+  //                                                             }),
+  //                                                           ],
+  //                                                         ),
+  //                                                         SizedBox(
+  //                                                           height: 28,
+  //                                                         )
+  //                                                       ],
+  //                                                     ),
+  //                                                   ],
+  //                                                 ),
+  //                                               ),
+  //                                             ],
+  //                                           ),
+  //                                         ),
+  //
+  //                                         /// when user decrement or decrement i want t increase the
+  //                                         SizedBox(height: screenHeight * 0.02),
+  //                                       ],
+  //                                     ),
+  //                                   ),
+  //                                 ),
+  //                               ),
+  //                               GestureDetector(
+  //                                 onTap: () {
+  //                                   // Navigate or open add-ons screen
+  //                                   // Navigator.pop(context);
+  //                                   Future.delayed(
+  //                                       const Duration(milliseconds: 200), () {
+  //                                     showAddOnDialog(context,
+  //                                         product); // Your add-on dialog
+  //                                   });
+  //                                 },
+  //                                 child: Padding(
+  //                                   padding: const EdgeInsets.only(bottom: 8.0),
+  //                                   child: Container(
+  //                                     padding: const EdgeInsets.symmetric(
+  //                                         horizontal: 12, vertical: 10),
+  //                                     decoration: BoxDecoration(
+  //                                       color: const Color(0xFFF9EFE9),
+  //                                       borderRadius: BorderRadius.circular(12),
+  //                                     ),
+  //                                     child: Row(
+  //                                       children: [
+  //                                         SvgPicture.asset(AppImage.addOn,
+  //                                             height: 20),
+  //                                         const SizedBox(width: 12),
+  //                                         Column(
+  //                                           crossAxisAlignment:
+  //                                               CrossAxisAlignment.start,
+  //                                           children: [
+  //                                             Text("Add Add-Ons",
+  //                                                 style: AppTextStyles.latoBold(
+  //                                                     15,
+  //                                                     color:
+  //                                                         AppColor.blackColor)),
+  //                                             Text(
+  //                                                 "Make It Special — Choose Your Add-Ons Now!",
+  //                                                 style:
+  //                                                     AppTextStyles.latoMedium(
+  //                                                         12,
+  //                                                         color: AppColor
+  //                                                             .lightGreyColor)),
+  //                                           ],
+  //                                         ),
+  //                                         const Spacer(),
+  //                                         const Icon(Icons.arrow_forward_ios,
+  //                                             size: 18, color: Colors.black54),
+  //                                       ],
+  //                                     ),
+  //                                   ),
+  //                                 ),
+  //                               ),
+  //                               Container(
+  //                                 padding: EdgeInsets.symmetric(
+  //                                   horizontal: screenWidth * 0.04,
+  //                                   vertical: screenHeight * 0.015,
+  //                                 ),
+  //                                 decoration: const BoxDecoration(
+  //                                   gradient: LinearGradient(
+  //                                     colors: [
+  //                                       AppColor.secondary,
+  //                                       AppColor.primaryColor
+  //                                     ],
+  //                                     begin: Alignment.topLeft,
+  //                                     end: Alignment.bottomCenter,
+  //                                   ),
+  //                                   borderRadius: BorderRadius.only(
+  //                                     topLeft: Radius.circular(20),
+  //                                     topRight: Radius.circular(20),
+  //                                   ),
+  //                                 ),
+  //                                 child: Row(
+  //                                   children: [
+  //                                     Container(
+  //                                       padding: const EdgeInsets.symmetric(
+  //                                           horizontal: 12, vertical: 6),
+  //                                       decoration: BoxDecoration(
+  //                                         color: Colors.white,
+  //                                         borderRadius:
+  //                                             BorderRadius.circular(12),
+  //                                       ),
+  //                                       child: Column(
+  //                                         crossAxisAlignment:
+  //                                             CrossAxisAlignment.start,
+  //                                         children: [
+  //                                           ShaderMask(
+  //                                             shaderCallback: (bounds) =>
+  //                                                 const LinearGradient(colors: [
+  //                                               AppColor.primaryColor,
+  //                                               AppColor.primaryColor
+  //                                             ]).createShader(Rect.fromLTWH(
+  //                                                     0,
+  //                                                     0,
+  //                                                     bounds.width,
+  //                                                     bounds.height)),
+  //                                             child: Text('Price',
+  //                                                 style: AppStyle
+  //                                                     .textStyleReemKufi
+  //                                                     .copyWith(
+  //                                                   color: Colors.white,
+  //                                                   fontSize:
+  //                                                       isDesktop ? 17 : 16,
+  //                                                   fontWeight: FontWeight.w700,
+  //                                                 )),
+  //                                           ),
+  //                                           Selector<CategoryProvider, double>(
+  //                                             selector: (_, provider) =>
+  //                                                 provider.totalComboPrice(
+  //                                               selectedChild: provider
+  //                                                   .selectedChildCategory,
+  //                                               provider: provider,
+  //                                             ),
+  //                                             builder: (context,
+  //                                                 totalComboPrice, child) {
+  //                                               final provider = Provider.of<
+  //                                                       CategoryProvider>(
+  //                                                   context,
+  //                                                   listen: false);
+  //                                               double displayPrice = isTakeAway
+  //                                                   ? provider.totalComboPrice(
+  //                                                       selectedChild: provider
+  //                                                           .selectedChildCategory,
+  //                                                       provider: provider,
+  //                                                     )
+  //                                                   : provider.getChildCategoryOrDiscountTotal(
+  //                                                       product,
+  //                                                       provider
+  //                                                           .selectedChildCategory,
+  //                                                       provider); // assume you have totalPrice getter for normal cas
+  //                                               print(
+  //                                                   'Quantity: ${provider.quantity}');
+  //                                               print(
+  //                                                   'Discount Price: ${provider.discountPrice}');
+  //                                               print(
+  //                                                   'TakeAway Price: ${provider.takeAwayPrice}');
+  //                                               print(
+  //                                                   'Total Combo Price: $totalComboPrice');
+  //
+  //                                               return ShaderMask(
+  //                                                 shaderCallback: (bounds) =>
+  //                                                     const LinearGradient(
+  //                                                   colors: [
+  //                                                     AppColor.primaryColor,
+  //                                                     AppColor.primaryColor,
+  //                                                   ],
+  //                                                 ).createShader(Rect.fromLTWH(
+  //                                                         0,
+  //                                                         0,
+  //                                                         bounds.width,
+  //                                                         bounds.height)),
+  //                                                 child: Text(
+  //                                                   '₹${displayPrice.toStringAsFixed(2)}',
+  //                                                   style: AppStyle
+  //                                                       .textStyleReemKufi
+  //                                                       .copyWith(
+  //                                                     color: Colors.white,
+  //                                                     fontSize:
+  //                                                         isDesktop ? 18 : 18,
+  //                                                     fontWeight:
+  //                                                         FontWeight.bold,
+  //                                                   ),
+  //                                                 ),
+  //                                               );
+  //                                             },
+  //                                           ),
+  //                                         ],
+  //                                       ),
+  //                                     ),
+  //                                     const SizedBox(width: 15),
+  //
+  //                                     // Add to Cart button
+  //                                     Expanded(
+  //                                       child: Container(
+  //                                         height: 60,
+  //                                         decoration: BoxDecoration(
+  //                                           color: Colors.white,
+  //                                           borderRadius:
+  //                                               BorderRadius.circular(12),
+  //                                         ),
+  //                                         child: ElevatedButton(
+  //                                           onPressed: () {
+  //                                             /// include childcategorytakeawayprice
+  //                                             //                                           final dynamic packingCharge = (product.childCategory != null &&
+  //                                             //                                               product.childCategory.isNotEmpty &&
+  //                                             //                                               product.childCategory.first.takeAwayPrice != null)
+  //                                             //                                               ? product.childCategory.first.takeAwayPrice
+  //                                             //                                               : product.takeAwayPrice;
+  //                                             //
+  //                                             // // Convert to double safely
+  //                                             //                                           final double? packingChargeValue = packingCharge is String
+  //                                             //                                               ? double.tryParse(packingCharge)
+  //                                             //                                               : (packingCharge is double ? packingCharge : null);
+  //                                             // Take only product-level takeAwayPrice
+  //                                             final dynamic packingCharge =
+  //                                                 product.takeAwayPrice;
+  //
+  //                                             // Convert to double safely
+  //                                             final double? packingChargeValue =
+  //                                                 packingCharge is String
+  //                                                     ? double.tryParse(
+  //                                                         packingCharge)
+  //                                                     : (packingCharge is double
+  //                                                         ? packingCharge
+  //                                                         : null);
+  //
+  //                                             final selectedChild = context
+  //                                                 .read<CategoryProvider>()
+  //                                                 .selectedChildCategory;
+  //                                             final totalTime = context
+  //                                                 .read<CategoryProvider>()
+  //                                                 .totalTime;
+  //                                             final cartProvider =
+  //                                                 context.read<CartProvider>();
+  //                                             final selectedProvider = context
+  //                                                 .read<CategoryProvider>();
+  //
+  //                                             final cartItem = CartItemModel(
+  //                                                 id: product.id,
+  //                                                 name: product.name,
+  //                                                 description:
+  //                                                     product.description,
+  //                                                 images: product.images,
+  //                                                 categoryId:
+  //                                                     product.categoryId,
+  //                                                 price: isTakeAway
+  //                                                     ? ((double.tryParse(product.discountPrice?.toString() ?? '0') ??
+  //                                                             0.0) +
+  //                                                         (double.tryParse(product.takeAwayPrice?.toString() ?? '0') ??
+  //                                                             0.0))
+  //                                                     : (selectedProvider
+  //                                                             .selectedPrices ??
+  //                                                         0.0),
+  //                                                 quantity:
+  //                                                     selectedProvider.quantity,
+  //                                                 takeAwayPrice: isTakeAway
+  //                                                     ? packingChargeValue
+  //                                                     : null,
+  //                                                 childCategory:
+  //                                                     product.childCategory,
+  //                                                 subCategoryId: product.id,
+  //                                                 childCategoryId: selectedChild
+  //                                                     ?.id
+  //                                                     .toString(),
+  //                                                 childCategoryName:
+  //                                                     selectedChild?.name,
+  //                                                 isCombo: null,
+  //                                                 heatLevel: selectedProvider
+  //                                                     .selectedHeatLabel,
+  //                                                 totalDeliveryTime: totalTime,
+  //                                                 type: "normal",
+  //                                                 discountPrice:
+  //                                                     product.price.toString(),
+  //                                                 prepareTime:
+  //                                                     product.prepareTime,
+  //                                                 image: '');
+  //                                             cartProvider.addToCart(
+  //                                                 context, cartItem);
+  //                                             Navigator.of(context).pop();
+  //                                           },
+  //                                           style: ElevatedButton.styleFrom(
+  //                                             backgroundColor:
+  //                                                 AppColor.whiteColor,
+  //                                             foregroundColor:
+  //                                                 AppColor.whiteColor,
+  //                                             elevation: 0,
+  //                                             padding:
+  //                                                 const EdgeInsets.symmetric(
+  //                                                     horizontal: 28,
+  //                                                     vertical: 14),
+  //                                             shape: RoundedRectangleBorder(
+  //                                               borderRadius:
+  //                                                   BorderRadius.circular(12),
+  //                                             ),
+  //                                           ),
+  //                                           child: ShaderMask(
+  //                                             shaderCallback: (bounds) =>
+  //                                                 const LinearGradient(
+  //                                               colors: [
+  //                                                 AppColor.primaryColor,
+  //                                                 AppColor.primaryColor
+  //                                               ],
+  //                                               begin: Alignment.topCenter,
+  //                                               end: Alignment.bottomRight,
+  //                                             ).createShader(Rect.fromLTWH(
+  //                                                     0,
+  //                                                     0,
+  //                                                     bounds.width,
+  //                                                     bounds.height)),
+  //                                             child: Text(
+  //                                               'Add To Cart',
+  //                                               style: AppStyle
+  //                                                   .textStyleReemKufi
+  //                                                   .copyWith(
+  //                                                 color: Colors.white,
+  //                                                 fontSize: isDesktop ? 22 : 16,
+  //                                                 fontWeight: FontWeight.w600,
+  //                                               ),
+  //                                             ),
+  //                                           ),
+  //                                         ),
+  //                                       ),
+  //                                     ),
+  //                                   ],
+  //                                 ),
+  //                               ),
+  //                             ],
+  //                           ),
+  //                           Align(
+  //                             alignment: Alignment.topCenter,
+  //                             child: Container(
+  //                               margin: const EdgeInsets.only(
+  //                                   top: 20), // spacing from status bar
+  //                               height: 5,
+  //                               width: 50,
+  //                               decoration: BoxDecoration(
+  //                                 color: Colors.grey[300],
+  //                                 borderRadius: BorderRadius.circular(2.5),
+  //                               ),
+  //                             ),
+  //                           ),
+  //                           Positioned(
+  //                             right: 16,
+  //                             top: 16,
+  //                             child: GestureDetector(
+  //                               onTap: () => Navigator.of(context).pop(),
+  //                               child: SvgPicture.asset(AppImage.cross),
+  //                             ),
+  //                           ),
+  //                         ]),
+  //                       ),
+  //                     ),
+  //                   );
+  //                 },
+  //               ),
+  //             );
+  //           },
+  //         ),
+  //       );
+  //     },
+  //     transitionBuilder: (context, anim1, anim2, child) {
+  //       return SlideTransition(
+  //         position: Tween<Offset>(
+  //           begin: const Offset(0, 1),
+  //           end: Offset.zero,
+  //         ).animate(anim1),
+  //         child: child,
+  //       );
+  //     },
+  //   );
+  // }
 
   void showComboBurgerDialog(BuildContext context, CartItemModel product) {
     final selectedProvider =

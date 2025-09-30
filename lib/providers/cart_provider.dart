@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../models/product_model.dart';
-
+import 'category_provider.dart';
+import 'package:provider/provider.dart';
 class CartProvider with ChangeNotifier {
   //final Map<int, int> _quantities = {}; // productId -> quantity
   Map<String, int> _quantities = {};
@@ -91,12 +92,11 @@ class CartProvider with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  void removeItem(int productId, {String? childCategoryId}) {
+  void removeItem(BuildContext context, int productId, {String? childCategoryId}) {
     print("🗑 Trying to remove: productId=$productId, childCategoryId=$childCategoryId");
 
     _items.removeWhere((item) {
-      print("🔎 Checking item -> id=${item.id} (${item.id.runtimeType}), "
-          "child=${item.childCategoryId} (${item.childCategoryId.runtimeType})");
+      print("🔎 Checking item -> id=${item.id}, child=${item.childCategoryId}");
 
       final sameProduct = item.id.toString() == productId.toString();
 
@@ -105,22 +105,29 @@ class CartProvider with ChangeNotifier {
         if (match) print("✅ Match found -> removing item without childCategoryId");
         return match;
       } else {
-        final match = sameProduct && item.childCategoryId?.trim() == childCategoryId.trim();
+        final match = sameProduct && item.childCategoryId?.trim() == childCategoryId?.trim();
         if (match) print("✅ Match found -> removing item with childCategoryId");
         return match;
       }
     });
 
-    // Use combined key
     final key = childCategoryId == null
         ? productId.toString()
-        : '$productId-${childCategoryId.trim()}';
-
+        : '$productId-${childCategoryId?.trim()}';
     print("🗑 Removing from quantities with key: $key");
     _quantities.remove(key);
 
+    // ✅ Reset category and quantity in CategoryProvider
+    final categoryProvider = context.read<CategoryProvider>();
+    categoryProvider.setSelectedChildCategorys(null, productId: productId);
+    categoryProvider.resetLastSelectedChildCategory(productId);
+    categoryProvider.setQuantity(1);
+    print("🔄 Reset category & quantity for productId=$productId");
+
     notifyListeners();
   }
+
+
 
 
 

@@ -102,9 +102,9 @@ class DashboardProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getCategoryBasedItems(BuildContext context,int? categoryId, String? sortBy) async {
+  Future<void> getCategoryBasedItems(BuildContext context,int? categoryId, String? sortBy,String? searchText) async {
     setLoading(true);
-    _items = await DownloadManager().getCategoryItems(context,categoryId,sortBy);
+    _items = await DownloadManager().getCategoryItems(context,categoryId,sortBy,searchText);
     setLoading(false);
     notifyListeners();
   }

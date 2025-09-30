@@ -63,6 +63,11 @@ final responsive = Responsiveness(context);
     final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
     final cartProvider = Provider.of<CartProvider>(context);
     double subTotal = cartProvider.subTotal;
+    double horizontalPadding = screenWidth * 0.010;
+    double fontSize = screenWidth * 0.018;
+    double searchHeight = screenWidth * 0.05;
+    double iconSize = screenWidth * 0.025;
+    double filterIconSize = screenWidth * 0.025;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const CustomAppBar(
@@ -238,77 +243,125 @@ final responsive = Responsiveness(context);
                 padding: const EdgeInsets.all(12.0),
                 child: Row(
                   children: [
-
                     Expanded(
                       child: Container(
+                        height: searchHeight.clamp(50, 60),
+                        margin: EdgeInsets.symmetric(
+                            horizontal: horizontalPadding),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade50, width: 1),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.grey
+                                .withOpacity(0.3), // subtle border color
+                            width: 1.0, // border thickness
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset: const Offset(0, 3),
+                              color: Colors.black
+                                  .withOpacity(0.1), // light shadow
+                              blurRadius: 6, // spread of shadow
+                              spreadRadius: 1, // how far the shadow spreads
+                              offset: const Offset(
+                                  0, 3), // shadow position (x, y)
                             ),
                           ],
                         ),
-                        child: TextField(
-                          controller: _controller,
-                          focusNode: _searchFocusNode,
-                          style: const TextStyle(
-                            fontFamily: 'Reem Kufi',
-                            fontWeight: FontWeight.w400,
-                            fontSize: 14,
-                            color: Colors.black, // ✅ Ensures typed text is visible
-                          ),
-                          decoration:  InputDecoration(
-                            hintText: 'Looking for BOGO? Type here...',
-                            hintStyle: AppTextStyles.nunitoRegular(
-                              responsive.hintTextSize,
-                              color: AppColor.lightGreyColor,
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.search,
+                              size: iconSize.clamp(18, 28),
+                              color: Colors.grey,
                             ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: TextField(
+                                controller: _controller,
+                                focusNode: _searchFocusNode,
+                                textAlign: TextAlign.start,
+                                style: AppStyle.textStyleReemKufi.copyWith(
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: fontSize.clamp(14, 20),
+                                  color: AppColor.blackColor,
+                                ),
+                                decoration: InputDecoration(
+                                  hintText: 'Looking for BOGO? Type here...',
+                                  hintStyle: AppTextStyles.nunitoRegular(
+                                    responsive.hintTextSize,
+                                    color: AppColor.lightGreyColor,
+                                  ),
 
-                            prefixIcon: Icon(Icons.search, color: AppColor.lightGreyColor),
-                            contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 5.0),
-                            border: InputBorder.none,
-                          ),
-                          onChanged: (value) {
-                            print("Search value: $value");
-                            // Provider.of<CategoryProvider>(context, listen: false)
-                            //     .getBuyOneOffer(context, value);
-                            Provider.of<DashboardProvider>(context, listen: false)
-                                .bugOneGetOneOfferSearch(context,_controller.text);
-                          },
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding: EdgeInsets
+                                      .zero, // removes extra padding
+                                ),
+                                onChanged: (value) {
+                                  final provider =
+                                  Provider.of<DashboardProvider>(
+                                    context,
+                                    listen: false,
+                                  );
+                                  Provider.of<DashboardProvider>(context, listen: false)
+                                      .bugOneGetOneOfferSearch(context,_controller.text);
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-
-                    const SizedBox(width: 8),
+                    const SizedBox(
+                      width: 4,
+                    ),
+                    // Filter Button
                     Container(
-                      height: isTablet ? 58 :54,
-                      width: isTablet ? 58 :54,
+                      margin: EdgeInsets.only(right: horizontalPadding),
+                      height: isTablet ? 47 : 47,
+                      width: isTablet ? 47 : 47,
                       decoration: BoxDecoration(
                         border: Border.all(color: AppColor.primaryColor),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black
+                                .withOpacity(0.1), // light shadow
+                            blurRadius: 6, // spread of shadow
+                            spreadRadius: 1, // how far the shadow spreads
+                            offset: const Offset(
+                                0, 3), // shadow position (x, y)
+                          ),
+                        ],
                         borderRadius: BorderRadius.circular(12),
                         gradient: const LinearGradient(
-                          colors: [AppColor.secondary, AppColor.primaryColor],
-                          begin: AlignmentDirectional(0.0, -2.0), // top-center
-                          end: AlignmentDirectional(0.0, 1.0), // bottom-center
-
-                          stops: [0.0, 1.0], // smooth gradient
+                          colors: [
+                            AppColor.secondary,
+                            AppColor.primaryColor
+                          ],
+                          begin:
+                          AlignmentDirectional(0.0, -2.0), // top-center
+                          end: AlignmentDirectional(
+                              0.0, 1.0), // bottom-center
+                          stops: [0.0, 1.0],
                           tileMode: TileMode.clamp,
                         ),
                       ),
                       child: IconButton(
-                        icon: const Icon(Icons.tune, color: AppColor.whiteColor),
+                        icon: Icon(
+                          Icons.tune,
+                          size: filterIconSize.clamp(18, 28),
+                          color: AppColor.whiteColor,
+                        ),
                         onPressed: () {
                           _searchFocusNode.unfocus();
                           _openSortDialog(context);
+                          // Filter action here
                         },
                       ),
-                    )
+                    ),
+
                   ],
                 ),
               ),
@@ -339,7 +392,8 @@ final responsive = Responsiveness(context);
                             aspectRatio = 0.85;
                           } else {
                             crossAxisCount = 2;
-                            aspectRatio = 0.74;
+                            //aspectRatio = 0.74;
+                            aspectRatio = 0.739;
                           }
                           final placeholderCount = (products?.isNotEmpty ?? false)
                               ? products!.length
@@ -398,7 +452,7 @@ final responsive = Responsiveness(context);
                         } else {
                           crossAxisCount = 2;
                           // aspectRatio = 0.74;
-                          aspectRatio = 0.704;
+                          aspectRatio = 0.740;
                           imageHeight = 120;
                         }
 
@@ -544,7 +598,7 @@ final responsive = Responsiveness(context);
                                         ),
                                         // Add icon exactly in bottom-right corner
                                         Positioned(
-                                          bottom: 0,
+                                          bottom:2,
                                           right: 0,
                                           child: GestureDetector(
                                             onTap: () {
@@ -886,7 +940,7 @@ final responsive = Responsiveness(context);
 
       selectedProvider.setQuantity(cartItem.quantity);
     } else {
-
+   selectedProvider.clearSelectedChildCategory();
       selectedProvider.setQuantity(1);
     }
     final buttonKey = GlobalKey();
@@ -1415,31 +1469,82 @@ final responsive = Responsiveness(context);
 
                                             if (product.childCategory != null && product.childCategory.isNotEmpty) ...[
                                               SizedBox(height: screenHeight * 0.025),
+
                                               SingleChildScrollView(
-                                                scrollDirection: Axis.horizontal, // 👈 Enable horizontal scrolling
-                                                child: Row(
-                                                  mainAxisAlignment: MainAxisAlignment.start,
-                                                  children: product.childCategory.map((child) {
-                                                    final provider = context.watch<CategoryProvider>();
-                                                    var selectedChild = provider.selectedChildCategory;
+                                                scrollDirection: Axis.horizontal,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.only(left: 8.0),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    children: product.childCategory.map((child) {
+                                                      final provider = context.watch<CategoryProvider>();
+                                                      var selectedChild = provider.selectedChildCategory;
 
-                                                    if (selectedChild == null && product.childCategory!.isNotEmpty) {
-                                                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                                                        context.read<CategoryProvider>().setSelectedChildCategory(selectedChild);
-                                                      });
-                                                    }
+                                                      return _buildOptionBox(
+                                                        child.name,
+                                                        "₹${(child.price ?? 0).toStringAsFixed(0)}",
+                                                        isSelected: selectedChild?.id == child.id, // ✅ Shows selected state
+                                                        onTap: () {
+                                                          final categoryProvider = context.read<CategoryProvider>();
 
-                                                    return _buildOptionBox(
-                                                      _capitalizeFirstLetter(child.name),
-                                                      "₹${(child.price ?? 0).toStringAsFixed(0)}",
-                                                      isSelected: selectedChild?.id == child.id,
-                                                      onTap: () {
-                                                        context.read<CategoryProvider>().setSelectedChildCategory(child);
-                                                      },
-                                                    );
-                                                  }).toList(),
+                                                          // 🟢 Toggle selection
+                                                          if (selectedChild?.id == child.id) {
+                                                            // If the same child is tapped again -> deselect it
+                                                            categoryProvider.setSelectedChildCategory(null);
+                                                            print("❌ Deselected child category: ${child.name}");
+
+                                                            // Reset quantity when deselected
+                                                            categoryProvider.setQuantity(1);
+                                                          } else {
+                                                            // If a different child is tapped -> select it
+                                                            categoryProvider.setSelectedChildCategory(child);
+                                                            print("✅ Selected child category: ${child.name}");
+
+                                                            // Update quantity based on cart
+                                                            final cartItem = cartProvider.getCartItemById(
+                                                              product.id,
+                                                              childCategoryId: child.id.toString(),
+                                                            );
+
+                                                            if (cartItem != null) {
+                                                              categoryProvider.setQuantity(cartItem.quantity);
+                                                              print("🛒 Cart quantity found: ${cartItem.quantity}");
+                                                            } else {
+                                                              categoryProvider.setQuantity(1);
+                                                              print("➕ Default quantity set to 1");
+                                                            }
+                                                          }
+                                                        },
+                                                      );
+                                                    }).toList(),
+                                                  ),
                                                 ),
                                               )
+                                              // SingleChildScrollView(
+                                              //   scrollDirection: Axis.horizontal, // 👈 Enable horizontal scrolling
+                                              //   child: Row(
+                                              //     mainAxisAlignment: MainAxisAlignment.start,
+                                              //     children: product.childCategory.map((child) {
+                                              //       final provider = context.watch<CategoryProvider>();
+                                              //       var selectedChild = provider.selectedChildCategory;
+                                              //
+                                              //       if (selectedChild == null && product.childCategory!.isNotEmpty) {
+                                              //         WidgetsBinding.instance.addPostFrameCallback((_) {
+                                              //           context.read<CategoryProvider>().setSelectedChildCategory(selectedChild);
+                                              //         });
+                                              //       }
+                                              //
+                                              //       return _buildOptionBox(
+                                              //         _capitalizeFirstLetter(child.name),
+                                              //         "₹${(child.price ?? 0).toStringAsFixed(0)}",
+                                              //         isSelected: selectedChild?.id == child.id,
+                                              //         onTap: () {
+                                              //           context.read<CategoryProvider>().setSelectedChildCategory(child);
+                                              //         },
+                                              //       );
+                                              //     }).toList(),
+                                              //   ),
+                                              // )
                                             ],
                                             SizedBox(height: screenHeight * 0.025),
 
@@ -1697,7 +1802,7 @@ final responsive = Responsiveness(context);
                                                       '₹${totalPrice.toStringAsFixed(2)}',
                                                       style: AppStyle.textStyleReemKufi.copyWith(
                                                         color: Colors.white,
-                                                        fontSize:   isDesktop ? 22 : (isTablet ? 22 : 16),
+                                                        fontSize:   isDesktop ? 22 : (isTablet ? 22 : 17),
                                                         fontWeight: FontWeight.bold,
                                                       ),
                                                     ),
@@ -2156,7 +2261,7 @@ final responsive = Responsiveness(context);
                                       'Price',
                                       style: AppStyle.textStyleReemKufi.copyWith(
                                         color: AppColor.primaryColor,
-                                        fontSize:responsive.descriptionSize,
+                                          fontSize:   isDesktop ? 17 : 16,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -2167,7 +2272,7 @@ final responsive = Responsiveness(context);
                                           '₹${totalPrice.toStringAsFixed(2)}',
                                           style: AppStyle.textStyleReemKufi.copyWith(
                                             color: AppColor.primaryColor,
-                                            fontSize:responsive.mainTitleSize,
+                                            fontSize:responsive.adOn,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         );
@@ -2194,24 +2299,24 @@ final responsive = Responsiveness(context);
 
                                       final selectedChild = context.read<CategoryProvider>().selectedChildCategory;
 
-                                      final cartItem = CartItemModel(
-                                        id: product.id,
-                                        name: product.name,
-                                        images: [product.image],
-                                        categoryId: product.categoryId,
-                                        price: isTakeAway
-                                            ? (selectedProvider.selectedPrice ?? 0.0)
-                                            : (selectedProvider.selectedPrices ?? 0.0),
-                                        quantity: selectedProvider.quantity,
-                                        isCombo: false,
-                                        takeAwayPrice: packingChargeValue,
-                                        subCategoryId: selectedChild?.subCategoryId ?? 0,
-                                        childCategoryId: selectedChild?.id.toString(),
-                                        childCategoryName: selectedChild?.name,
-                                        totalDeliveryTime: totalTime,
-                                      );
+                                      // final cartItem = CartItemModel(
+                                      //   id: product.id,
+                                      //   name: product.name,
+                                      //   images: [product.image],
+                                      //   categoryId: product.categoryId,
+                                      //   price: isTakeAway
+                                      //       ? (selectedProvider.selectedPrice ?? 0.0)
+                                      //       : (selectedProvider.selectedPrices ?? 0.0),
+                                      //   quantity: selectedProvider.quantity,
+                                      //   isCombo: false,
+                                      //   takeAwayPrice: packingChargeValue,
+                                      //   subCategoryId: selectedChild?.subCategoryId ?? 0,
+                                      //   childCategoryId: selectedChild?.id.toString(),
+                                      //   childCategoryName: selectedChild?.name,
+                                      //   totalDeliveryTime: totalTime,
+                                      // );
 
-                                      cartProvider.addToCart(context,cartItem);
+                                      //cartProvider.addToCart(context,cartItem);
                                       Navigator.of(context).pop();
                                     },
                                     style: ElevatedButton.styleFrom(
@@ -2224,9 +2329,9 @@ final responsive = Responsiveness(context);
                                       ),
                                     ),
                                     child: Text(
-                                      'Add To Cart',
+                                      'Add Add-on',
                                       style: AppStyle.textStyleReemKufi.copyWith(
-                                        fontSize:responsive.mainTitleSize,
+                                        fontSize:responsive.adOn,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),

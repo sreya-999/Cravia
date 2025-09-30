@@ -46,7 +46,7 @@ class DownloadManager {
   }
 
   /// getCategoryItems
-  Future<List<Item>?> getCategoryItems(BuildContext context, int? categoryId, String? sortBy) async {
+  Future<List<Item>?> getCategoryItems(BuildContext context, int? categoryId, String? sortBy,String? searchText) async {
     try {
       final queryParams = <String, dynamic>{};
 
@@ -55,6 +55,9 @@ class DownloadManager {
       }
       if (sortBy != null && sortBy.isNotEmpty) {
         queryParams['sort_by'] = sortBy;
+      }
+      if (searchText != null && searchText.isNotEmpty) {
+        queryParams['search'] = searchText;
       }
       final url = '${ApiEndpoints.baseUrl}${ApiEndpoints.dashBoard}';
       print('➡️ Base URL: $url');
@@ -87,24 +90,28 @@ class DownloadManager {
   /// searchText
   Future<List<Item>?> searchText(BuildContext context, String? searchText, int? categoryId) async {
     try {
-      final params = {
-        if (searchText != null && searchText.isNotEmpty) 'search': searchText,
-        if (categoryId != null && categoryId != -1) 'category_id': categoryId,
-      };
+      final queryParams = <String, dynamic>{};
+      if (categoryId != null && categoryId != -1) {
+        queryParams['category_id'] = categoryId;
+      }
+
+      if (searchText != null && searchText.isNotEmpty) {
+        queryParams['search'] = searchText;
+      }
 
 
       final url = '${ApiEndpoints.baseUrl}${ApiEndpoints.dashBoard}';
 
-      // 👇 Convert params to query string
-      final queryString = params.entries.map((e) => "${e.key}=${e.value}").join("&");
-      final fullUrl = queryString.isNotEmpty ? "$url?$queryString" : url;
+      // // 👇 Convert params to query string
+      // final queryString = params.entries.map((e) => "${e.key}=${e.value}").join("&");
+      // final fullUrl = queryString.isNotEmpty ? "$url?$queryString" : url;
 
       // Print final URL
-      print("Request URL: $fullUrl");
+      print("Request URL: $url");
 
       final response = await apiManager.dio.get(
         url,
-        queryParameters: params,
+        queryParameters: queryParams.isNotEmpty ? queryParams : null,
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.data;

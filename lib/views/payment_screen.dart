@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ravathi_store/utlis/App_image.dart';
 import 'package:ravathi_store/utlis/widgets/custom_appbar.dart';
 import 'package:ravathi_store/utlis/widgets/responsiveness.dart';
+import 'package:ravathi_store/views/payment.dart';
+import 'package:ravathi_store/views/payment_success_screen.dart';
 import 'package:ravathi_store/views/table_selection_screen.dart';
 
 import '../models/order_model.dart';
@@ -27,26 +29,30 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     // Wait for 3 seconds, then navigate
     Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        final isDineIn = Provider.of<CategoryProvider>(context, listen: false).isDineIn;
-
-        if (isDineIn) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => TableSelectionScreen(order: widget.order)),
-          );
-          context.read<CartProvider>().clearCart();
-          // Navigator.pushReplacement(
-          //   context,
-          //   MaterialPageRoute(builder: (_) => OrderSuccessScreen(order: widget.order,)),
-          // );
-        } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => OrderSuccessScreen(order: widget.order,)),
-          );
-        }
-      }
+      Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => PaymentSuccessScreen(order: widget.order,)),
+              );
+      // if (mounted) {
+      //   final isDineIn = Provider.of<CategoryProvider>(context, listen: false).isDineIn;
+      //
+      //   if (isDineIn) {
+      //     Navigator.pushReplacement(
+      //       context,
+      //       MaterialPageRoute(builder: (_) => TableSelectionScreen(order: widget.order)),
+      //     );
+      //     context.read<CartProvider>().clearCart();
+      //     // Navigator.pushReplacement(
+      //     //   context,
+      //     //   MaterialPageRoute(builder: (_) => OrderSuccessScreen(order: widget.order,)),
+      //     // );
+      //   } else {
+      //     Navigator.pushReplacement(
+      //       context,
+      //       MaterialPageRoute(builder: (_) => OrderSuccessScreen(order: widget.order,)),
+      //     );
+      //   }
+      // }
     });
 
   }

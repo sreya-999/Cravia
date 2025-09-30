@@ -74,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       provider.selectCategory(-1); // preselect All
       provider.getCategoryBasedItems(
-          context, null, null); // load all items initially
+          context, null, null, null); // load all items initially
       provider.getBannerImage(context);
       provider.getCategorys(context);
       final prefHelper = getIt<SharedPreferenceHelper>();
@@ -760,7 +760,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: cardHeight, // let the card control height
                               child: ListView.separated(
                                 scrollDirection: Axis.horizontal,
-                                physics: const NeverScrollableScrollPhysics(),
+                                // physics: const NeverScrollableScrollPhysics(),
                                 padding:
                                     const EdgeInsets.only(left: 12, right: 15),
                                 itemCount: banners.length,
@@ -846,7 +846,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 aspectRatio = 0.75;
                               } else {
                                 crossAxisCount = 2;
-                                aspectRatio = 0.74;
+                                aspectRatio = 0.739;
                               }
 
                               final placeholderCount =
@@ -903,7 +903,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               aspectRatio = 0.75;
                             } else {
                               crossAxisCount = 2;
-                              aspectRatio = 0.704;
+                             // aspectRatio = 0.704;
+                              aspectRatio = 0.740;
                             }
 
                             return GridView.builder(
@@ -1087,8 +1088,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
 
                                           Positioned(
-                                            bottom: 0,
-                                            right: 0,
+                                            bottom: 2,
+                                            right: 2,
                                             child: GestureDetector(
                                               onTap: () {
                                                 _searchFocusNode.unfocus();
@@ -1551,7 +1552,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final selectedProvider =
         Provider.of<CategoryProvider>(context, listen: false);
     // selectedProvider.setBasePrice(product.price);
-    selectedProvider.setQuantity(1);
+
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
 
     if (isTakeAway) {
@@ -1569,17 +1570,40 @@ class _HomeScreenState extends State<HomeScreen> {
     //       : 0.0,
     // );
     //selectedProvider.setBasePriceWithTakeAway(product);
+    final cartItem = cartProvider.getCartItemById(product.id);
+    final categoryProvider = context.read<CategoryProvider>();
+    if (cartItem != null) {
+      final matchedChild = product.childCategory.firstWhere(
+        (child) => child.id.toString() == cartItem.childCategoryId.toString(),
+        orElse: () => product.childCategory.first,
+      );
+      categoryProvider.setSelectedChildCategorys(matchedChild,
+          productId: product.id);
 
-    selectedProvider.setSelectedChildCategory(null);
+      // Restore quantity
+      categoryProvider.setQuantity(cartItem.quantity);
+    } else {
+      // Optional: restore last selected per product
+      // final lastSelected =
+      //     categoryProvider.getLastSelectedChildCategoryForProduct(product.id);
+      // if (lastSelected != null) {
+      //   categoryProvider.setSelectedChildCategorys(lastSelected,
+      //       productId: product.id);
+      // } else {
+        // Default
+        categoryProvider.setSelectedChildCategorys(null, productId: product.id);
+        categoryProvider.setQuantity(1);
+     // }
+    }
 
     // Check if product is already in cart and get current quantity
-    final cartItem = cartProvider.getCartItemById(product.id);
-    if (cartItem != null) {
-      // Set dialog quantity to existing cart quantity
-      selectedProvider.setQuantity(cartItem.quantity);
-    } else {
-      selectedProvider.setQuantity(1);
-    }
+    // final cartItem = cartProvider.getCartItemById(product.id);
+    // if (cartItem != null) {
+    //   // Set dialog quantity to existing cart quantity
+    //   selectedProvider.setQuantity(cartItem.quantity);
+    // } else {
+    //   selectedProvider.setQuantity(1);
+    // }
     final responsive = Responsiveness(context);
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isDesktop = screenWidth >= 1024;
@@ -2105,62 +2129,113 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   .isNotEmpty) ...[
                                             SizedBox(
                                                 height: screenHeight * 0.025),
-                                            SingleChildScrollView(
-                                              scrollDirection: Axis
-                                                  .horizontal, // 👈 Enable horizontal scrolling
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 1.0),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  children: product
-                                                      .childCategory
-                                                      .map((child) {
-                                                    final provider =
-                                                        context.watch<
-                                                            CategoryProvider>();
-                                                    var selectedChild = provider
-                                                        .selectedChildCategory;
+                                            // SingleChildScrollView(
+                                            //   scrollDirection: Axis
+                                            //       .horizontal, // 👈 Enable horizontal scrolling
+                                            //   child: Padding(
+                                            //     padding: const EdgeInsets.only(
+                                            //         left: 1.0),
+                                            //     child: Row(
+                                            //       mainAxisAlignment:
+                                            //           MainAxisAlignment.start,
+                                            //       children: product
+                                            //           .childCategory
+                                            //           .map((child) {
+                                            //         final provider =
+                                            //             context.watch<
+                                            //                 CategoryProvider>();
+                                            //         var selectedChild = provider
+                                            //             .selectedChildCategory;
+                                            //
+                                            //         if (selectedChild == null &&
+                                            //             product.childCategory!
+                                            //                 .isNotEmpty) {
+                                            //           WidgetsBinding.instance
+                                            //               .addPostFrameCallback(
+                                            //                   (_) {
+                                            //             context
+                                            //                 .read<
+                                            //                     CategoryProvider>()
+                                            //                 .setSelectedChildCategory(
+                                            //                     selectedChild);
+                                            //           });
+                                            //         }
+                                            //
+                                            //         return _buildOptionBox(
+                                            //           child.name,
+                                            //           "₹${(child.price ?? 0).toStringAsFixed(0)}",
+                                            //           isSelected:
+                                            //               selectedChild?.id ==
+                                            //                   child.id,
+                                            //           onTap: () {
+                                            //             if (selectedChild?.id ==
+                                            //                 child.id) {
+                                            //               provider.setSelectedChildCategory(
+                                            //                   null); // unselect
+                                            //             } else {
+                                            //               provider
+                                            //                   .setSelectedChildCategory(
+                                            //                       child); // select
+                                            //             }
+                                            //           },
+                                            //           // onTap: () {
+                                            //           //   context
+                                            //           //       .read<
+                                            //           //       CategoryProvider>()
+                                            //           //       .setSelectedChildCategory(
+                                            //           //       child);
+                                            //           // },
+                                            //         );
+                                            //       }).toList(),
+                                            //     ),
+                                            //   ),
+                                            // )
 
-                                                    if (selectedChild == null &&
-                                                        product.childCategory!
-                                                            .isNotEmpty) {
-                                                      WidgetsBinding.instance
-                                                          .addPostFrameCallback(
-                                                              (_) {
-                                                        context
-                                                            .read<
-                                                                CategoryProvider>()
-                                                            .setSelectedChildCategory(
-                                                                selectedChild);
-                                                      });
-                                                    }
+                                            SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(left: 8.0),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: product.childCategory.map((child) {
+                                                    final provider = context.watch<CategoryProvider>();
+                                                    var selectedChild = provider.selectedChildCategory;
 
                                                     return _buildOptionBox(
                                                       child.name,
                                                       "₹${(child.price ?? 0).toStringAsFixed(0)}",
-                                                      isSelected:
-                                                          selectedChild?.id ==
-                                                              child.id,
+                                                      isSelected: selectedChild?.id == child.id, // ✅ Shows selected state
                                                       onTap: () {
-                                                        if (selectedChild?.id ==
-                                                            child.id) {
-                                                          provider.setSelectedChildCategory(
-                                                              null); // unselect
+                                                        final categoryProvider = context.read<CategoryProvider>();
+
+                                                        // 🟢 Toggle selection
+                                                        if (selectedChild?.id == child.id) {
+                                                          // If the same child is tapped again -> deselect it
+                                                          categoryProvider.setSelectedChildCategory(null);
+                                                          print("❌ Deselected child category: ${child.name}");
+
+                                                          // Reset quantity when deselected
+                                                          categoryProvider.setQuantity(1);
                                                         } else {
-                                                          provider
-                                                              .setSelectedChildCategory(
-                                                                  child); // select
+                                                          // If a different child is tapped -> select it
+                                                          categoryProvider.setSelectedChildCategory(child);
+                                                          print("✅ Selected child category: ${child.name}");
+
+                                                          // Update quantity based on cart
+                                                          final cartItem = cartProvider.getCartItemById(
+                                                            product.id,
+                                                            childCategoryId: child.id.toString(),
+                                                          );
+
+                                                          if (cartItem != null) {
+                                                            categoryProvider.setQuantity(cartItem.quantity);
+                                                            print("🛒 Cart quantity found: ${cartItem.quantity}");
+                                                          } else {
+                                                            categoryProvider.setQuantity(1);
+                                                            print("➕ Default quantity set to 1");
+                                                          }
                                                         }
                                                       },
-                                                      // onTap: () {
-                                                      //   context
-                                                      //       .read<
-                                                      //       CategoryProvider>()
-                                                      //       .setSelectedChildCategory(
-                                                      //       child);
-                                                      // },
                                                     );
                                                   }).toList(),
                                                 ),
@@ -2500,8 +2575,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 GestureDetector(
                                   onTap: () async {
-                                    final result =
-                                        await showAddOnDialog(context, product, initialSelectedAddOns: cartItem?.addOnNames,);
+                                    final result = await showAddOnDialog(
+                                      context,
+                                      product,
+                                      initialSelectedAddOns:
+                                          cartItem?.addOnNames,
+                                    );
                                     if (result != null) {
                                       setState(() {
                                         selectedAddOns =
@@ -2665,7 +2744,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           ? 22
                                                           : (isTablet
                                                               ? 22
-                                                              : 16),
+                                                              : 17),
                                                       fontWeight:
                                                           FontWeight.bold,
                                                     ),
@@ -3050,12 +3129,10 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             itemCount: allCategories.length,
             itemBuilder: (context, index) {
-              return _buildCategoryItem(
-                context,
-                allCategories[index],
-                selectedCategoryId: selectedCategoryId,
-                fixedSize: itemWidth,
-              );
+              return _buildCategoryItem(context, allCategories[index],
+                  selectedCategoryId: selectedCategoryId,
+                  fixedSize: itemWidth,
+                  searchController: _searchController);
             },
           ),
         );
@@ -3067,6 +3144,7 @@ class _HomeScreenState extends State<HomeScreen> {
     BuildContext context,
     CategoryModel cat, {
     double? fixedSize,
+    required TextEditingController searchController,
     required int? selectedCategoryId,
   }) {
     final provider = Provider.of<DashboardProvider>(context, listen: false);
@@ -3076,10 +3154,10 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: () async {
         provider.selectCategory(cat.id);
         await provider.getCategoryBasedItems(
-          context,
-          cat.id == -1 ? null : cat.id,
-          provider.selectedSort,
-        );
+            context,
+            cat.id == -1 ? null : cat.id,
+            provider.selectedSort,
+            searchController.text);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -3552,7 +3630,8 @@ Future<String?> showSortByDialog(BuildContext context, String currentSort) {
 }
 
 Future<Map<String, dynamic>?> showAddOnDialog(
-    BuildContext context, Item product, {List<String>? initialSelectedAddOns}) {
+    BuildContext context, Item product,
+    {List<String>? initialSelectedAddOns}) {
   final selectedProvider =
       Provider.of<CategoryProvider>(context, listen: false);
   final responsive = Responsiveness(context);
@@ -3855,9 +3934,7 @@ Future<Map<String, dynamic>?> showAddOnDialog(
                                           style: AppStyle.textStyleReemKufi
                                               .copyWith(
                                             color: Colors.white,
-                                            fontSize: isDesktop
-                                                ? 22
-                                                : (isTablet ? 22 : 16),
+                                            fontSize: responsive.adOn,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
@@ -3890,9 +3967,9 @@ Future<Map<String, dynamic>?> showAddOnDialog(
                                     ),
                                   ),
                                   child: Text(
-                                    'Add To Cart',
+                                    'Add Add-on',
                                     style: AppStyle.textStyleReemKufi.copyWith(
-                                      fontSize: responsive.mainTitleSize,
+                                      fontSize: responsive.adOn,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -4321,10 +4398,7 @@ void _openSortDialog(BuildContext context) async {
 
     // Call API with API-friendly value
     provider.getCategoryBasedItems(
-      context,
-      provider.selectedCategoryId,
-      apiSort,
-    );
+        context, provider.selectedCategoryId, apiSort, null);
   }
 }
 

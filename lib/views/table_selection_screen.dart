@@ -251,7 +251,7 @@ class _TableSelectionScreenState extends State<TableSelectionScreen> {
                 cartProvider.clearSelection();
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => OrderSuccessScreen(order: null,)),
+                  MaterialPageRoute(builder: (_) => OrderSuccessScreen(order:widget.order,)),
                 );
               },
               child: Text(
