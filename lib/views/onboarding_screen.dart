@@ -41,76 +41,82 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: PageView.builder(
-        controller: _controller,
-        itemCount: _images.length,
-        onPageChanged: (index) {
-          setState(() => _currentPage = index);
-        },
-        itemBuilder: (context, index) {
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              // Full screen image
-              Image.asset(
-                _images[index],
-                fit: BoxFit.cover,
-              ),
+    return PopScope(
+      onPopInvoked: (didPop) async {
+        if (didPop) return; // already popped
 
-              // Gradient overlay (optional for better button visibility)
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.black.withOpacity(0.1),
-                      Colors.black.withOpacity(0.7),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
+      },
+      child: Scaffold(
+        body: PageView.builder(
+          controller: _controller,
+          itemCount: _images.length,
+          onPageChanged: (index) {
+            setState(() => _currentPage = index);
+          },
+          itemBuilder: (context, index) {
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                // Full screen image
+                Image.asset(
+                  _images[index],
+                  fit: BoxFit.cover,
                 ),
-              ),
-
-              // Bottom button
-              Positioned(
-                bottom: 60,
-                right: 20,
-                child: Container(
+      
+                // Gradient overlay (optional for better button visibility)
+                Container(
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Colors.red, Colors.redAccent],
-
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.black.withOpacity(0.1),
+                        Colors.black.withOpacity(0.7),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
                     ),
-                    borderRadius: BorderRadius.circular(15),
                   ),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 20),
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
+                ),
+      
+                // Bottom button
+                Positioned(
+                  bottom: 60,
+                  right: 20,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Colors.red, Colors.redAccent],
+      
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    onPressed: _onNext,
-                    child: Text(
-                      "Let's go",
-                      style: AppStyle.textStyleReemKufi.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: AppColor.whiteColor,
-                        fontSize: 20,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 20),
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      onPressed: _onNext,
+                      child: Text(
+                        "Let's go",
+                        style: AppStyle.textStyleReemKufi.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: AppColor.whiteColor,
+                          fontSize: 20,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-
-            ],
-          );
-        },
+      
+              ],
+            );
+          },
+        ),
       ),
     );
   }

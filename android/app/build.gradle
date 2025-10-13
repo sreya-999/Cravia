@@ -42,7 +42,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
-        setProperty("archivesBaseName","KIOSK $versionName");
+        setProperty("archivesBaseName","Cravia $versionName");
     }
 
     buildTypes {

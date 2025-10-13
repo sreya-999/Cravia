@@ -21,6 +21,9 @@ import '../utlis/widgets/floating_message.dart';
 import '../utlis/widgets/responsiveness.dart';
 import '../utlis/widgets/shimmer_loading.dart';
 import 'package:lottie/lottie.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import '../utlis/widgets/snack_bar.dart';
 
 class ComboOfferScreen extends StatefulWidget {
   const ComboOfferScreen({super.key});
@@ -32,6 +35,8 @@ class ComboOfferScreen extends StatefulWidget {
 class _ComboOfferScreenState extends State<ComboOfferScreen> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
+  late DashboardProvider _dashboardProvider;
+
 
   @override
   void initState() {
@@ -43,9 +48,21 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Get provider once and store it
+    _dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     _searchFocusNode.dispose();
+
+    // ✅ Now this is safe — no context lookup here
+    _dashboardProvider.clearComboSort(notify: false);
+    print("✅ clearComboSort called safely in dispose!");
+
     super.dispose();
   }
 
@@ -149,7 +166,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                       : null,
                   padding: EdgeInsets.symmetric(
                     horizontal: isDesktop ? 16 : 12,
-                    vertical: isDesktop ? 10 : 4,
+                    vertical: isDesktop ? 10 : 2,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -171,7 +188,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                           'Price',
                           style: AppStyle.textStyleReemKufi.copyWith(
                             color: Colors.white,
-                            fontSize: priceTitleFont,
+                            fontSize: responsive.priceTitle,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -189,7 +206,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                           '₹${subTotal.toStringAsFixed(2)}',
                           style: AppStyle.textStyleReemKufi.copyWith(
                             color: Colors.white,
-                            fontSize: buttonFont,
+                            fontSize: responsive.priceTotal,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -202,7 +219,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                 // Cart Button
                 Expanded(
                   child: Container(
-                    height: isTablet ? 70 : 60,
+                    height: isTablet ? 65 : 60,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -242,7 +259,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                           'Go To Cart',
                           style: AppStyle.textStyleReemKufi.copyWith(
                             color: Colors.white,
-                            fontSize: buttonFont,
+                            fontSize: responsive.priceTotal,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -259,7 +276,10 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
         child: Column(children: [
           Padding(
             padding: EdgeInsets.all(12.0),
-            child: SearchCartRow(),
+            child: SearchCartRow(
+              controller: _controller,
+              focusNode: _searchFocusNode,
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -345,284 +365,294 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                         child: FadeInAnimation(
                           child: Stack(
                             children: [
-                              Container(
-                                width: double.infinity,
-                                margin: const EdgeInsets.only(bottom: 16),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade200,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: Colors.grey.shade300,
-                                    width: 1.5,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(
-                                          0.1), // Lighter shadow color
-                                      spreadRadius: 1, // Smaller spread
-                                      blurRadius:
-                                          3, // Smaller blur for softer shadow
-                                      offset: const Offset(
-                                          0, 2), // Slightly below the container
+                              GestureDetector(
+                                onTap: () {
+                                  _searchFocusNode.unfocus();
+                                  _controller.clear();
+                                  showBurgerDialog(context, product);
+                                },
+                                child: Container(
+                                  width: double.infinity,
+                                  margin: const EdgeInsets.only(bottom: 16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: Colors.grey.shade300,
+                                      width: 1.5,
                                     ),
-                                  ],
-                                ),
-                                padding: const EdgeInsets.all(10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        // Left placeholder to balance the layout
-                                        SizedBox(
-                                            width: isTablet
-                                                ? 80
-                                                : 40), // Width similar to discount text
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(
+                                            0.1), // Lighter shadow color
+                                        spreadRadius: 1, // Smaller spread
+                                        blurRadius:
+                                            3, // Smaller blur for softer shadow
+                                        offset: const Offset(0,
+                                            2), // Slightly below the container
+                                      ),
+                                    ],
+                                  ),
+                                  padding: const EdgeInsets.all(10),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          // Left placeholder to balance the layout
+                                          SizedBox(
+                                              width: isTablet
+                                                  ? 80
+                                                  : 40), // Width similar to discount text
 
-                                        // Center-aligned product name
-                                        Expanded(
-                                          child: Center(
-                                            child: Text(
-                                              (product.name != null &&
-                                                      product.name!.isNotEmpty)
-                                                  ? product.name![0]
-                                                          .toUpperCase() +
-                                                      product.name!
-                                                          .substring(1)
-                                                          .toLowerCase()
-                                                  : '',
-                                              style: AppTextStyles.nunitoBold(
-                                                responsive.mainTitleSize,
-                                                color: AppColor.blackColor,
+                                          // Center-aligned product name
+                                          Expanded(
+                                            child: Center(
+                                              child: Text(
+                                                (product.name != null &&
+                                                        product
+                                                            .name!.isNotEmpty)
+                                                    ? product.name![0]
+                                                            .toUpperCase() +
+                                                        product.name!
+                                                            .substring(1)
+                                                            .toLowerCase()
+                                                    : '',
+                                                style: AppTextStyles.nunitoBold(
+                                                  responsive.mainTitleSize,
+                                                  color: AppColor.blackColor,
+                                                ),
+                                                textAlign: TextAlign.center,
                                               ),
-                                              textAlign: TextAlign.center,
                                             ),
                                           ),
-                                        ),
 
-                                        // Discount text aligned to the end
-                                        if (product.disountPercent != null &&
-                                            product.disountPercent
-                                                .toString()
-                                                .isNotEmpty)
-                                          Text(
-                                            "SAVE ${product.disountPercent}%",
-                                            style: AppStyle.textStyleLobster
-                                                .copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: responsive.save,
-                                              foreground: Paint()
-                                                ..shader = const LinearGradient(
-                                                  colors: [
-                                                    AppColor.secondary,
-                                                    AppColor.primaryColor,
-                                                  ],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ).createShader(
-                                                  const Rect.fromLTWH(
-                                                      0.0, 0.0, 200.0, 70.0),
-                                                ),
-                                            ),
-                                          )
-                                        else
-                                          const SizedBox(
-                                              width:
-                                                  80), // Placeholder when discount is not available
-                                      ],
-                                    ),
-
-                                    ///
-                                    const SizedBox(height: 16),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: List.generate(
-                                        product.images.length * 2 - 1,
-                                        (i) {
-                                          if (i.isEven) {
-                                            final img = product.images[i ~/ 2];
-                                            return Container(
-                                              height: imageSize,
-                                              width:
-                                                  imageSize, // inner padding inside the container
-                                              // decoration: BoxDecoration(
-                                              //   color: Colors.blue
-                                              //       .shade50, // background color around image
-                                              //   borderRadius:
-                                              //   BorderRadius.circular(20),
-                                              //   border: Border.all(
-                                              //     color: Colors.grey.shade300,
-                                              //     width: 1.5,
-                                              //   ),
-                                              //   boxShadow: [
-                                              //     BoxShadow(
-                                              //       color: Colors.black
-                                              //           .withOpacity(
-                                              //           0.15), // Shadow color
-                                              //       blurRadius: 6, // Softness
-                                              //       spreadRadius: 2, // Spread
-                                              //       offset: const Offset(
-                                              //           0, 3), // Position
-                                              //     ),
-                                              //   ],
-                                              // ),
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                                child: Image.network(
-                                                  '${ApiEndpoints.imageBaseUrl}$img',
-                                                  height: imageSize,
-                                                  width: imageSize,
-                                                  fit: BoxFit.fill,
-                                                ),
-                                              ),
-                                            );
-                                          } else {
-                                            // The "+" icon between images
-                                            return Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 6.0),
-                                              child: ShaderMask(
-                                                shaderCallback: (bounds) =>
-                                                    const LinearGradient(
-                                                  colors: [
-                                                    AppColor.secondary,
-                                                    AppColor.primaryColor,
-                                                  ],
-                                                  begin: Alignment.topLeft,
-                                                  end: Alignment.bottomRight,
-                                                ).createShader(
-                                                  Rect.fromLTWH(
-                                                      0,
-                                                      0,
-                                                      bounds.width,
-                                                      bounds.height),
-                                                ),
-                                                child: const Icon(
-                                                  Icons.add,
-                                                  size: 35,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                    const SizedBox(height: 15),
-                                    // Row(
-                                    //   children: [
-                                    //     // Text(
-                                    //     //   (product.name.isNotEmpty)
-                                    //     //       ? product.name[0].toUpperCase() +
-                                    //     //           product.name
-                                    //     //               .substring(1)
-                                    //     //               .toLowerCase()
-                                    //     //       : '',
-                                    //     //   overflow: TextOverflow.ellipsis,
-                                    //     //   style: AppStyle.textStyleReemKufi
-                                    //     //       .copyWith(
-                                    //     //     color: AppColor.blackColor,
-                                    //     //     fontSize: 17,
-                                    //     //     fontWeight: FontWeight.bold,
-                                    //     //   ),
-                                    //     // ),
-                                    //   ],
-                                    // ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 12.0),
-                                      child: Wrap(
-                                        crossAxisAlignment:
-                                            WrapCrossAlignment.center,
-                                        spacing:
-                                            4, // space between items horizontally
-                                        runSpacing: 4, // space between rows
-                                        children: [
-                                          for (int i = 0;
-                                              i <
-                                                  (product.categoryName
-                                                          ?.length ??
-                                                      0);
-                                              i++) ...[
+                                          // Discount text aligned to the end
+                                          if (product.disountPercent != null &&
+                                              product.disountPercent
+                                                  .toString()
+                                                  .isNotEmpty)
                                             Text(
-                                              product.categoryName![i],
-                                              style: AppTextStyles.latoMedium(
-                                                  responsive.descriptionSize,
-                                                  color: AppColor.blackColor),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-
-                                            // Add "+" icon between items, but not after the last one
-                                            if (i <
-                                                product.categoryName!.length -
-                                                    1)
-                                              const Icon(
-                                                Icons.add,
-                                                size: 18,
-                                                color: AppColor.blackColor,
-                                              ),
-                                          ]
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(height: 5),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 12.0),
-                                      child: Row(
-                                        children: [
-                                          if (product.discountPrice != null &&
-                                              product
-                                                  .discountPrice!.isNotEmpty &&
-                                              double.tryParse(
-                                                      product.discountPrice!) !=
-                                                  null &&
-                                              double.parse(
-                                                      product.discountPrice!) >
-                                                  0) ...[
-                                            // Discounted Price
-                                            Text(
-                                              '₹${(double.tryParse(product.discountPrice ?? '0')?.toStringAsFixed(2) ?? '0.00')}',
-                                              style: AppTextStyles.nunitoBold(
-                                                  responsive.adOn,
-                                                  color: AppColor.blackColor),
-                                            ),
-                                            const SizedBox(
-                                                width:
-                                                    8), // space between prices
-
-                                            // Original Price with Strikethrough
-                                            Text(
-                                              '₹${product.price.toStringAsFixed(2)}',
-                                              style: AppStyle.textStyleReemKufi
-                                                  .copyWith(
-                                                fontSize:
-                                                    responsive.descriptionSize,
-                                                color: AppColor.greyColor,
-                                                decoration:
-                                                    TextDecoration.lineThrough,
-                                              ),
-                                            ),
-                                          ] else ...[
-                                            Text(
-                                              '₹${product.price.toStringAsFixed(2)}',
-                                              style: AppStyle.textStyleReemKufi
+                                              "SAVE ${product.disountPercent}%",
+                                              style: AppStyle.textStyleLobster
                                                   .copyWith(
                                                 fontWeight: FontWeight.bold,
-                                                fontSize:
-                                                    responsive.descriptionSize,
-                                                color: AppColor.blackColor,
+                                                fontSize: responsive.save,
+                                                foreground: Paint()
+                                                  ..shader =
+                                                      const LinearGradient(
+                                                    colors: [
+                                                      AppColor.secondary,
+                                                      AppColor.primaryColor,
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ).createShader(
+                                                    const Rect.fromLTWH(
+                                                        0.0, 0.0, 200.0, 70.0),
+                                                  ),
                                               ),
-                                            ),
-                                          ],
+                                            )
+                                          else
+                                            const SizedBox(
+                                                width:
+                                                    80), // Placeholder when discount is not available
                                         ],
                                       ),
-                                    )
-                                  ],
+
+                                      ///
+                                      const SizedBox(height: 16),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: List.generate(
+                                          product.images.length * 2 - 1,
+                                          (i) {
+                                            if (i.isEven) {
+                                              final img =
+                                                  product.images[i ~/ 2];
+                                              return Container(
+                                                height: imageSize,
+                                                width:
+                                                    imageSize, // inner padding inside the container
+
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(16),
+                                                  child: CachedNetworkImage(
+                                                    imageUrl:
+                                                        '${ApiEndpoints.imageBaseUrl}$img',
+                                                    height: imageSize,
+                                                    width: imageSize,
+                                                    fit: BoxFit.fill,
+                                                    placeholder:
+                                                        (context, url) =>
+                                                            const Center(
+                                                      child: Icon(
+                                                        Icons.image,
+                                                        color: Colors.grey,
+                                                        size: 40,
+                                                      ),
+                                                    ),
+                                                    errorWidget:
+                                                        (context, url, error) =>
+                                                            const Icon(
+                                                      Icons.broken_image,
+                                                      size: 60,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            } else {
+                                              // The "+" icon between images
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 6.0),
+                                                child: ShaderMask(
+                                                  shaderCallback: (bounds) =>
+                                                      const LinearGradient(
+                                                    colors: [
+                                                      AppColor.secondary,
+                                                      AppColor.primaryColor,
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ).createShader(
+                                                    Rect.fromLTWH(
+                                                        0,
+                                                        0,
+                                                        bounds.width,
+                                                        bounds.height),
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.add,
+                                                    size: 35,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(height: 15),
+                                      // Row(
+                                      //   children: [
+                                      //     // Text(
+                                      //     //   (product.name.isNotEmpty)
+                                      //     //       ? product.name[0].toUpperCase() +
+                                      //     //           product.name
+                                      //     //               .substring(1)
+                                      //     //               .toLowerCase()
+                                      //     //       : '',
+                                      //     //   overflow: TextOverflow.ellipsis,
+                                      //     //   style: AppStyle.textStyleReemKufi
+                                      //     //       .copyWith(
+                                      //     //     color: AppColor.blackColor,
+                                      //     //     fontSize: 17,
+                                      //     //     fontWeight: FontWeight.bold,
+                                      //     //   ),
+                                      //     // ),
+                                      //   ],
+                                      // ),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 12.0),
+                                        child: Wrap(
+                                          crossAxisAlignment:
+                                              WrapCrossAlignment.center,
+                                          spacing:
+                                              4, // space between items horizontally
+                                          runSpacing: 4, // space between rows
+                                          children: [
+                                            for (int i = 0;
+                                                i <
+                                                    (product.categoryName
+                                                            ?.length ??
+                                                        0);
+                                                i++) ...[
+                                              Text(
+                                                '${product.categoryName![i][0].toUpperCase()}${product.categoryName![i].substring(1).toLowerCase()}',
+                                                style: AppTextStyles.latoMedium(
+                                                    responsive.descriptionSize,
+                                                    color: AppColor.blackColor),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+
+                                              // Add "+" icon between items, but not after the last one
+                                              if (i <
+                                                  product.categoryName!.length -
+                                                      1)
+                                                const Icon(
+                                                  Icons.add,
+                                                  size: 18,
+                                                  color: AppColor.blackColor,
+                                                ),
+                                            ]
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(height: 5),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 12.0),
+                                        child: Row(
+                                          children: [
+                                            if (product.discountPrice != null &&
+                                                product.discountPrice!
+                                                    .isNotEmpty &&
+                                                double.tryParse(product
+                                                        .discountPrice!) !=
+                                                    null &&
+                                                double.parse(product
+                                                        .discountPrice!) >
+                                                    0) ...[
+                                              // Discounted Price
+                                              Text(
+                                                '₹${(double.tryParse(product.discountPrice ?? '0')?.toStringAsFixed(2) ?? '0.00')}',
+                                                style: AppTextStyles.nunitoBold(
+                                                    responsive.adOn,
+                                                    color: AppColor.blackColor),
+                                              ),
+                                              const SizedBox(
+                                                  width:
+                                                      8), // space between prices
+
+                                              // Original Price with Strikethrough
+                                              Text(
+                                                '₹${product.price.toStringAsFixed(2)}',
+                                                style: AppStyle
+                                                    .textStyleReemKufi
+                                                    .copyWith(
+                                                  fontSize: responsive
+                                                      .descriptionSize,
+                                                  color: AppColor.greyColor,
+                                                  decoration: TextDecoration
+                                                      .lineThrough,
+                                                ),
+                                              ),
+                                            ] else ...[
+                                              Text(
+                                                '₹${product.price.toStringAsFixed(2)}',
+                                                style: AppStyle
+                                                    .textStyleReemKufi
+                                                    .copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: responsive
+                                                      .descriptionSize,
+                                                  color: AppColor.blackColor,
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
                               Positioned(
@@ -732,21 +762,35 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
     final badgeSize = size.width * 0.15;
 
     // Check if product is already in cart and get current quantity
-    final cartItem = cartProvider.getCartItemById(product.id);
+    final cartItem = cartProvider.getCartItemById(
+      product.id,
+      sourcePage: 'combo',
+    );
+    final categoryProvider = context.read<CategoryProvider>();
     if (cartItem != null) {
       // Set dialog quantity to existing cart quantity
       selectedProvider.setQuantity(cartItem.quantity);
+    //  selectedProvider.loadSpicyFromCart(cartItem);
     } else {
+
       // Or set default quantity
       selectedProvider.setQuantity(1);
+      selectedProvider.spicyLevels.clear();
     }
     double priceWidth = screenWidth * 0.2;
     final spicyList = product.spicy is String
         ? [product.spicy as String]
         : product.spicy as List<String>;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final double priceBoxHeight = isTablet
+        ? screenHeight * 0.050
+        : screenHeight * 0.070; // 8% of screen height
+    final double addToCartHeight =
+        isTablet ? screenHeight * 0.050 : screenHeight * 0.070;
+
     showGeneralDialog(
       context: context,
-      barrierDismissible: true,
+      barrierDismissible: false,
       barrierLabel: '',
       barrierColor: Colors.black54, // dim background
       transitionDuration: const Duration(milliseconds: 300),
@@ -832,7 +876,8 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                         decoration: const BoxDecoration(
                                           image: DecorationImage(
                                             image: AssetImage(AppImage.bgImg),
-                                            fit: BoxFit.contain, // Cover the entire container
+                                            fit: BoxFit
+                                                .contain, // Cover the entire container
                                           ),
                                           gradient: LinearGradient(
                                             colors: [
@@ -1185,9 +1230,10 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                                     BorderRadius
                                                                         .circular(
                                                                             10),
-                                                                child: Image
-                                                                    .network(
-                                                                  imageUrl,
+                                                                child:
+                                                                    CachedNetworkImage(
+                                                                  imageUrl:
+                                                                      imageUrl,
                                                                   height:
                                                                       isTablet
                                                                           ? 100
@@ -1196,7 +1242,25 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                                       isTablet
                                                                           ? 100
                                                                           : 80,
-                                                                  //fit: BoxFit.cover,
+                                                                  placeholder: (context,
+                                                                          url) =>
+                                                                      const Center(
+                                                                        child: Icon(
+                                                                          Icons.image, // You can use any food icon here
+                                                                          color: Colors.grey,
+                                                                          size: 40,
+                                                                        ),
+                                                                  ),
+                                                                  errorWidget: (context,
+                                                                          url,
+                                                                          error) =>
+                                                                      const Icon(
+                                                                    Icons
+                                                                        .broken_image,
+                                                                    size: 60,
+                                                                    color: Colors
+                                                                        .grey,
+                                                                  ),
                                                                 ),
                                                               ),
 
@@ -1218,8 +1282,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                                               13.0),
                                                                       child:
                                                                           Text(
-                                                                        product.categoryName[
-                                                                            index],
+                                                                        '${product.categoryName[index][0].toUpperCase()}${product.categoryName[index].substring(1).toLowerCase()}',
                                                                         style: AppTextStyles
                                                                             .nunitoMedium(
                                                                           responsive
@@ -1291,9 +1354,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
 
                                                                     /// Spicy Label
                                                                     Visibility(
-                                                                      visible:
-                                                                          spicyList[index] ==
-                                                                              "0",
+                                                                      visible: (index < spicyList.length && spicyList[index] == "0"),
                                                                       child:
                                                                           Padding(
                                                                         padding: const EdgeInsets
@@ -1302,7 +1363,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                                                 17.0),
                                                                         child:
                                                                             Text(
-                                                                          "Spicy",
+                                                                          "Spicy Level",
                                                                           style:
                                                                               AppTextStyles.nunitoMedium(
                                                                             buttonFontSize,
@@ -1316,10 +1377,12 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                                     /// Heat Level Selector
                                                                     Visibility(
                                                                         visible:
-                                                                            spicyList[index] ==
-                                                                                "0",
+                                                                        spicyList[index] ==
+                                                                            "0",
                                                                         child:
-                                                                            HeatLevelSelector()),
+                                                                        HeatLevelSelector(categoryId: product.categoryIds[index],)
+                                                                    ),
+
 
                                                                     /// Mild, Medium, Hot Labels
                                                                     Visibility(
@@ -1420,23 +1483,17 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                 Container(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: screenWidth * 0.04,
-                                    vertical: screenHeight * 0.015,
+                                    vertical: screenHeight * 0.0100,
                                   ),
                                   decoration: const BoxDecoration(
-                                    gradient: const LinearGradient(
+                                    gradient: LinearGradient(
                                       colors: [
-                                        AppColor.secondary, // Top color
-                                        AppColor.primaryColor // Fade out below
+                                        AppColor.secondary,
+                                        AppColor.primaryColor,
                                       ],
-                                      begin: Alignment
-                                          .topCenter, // Start at the very top
-                                      end: Alignment
-                                          .bottomCenter, // End at the bottom
-                                      stops: [
-                                        0.0,
-                                        0.5
-                                      ], // 0.0 = start, 0.4 = 40% height
-                                      tileMode: TileMode.clamp,
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      stops: [0.0, 0.5],
                                     ),
                                     borderRadius: BorderRadius.only(
                                       topLeft: Radius.circular(20),
@@ -1445,40 +1502,50 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                   ),
                                   child: Row(
                                     children: [
-                                      // Price box
+                                      // Price Box
                                       Container(
-                                        width: isTablet
-                                            ? priceWidth // If device is a tablet → use calculated priceWidth
-                                            : null,
+                                        width: isTablet ? priceWidth : null,
+                                        height:
+                                            priceBoxHeight, // <-- responsive height
                                         padding: const EdgeInsets.symmetric(
-                                            horizontal: 12, vertical: 6),
+                                            horizontal: 10),
                                         decoration: BoxDecoration(
                                           color: Colors.white,
                                           borderRadius:
                                               BorderRadius.circular(12),
                                         ),
                                         child: Column(
+                                          mainAxisSize: MainAxisSize
+                                              .min, // <-- makes the column take minimal vertical space
+
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           crossAxisAlignment:
                                               CrossAxisAlignment.center,
                                           children: [
                                             ShaderMask(
                                               shaderCallback: (bounds) =>
-                                                  const LinearGradient(colors: [
-                                                AppColor.primaryColor,
-                                                AppColor.primaryColor
-                                              ]).createShader(Rect.fromLTWH(
+                                                  const LinearGradient(
+                                                colors: [
+                                                  AppColor.primaryColor,
+                                                  AppColor.primaryColor
+                                                ],
+                                              ).createShader(Rect.fromLTWH(
                                                       0,
                                                       0,
                                                       bounds.width,
                                                       bounds.height)),
-                                              child: Text('Price',
-                                                  style: AppStyle
-                                                      .textStyleReemKufi
-                                                      .copyWith(
-                                                    color: Colors.white,
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w700,
-                                                  )),
+                                              child: Text(
+                                                'Price',
+                                                style: AppStyle
+                                                    .textStyleReemKufi
+                                                    .copyWith(
+                                                  color: Colors.white,
+                                                  fontSize:
+                                                      responsive.priceTitle,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
                                             ),
                                             Selector<CategoryProvider, double>(
                                               selector: (context, provider) {
@@ -1488,8 +1555,6 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                         .getBool(StorageKey
                                                             .isTakeAway) ??
                                                     false;
-
-                                                // If TakeAway is true, use totalPrice else use totalPrices
                                                 return isTakeAway
                                                     ? provider
                                                         .comboSelectedTakeAwayPrices
@@ -1516,7 +1581,8 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                         .textStyleReemKufi
                                                         .copyWith(
                                                       color: Colors.white,
-                                                      fontSize: buttonFont,
+                                                      fontSize:
+                                                          responsive.priceTotal,
                                                       fontWeight:
                                                           FontWeight.bold,
                                                     ),
@@ -1524,37 +1590,6 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                 );
                                               },
                                             ),
-                                            // Selector<CategoryProvider, double>(
-                                            //   selector: (_, provider) =>
-                                            //       provider.totalPrice,
-                                            //   builder:
-                                            //       (context, totalPrice, child) {
-                                            //     return ShaderMask(
-                                            //       shaderCallback: (bounds) =>
-                                            //           const LinearGradient(
-                                            //               colors: [
-                                            //             AppColor.primaryColor,
-                                            //             AppColor.primaryColor
-                                            //           ]).createShader(
-                                            //               Rect.fromLTWH(
-                                            //                   0,
-                                            //                   0,
-                                            //                   bounds.width,
-                                            //                   bounds.height)),
-                                            //       child: Text(
-                                            //         '₹${totalPrice.toStringAsFixed(2)}',
-                                            //         style: AppStyle
-                                            //             .textStyleReemKufi
-                                            //             .copyWith(
-                                            //           color: Colors.white,
-                                            //           fontSize:
-                                            //               isDesktop ? 18 : 18,
-                                            //           fontWeight: FontWeight.bold,
-                                            //         ),
-                                            //       ),
-                                            //     );
-                                            //   },
-                                            // ),
                                           ],
                                         ),
                                       ),
@@ -1564,7 +1599,8 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                       Expanded(
                                         child: Container(
                                           key: buttonKey,
-                                          height: isTablet ? 65 : 60,
+                                          height:
+                                              addToCartHeight, // <-- responsive height
                                           decoration: BoxDecoration(
                                             color: Colors.white,
                                             borderRadius:
@@ -1572,6 +1608,13 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                           ),
                                           child: ElevatedButton(
                                             onPressed: () {
+                                              final spicyMap = selectedProvider.spicyLevels;
+                                              final snackBar = ShowSnackBar();
+                                              // Convert to separate lists
+                                              final categoryIds = spicyMap.keys.toList();
+                                              final spicyLevels = spicyMap.values.map((level) => level.toString()).toList();
+                                              print("🧾 Category IDs: $categoryIds");
+                                              print("🌶 Spicy Levels: $spicyLevels");
                                               print(product.price);
                                               final dynamic packingCharge =
                                                   product.takeAwayPrice;
@@ -1598,44 +1641,49 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                       context,
                                                       listen: false);
                                               final cartItem = CartItemModel(
-                                                  id: product.id,
-                                                  name: product.name,
-                                                  categoryName:
-                                                      product.categoryName,
-                                                  discountPrice:
-                                                      product.discountPrice,
-                                                  // name: product.name,
-                                                  images: product.images,
-                                                  descriptions:
-                                                      product.description,
-                                                  categoryId:
-                                                      product.categoryId,
-                                                  price: isTakeAway
-                                                      ? (selectedProvider
-                                                              .selectedComboWithTakeAwayPrice ??
-                                                          0.0)
-                                                      : (selectedProvider
-                                                          .selectedComboPrice),
-                                                  quantity:
-                                                      selectedProvider.quantity,
-                                                  isCombo: true,
-                                                  type: "combo",
-                                                  comboId: product.id,
-                                                  childCategory:
-                                                      product.childCategory,
-                                                  disountPercent:
-                                                      product.disountPercent,
-                                                  takeAwayPrice:
-                                                      packingChargeValue,
-                                                  totalDeliveryTime: totalTime,
-                                                  prepareTime:product.time
+                                                id: product.id,
+                                                name: product.name,
+                                                categoryName:
+                                                    product.categoryName,
+                                                discountPrice:
+                                                    product.discountPrice,
+                                                // name: product.name,
+                                                images: product.images,
+                                                descriptions:
+                                                    product.description,
+                                                categoryId: product.categoryId,
+                                                price: isTakeAway
+                                                    ? (selectedProvider
+                                                            .selectedComboWithTakeAwayPrice ??
+                                                        0.0)
+                                                    : (selectedProvider
+                                                        .selectedComboPrice),
+                                                quantity:
+                                                    selectedProvider.quantity,
+                                                isCombo: true,
+                                                type: "combo",
+                                                comboId: product.id,
+                                                childCategory:
+                                                    product.childCategory,
+                                                disountPercent:
+                                                    product.disountPercent,
+                                                takeAwayPrice: isTakeAway
+                                                    ? packingChargeValue
+                                                    : null,
+                                                totalDeliveryTime: totalTime,
+                                                prepareTime: product.time,
+                                                categoryIds:categoryIds,
+                                                spicyLevel: spicyLevels,
 
                                               );
                                               final wasAdded = cartProvider
-                                                  .isDuplicate(cartItem);
+                                                  .isDuplicate(cartItem,
+                                                      sourcePage: "combo");
                                               if (!wasAdded) {
-                                                cartProvider.addToCart(context,
-                                                    cartItem); // Add only if not duplicate
+                                                cartProvider.addToCart(
+                                                    context, cartItem,
+                                                    sourcePage:
+                                                        "combo"); // Add only if not duplicate
                                                 Navigator.of(context).pop();
                                                 WidgetsBinding.instance
                                                     .addPostFrameCallback((_) {
@@ -1644,6 +1692,11 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                         product.disountPercent);
                                                   }
                                                 }); // Close the dialog
+                                                snackBar.customSnackBar(
+                                                  context: context,
+                                                  type: "1",
+                                                  strMessage: 'Item Added',
+                                                );
                                               } else {
                                                 FloatingMessage.show(
                                                   context: context,
@@ -1696,7 +1749,8 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                     .textStyleReemKufi
                                                     .copyWith(
                                                   color: Colors.white,
-                                                  fontSize: responsive.adOn,
+                                                  fontSize:
+                                                      responsive.priceTotal,
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                               ),
@@ -1814,6 +1868,11 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
     final screenHeight = screenSize.height;
     final screenWidth = screenSize.width;
     final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
+    final double priceBoxHeight = isTablet
+        ? screenHeight * 0.050
+        : screenHeight * 0.070; // 8% of screen height
+    final double addToCartHeight =
+        isTablet ? screenHeight * 0.050 : screenHeight * 0.070;
     // Keep selectedAddOns persistent during dialog lifecycle
     final List<String> selectedAddOns = [];
     final bool isDesktop = screenWidth >= 1024;
@@ -1822,6 +1881,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
+      isDismissible: false,
       backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -1914,16 +1974,27 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                         horizontal: 4.0),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
-                                      child: Image.network(
-                                        imageUrl,
+                                      child: CachedNetworkImage(
+                                        imageUrl: imageUrl,
                                         width: imageSize,
                                         height: imageSize,
-                                        //  fit: BoxFit.fill,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                          return const Icon(Icons.broken_image,
-                                              size: 60, color: Colors.grey);
-                                        },
+                                        fit: BoxFit
+                                            .cover, // optional, keeps proportions
+                                        placeholder: (context, url) =>
+                                            const Center(
+                                          child: Icon(
+                                            Icons
+                                                .image, // or any placeholder icon
+                                            size: 40,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(
+                                          Icons.broken_image,
+                                          size: 60,
+                                          color: Colors.grey,
+                                        ),
                                       ),
                                     ),
                                   );
@@ -2103,7 +2174,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                     Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: screenWidth * 0.04,
-                        vertical: screenHeight * 0.015,
+                        vertical: screenHeight * 0.0100,
                       ),
                       decoration: const BoxDecoration(
                         gradient: const LinearGradient(
@@ -2128,20 +2199,22 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                             width: isTablet
                                 ? priceWidth // If device is a tablet → use calculated priceWidth
                                 : null,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
+                            height: priceBoxHeight,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Column(
+                              mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
                                   'Price',
                                   style: AppStyle.textStyleReemKufi.copyWith(
                                     color: AppColor.primaryColor,
-                                    fontSize: responsive.descriptionSize,
+                                    fontSize: responsive.priceTitle,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -2154,9 +2227,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                       style:
                                           AppStyle.textStyleReemKufi.copyWith(
                                         color: AppColor.primaryColor,
-                                        fontSize: isDesktop
-                                            ? 22
-                                            : (isTablet ? 22 : 16),
+                                        fontSize: responsive.priceTotal,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     );
@@ -2170,7 +2241,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                           // Add to Cart Button
                           Expanded(
                             child: Container(
-                              height: isTablet ? 70 : 60,
+                              height: addToCartHeight,
                               child: ElevatedButton(
                                 onPressed: () {
                                   final cartProvider =
@@ -2211,7 +2282,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                 child: Text(
                                   'Add Add-on',
                                   style: AppStyle.textStyleReemKufi.copyWith(
-                                    fontSize: responsive.adOn,
+                                    fontSize: responsive.priceTotal,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -2232,56 +2303,115 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
   }
 }
 
-class HeatLevelSelector extends StatefulWidget {
-  @override
-  _HeatLevelSelectorState createState() => _HeatLevelSelectorState();
-}
+class HeatLevelSelector extends StatelessWidget {
+  final String categoryId;
 
-class _HeatLevelSelectorState extends State<HeatLevelSelector> {
-  int _selectedHeat = 0; // 0 - Mild, 1 - Medium, 2 - Hot
+  HeatLevelSelector({required this.categoryId});
 
   final List<String> heatLabels = ['Mild', 'Medium', 'Hot'];
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-              trackHeight: 8,
-              activeTrackColor:
-                  AppColor.primaryColor, // Hide default active track color
-              inactiveTrackColor:
-                  Colors.white, // Hide default inactive track color
-              valueIndicatorColor: AppColor.primaryColor,
-              thumbColor: AppColor.primaryColor),
-          child: Slider(
-            value: _selectedHeat.toDouble(),
-            min: 0,
-            max: 2,
-            divisions: 2,
-            label: heatLabels[_selectedHeat],
-            onChanged: (double value) {
-              setState(() {
-                _selectedHeat = value.round();
-              });
-            },
-          ),
-        ),
-      ],
+    final spicyProvider = context.watch<CategoryProvider>();
+    int selectedHeat = spicyProvider.getSpicyLevel(categoryId);
+
+    return SliderTheme(
+      data: SliderTheme.of(context).copyWith(
+        trackHeight: 8,
+        activeTrackColor: AppColor.primaryColor,
+        inactiveTrackColor: Colors.grey,
+        valueIndicatorColor: AppColor.primaryColor,
+        thumbColor: AppColor.primaryColor,
+      ),
+      child: Slider(
+        value: selectedHeat.toDouble(),
+        min: 0,
+        max: 2,
+        divisions: 2,
+        label: heatLabels[selectedHeat],
+        onChanged: (value) {
+          final newSpicy = value.round();
+
+          // ✅ Update provider
+          spicyProvider.setSpicyLevel(categoryId, newSpicy); spicyProvider.setSpicyLevel(categoryId, value.round());
+          print("Category ID: $categoryId | Selected Spicy Level: $newSpicy");
+        },
+      ),
     );
   }
 }
 
-class SearchCartRow extends StatelessWidget {
+
+
+class SearchCartRow extends StatefulWidget {
+  final TextEditingController controller;
+  final FocusNode focusNode;
   final int cartItemCount;
 
-  SearchCartRow({super.key, this.cartItemCount = 4});
-  final TextEditingController _controller = TextEditingController();
-  final FocusNode _searchFocusNode = FocusNode();
+  SearchCartRow({
+    super.key,
+    this.cartItemCount = 4,
+    required this.controller,
+    required this.focusNode,
+  });
 
   @override
+  State<SearchCartRow> createState() => _SearchCartRowState();
+}
+
+class _SearchCartRowState extends State<SearchCartRow> {
+  late TextEditingController _controller;
+  late FocusNode _searchFocusNode;
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
+
+  @override
+  @override
+  void initState() {
+    super.initState();
+    _speech = stt.SpeechToText();
+    _controller = TextEditingController();
+    _searchFocusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+  void _startListening() async {
+    bool available = await _speech.initialize(
+      onStatus: (val) => print('Speech status: $val'),
+      onError: (val) => print('Speech error: $val'),
+    );
+
+    if (available) {
+      setState(() => _isListening = true);
+
+      _speech.listen(
+        onResult: (val) {
+          setState(() {
+            widget.controller.text = val.recognizedWords;
+            widget.controller.selection = TextSelection.fromPosition(
+              TextPosition(offset: widget.controller.text.length),
+            );
+          });
+
+          // Trigger your search function
+          Provider.of<DashboardProvider>(context, listen: false)
+              .getComboProduct(context, widget.controller.text, "");
+
+          _stopListening(); // stop automatically after recognition
+        },
+      );
+    }
+  }
+
+  void _stopListening() {
+    _speech.stop();
+    setState(() => _isListening = false);
+  }
   Widget build(BuildContext context) {
     final responsive = Responsiveness(context);
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -2326,8 +2456,8 @@ class SearchCartRow extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: TextField(
-                    controller: _controller,
-                    focusNode: _searchFocusNode,
+                    controller: widget.controller,
+                    focusNode: widget.focusNode,
                     textAlign: TextAlign.start,
                     style: AppStyle.textStyleReemKufi.copyWith(
                       fontWeight: FontWeight.normal,
@@ -2346,14 +2476,18 @@ class SearchCartRow extends StatelessWidget {
                       contentPadding: EdgeInsets.zero, // removes extra padding
                     ),
                     onChanged: (value) {
-                      final provider = Provider.of<DashboardProvider>(
-                        context,
-                        listen: false,
-                      );
                       Provider.of<DashboardProvider>(context, listen: false)
-                          .getComboProduct(context, _controller.text, "");
+                          .getComboProduct(context, widget.controller.text, "");
                     },
+
                   ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    _isListening ? Icons.mic : Icons.mic_none,
+                    color: AppColor.primaryColor,
+                  ),
+                  onPressed: _isListening ? _stopListening : _startListening,
                 ),
               ],
             ),
@@ -2393,78 +2527,12 @@ class SearchCartRow extends StatelessWidget {
               color: AppColor.whiteColor,
             ),
             onPressed: () {
-              _searchFocusNode.unfocus();
+              widget.focusNode.unfocus();
               _openSortDialog(context);
               // Filter action here
             },
           ),
         ),
-        // Search Box
-        // Expanded(
-        //   child: Container(
-        //
-        //     decoration: BoxDecoration(
-        //       color: Colors.white,
-        //       borderRadius: BorderRadius.circular(12),
-        //       border: Border.all(color: Colors.grey.shade50, width: 1),
-        //       boxShadow: [
-        //         BoxShadow(
-        //           color: Colors.grey.withOpacity(0.3),
-        //           spreadRadius: 2,
-        //           blurRadius: 5,
-        //           offset: const Offset(0, 3), // changes position of shadow
-        //         ),
-        //       ],
-        //     ),
-        //     child: TextField(
-        //       controller: _controller,
-        //       focusNode: _searchFocusNode,
-        //       decoration:  InputDecoration(
-        //         hintText: 'Looking for a combo? Type here...',
-        //         hintStyle: TextStyle(
-        //           fontFamily: 'Reem Kufi',
-        //           fontWeight: FontWeight.w400,
-        //           fontSize: responsive.hintTextSize,
-        //           color: Colors.grey,
-        //         ),
-        //         prefixIcon: Icon(Icons.search, color: AppColor.lightGreyColor),
-        //         contentPadding:
-        //         EdgeInsets.symmetric(vertical: 15.0, horizontal: 5.0),
-        //         border: InputBorder.none,
-        //       ),
-        //       onChanged: (value) {
-        //         Provider.of<DashboardProvider>(context, listen: false)
-        //             .getComboProduct(context, _controller.text, "");
-        //       },
-        //     ),
-        //   ),
-        // ),
-        //
-        // const SizedBox(width: 8),
-        //
-        // Container(
-        //   height: isTablet ? 58 :54,
-        //   width: isTablet ? 58 :54,
-        //   decoration: BoxDecoration(
-        //     border: Border.all(color: AppColor.primaryColor),
-        //     borderRadius: BorderRadius.circular(12),
-        //     gradient: const LinearGradient(
-        //       colors: [
-        //         AppColor.secondary,
-        //         AppColor.primaryColor,
-        //       ],
-        //       begin: Alignment.topLeft,
-        //       end: Alignment.bottomCenter,
-        //     ),
-        //   ),
-        //   child: IconButton(
-        //     icon: const Icon(Icons.tune, color: AppColor.whiteColor),
-        //     onPressed: () {
-        //       _searchFocusNode.unfocus();
-        //       _openSortDialog(context);
-        //     },
-        //   ),
-        // ),
       ],
     );
   }
@@ -2485,7 +2553,7 @@ class SearchCartRow extends StatelessWidget {
 
     return showGeneralDialog<String>(
       context: context,
-      barrierDismissible: true,
+      barrierDismissible: false,
       barrierLabel: "Sort By",
       pageBuilder: (context, anim1, anim2) {
         return StatefulBuilder(
@@ -2696,191 +2764,7 @@ class SearchCartRow extends StatelessWidget {
       );
     }
   }
-// void _openSortDialog(BuildContext context) async {
-//   final provider = Provider.of<DashboardProvider>(context, listen: false);
-//   final selectedOption = await showSortByDialog(context, provider.selectedSort);
-//
-//   if (selectedOption != null && selectedOption.isNotEmpty) {
-//     provider.setSortOption(selectedOption,"");
-//
-//
-//     switch (selectedOption) {
-//       case 'Popular':
-//         provider.getComboProduct(context,"" ,'popular');
-//         break;
-//       case 'Newest':
-//         provider.getComboProduct(context, "",'newest');
-//         break;
-//       case 'Price: Lowest to high':
-//         provider.getComboProduct(context, "", 'price_asc');
-//         break;
-//       case 'Price: Highest to low':
-//         provider.getComboProduct(context, "", 'pce_desc');
-//         break;
-//     }
-//   }
-// }
 }
-
-// class PopupDialog {
-//   static Future<void> show(BuildContext context, String? discount,
-//       {Duration duration = const Duration(seconds: 5)}) async {
-//     showDialog(
-//       context: context,
-//       barrierDismissible: true,
-//       builder: (BuildContext context) {
-//         final screenSize = MediaQuery.of(context).size;
-//
-//         // Dialog dimensions
-//         final dialogWidth = screenSize.width * 0.8; // 80% of screen width
-//         final dialogHeight = screenSize.height * 0.45; // 45% of screen height
-//
-//         // Auto dismiss after duration
-//         Future.delayed(duration, () {
-//           if (Navigator.canPop(context)) {
-//             Navigator.of(context).pop();
-//           }
-//         });
-//
-//         return Center(
-//           child: Material(
-//             color: Colors.transparent,
-//             child: Stack(
-//               alignment: Alignment.center,
-//               clipBehavior: Clip.none, // Allows overflow outside Stack
-//               children: [
-//                 /// 🌟 **Top Floating Lottie Animation**
-//                 Positioned(
-//                   top: -dialogHeight * 0.30, // Float above dialog
-//                   child: Lottie.asset(
-//                     'assets/icons/lottie1.json',
-//                     height: dialogHeight * 0.35,
-//                     repeat: true,
-//                   ),
-//                 ),
-//
-//                 /// 🌟 **Bottom Floating Lottie Animation**
-//                 Positioned(
-//                   bottom: -dialogHeight * 0.25, // Float below dialog
-//                   child: Lottie.asset(
-//                     'assets/icons/lottie1.json',
-//                     height: dialogHeight * 0.35,
-//                     repeat: true,
-//                   ),
-//                 ),
-//
-//                 /// 🌟 **Left Floating Lottie Animation**
-//                 Positioned(
-//                   left: -dialogWidth * 0.25, // ✅ Move outside dialog for visibility
-//                   top: dialogHeight * 0.15,
-//                   child: Lottie.asset(
-//                     'assets/icons/lottie1.json',
-//                     height: dialogHeight * 0.6,
-//                     repeat: true,
-//                   ),
-//                 ),
-//                 Positioned(
-//                   right: -dialogWidth * 0.25, // Push slightly outside dialog
-//                   top: dialogHeight * 0.15,
-//                   child: Lottie.asset(
-//                     'assets/icons/lottie1.json',
-//                     height: dialogHeight * 0.6,
-//                     repeat: true,
-//                   ),
-//                 ),
-//                 /// 🌟 **Main Dialog Container**
-//                 Container(
-//                   width: dialogWidth,
-//                   height: dialogHeight,
-//                   padding: const EdgeInsets.all(20),
-//                   decoration: BoxDecoration(
-//                     color: Colors.white,
-//                     borderRadius: BorderRadius.circular(24),
-//                     boxShadow: const [
-//                       BoxShadow(
-//                         color: Colors.black12,
-//                         blurRadius: 10,
-//                         offset: Offset(0, 4),
-//                       ),
-//                     ],
-//                   ),
-//                   child: Column(
-//                     mainAxisSize: MainAxisSize.min,
-//                     children: [
-//                       const SizedBox(height: 10),
-//
-//                       /// 🏆 Center Animated Discount Icon
-//                       Lottie.asset(
-//                         'assets/icons/lottie2.json',
-//                         height: dialogHeight * 0.35,
-//                         repeat: false,
-//                       ),
-//
-//                       const SizedBox(height: 20),
-//
-//                      Text(
-//                         "Woo hoo!!",
-//                         style: AppTextStyles.nunitoBold(30, color:  AppColor.blackColor),
-//
-//                       ),
-//
-//                       const SizedBox(height: 10),
-//
-//                       /// Discount Text
-//                       Expanded(
-//                         child: Center(
-//                           child: RichText(
-//                             textAlign: TextAlign.center,
-//                             text: TextSpan(
-//                               style: const TextStyle(
-//                                 fontSize: 16,
-//                                 color: Colors.black87,
-//                               ),
-//                               children: [
-//                                 TextSpan(
-//                                   text: "Smart choice! ",
-//                                   style: AppStyle.textStyleReemKufi.copyWith(
-//                                     color: AppColor.greyColor,
-//                                     fontSize: 16,
-//                                   ),
-//                                 ),
-//                                 TextSpan(
-//                                   text: " ${discount}% off applied\n",
-//                                   style: AppStyle.textStyleReemKufi.copyWith(
-//                                     color: AppColor.primaryColor,
-//                                     fontSize: 16,
-//                                   ),
-//                                 ),
-//                                 TextSpan(
-//                                   text: "successfully!",
-//                                   style: AppStyle.textStyleReemKufi.copyWith(
-//                                     color: AppColor.greyColor,
-//                                     fontSize: 16,
-//                                   ),
-//                                 ),
-//                               ],
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//
-//                       /// ✅ Success Check Animation
-//                       Lottie.asset(
-//                         'assets/icons/lottie3.json',
-//                         height: dialogHeight * 0.2,
-//                         repeat: false,
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-// }
 
 class PopupDialog {
   static Future<void> show(

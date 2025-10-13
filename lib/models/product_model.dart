@@ -59,6 +59,7 @@ class ComboProductModel {
   final List<ChildCategory> childCategory;
   final List<AddOnModel> addOns;
   final List<String> spicy;// <-- new
+  final List<String> categoryIds;
 
   ComboProductModel({
     required this.id,
@@ -79,6 +80,7 @@ class ComboProductModel {
     required this.childCategoryIds,
     required this.addOns,
     required this.spicy,
+    required this.categoryIds
 
   });
 
@@ -133,10 +135,20 @@ class ComboProductModel {
       description: json['description'] != null
           ? List<String>.from(json['description'])
           : [],
-      spicy: json['spicy_level'] != null
-          ? List<String>.from(json['spicy_level'])
+      spicy: (json['spicy_level'] != null && json['spicy_level'] is List)
+          ? List<String>.from(
+          (json['spicy_level'] as List).where((e) => e != null).map((e) => e.toString())
+      )
           : [],
-      addOns: parsedAddOns, childCategory: [],
+
+
+      addOns: parsedAddOns, childCategory: [], categoryIds: json['category_id'] != null
+? List<String>.from((json['category_id'] as String)
+    .replaceAll('[', '')
+    .replaceAll(']', '')
+    .replaceAll('"', '')
+    .split(','))
+    : [],
     );
   }
 }
@@ -156,7 +168,7 @@ class CartItemModel {
   final String? childCategoryName;
   final bool? isCombo;
   double? takeAwayPrice;
-  String? heatLevel;
+//  String? heatLevel;
   final String? type; // type of cart item (e.g., normal, offer, etc.)
   final int? comboId;
   final int? totalDeliveryTime;
@@ -171,6 +183,10 @@ class CartItemModel {
   final String? discountPrice;
   List<String>? addOnNames;
   List<double>? addOnPrices;
+  final String? cartKey;
+  int? heatLevel;
+  List<String>? spicyLevel;
+  List<String>? categoryIds;
 
 
   CartItemModel({
@@ -201,7 +217,10 @@ class CartItemModel {
     this.descriptions,
     this.discountPrice,
     this.addOnNames,
-    this.addOnPrices
+    this.addOnPrices,
+    this.cartKey,
+    this.spicyLevel,
+    this.categoryIds
   });
 
   // Factory constructor from ProductModel
@@ -225,7 +244,12 @@ class CartItemModel {
       'sub_category_id': subCategoryId,
       'price': price,
       'quantity': quantity,
-      'child_category_id': childCategoryId,
+     // 'child_category_id': childCategoryId,
+      'child_category_id': (childCategoryId == 'home' ||
+          childCategoryId == 'bugOne' ||
+          childCategoryId == 'combo')
+          ? null
+          : childCategoryId,
       //   'childcategoryName': childCategoryName,
       'take_away_price': takeAwayPrice,
       "type": type,
@@ -257,3 +281,70 @@ class CartItemModel {
 
   double get totalPrice => price * quantity;
 }
+
+extension CartItemModelCopy on CartItemModel {
+  CartItemModel copyWith({
+    int? id,
+    String? name,
+    String? description,
+    List<String>? images,
+    int? categoryId,
+    double? price,
+    int? quantity,
+    List<String>? descriptions,
+    int? subCategoryId,
+    String? childCategoryId,
+    String? childCategoryName,
+    bool? isCombo,
+    double? takeAwayPrice,
+    int? heatLevel,
+    String? type,
+    int? comboId,
+    int? totalDeliveryTime,
+    String? prepareTime,
+    List<String>? subCategoryIds,
+    List<String>? childCategoryIds,
+    List<ChildCategory>? childCategory,
+    List<String>? categoryName,
+    String? spicy,
+    String? image,
+    String? disountPercent,
+    String? discountPrice,
+    List<String>? addOnNames,
+    List<double>? addOnPrices,
+    String? cartKey,
+  }) {
+    return CartItemModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      images: images ?? this.images,
+      categoryId: categoryId ?? this.categoryId,
+      price: price ?? this.price,
+      quantity: quantity ?? this.quantity,
+      descriptions: descriptions ?? this.descriptions,
+      subCategoryId: subCategoryId ?? this.subCategoryId,
+      childCategoryId: childCategoryId ?? this.childCategoryId,
+      childCategoryName: childCategoryName ?? this.childCategoryName,
+      isCombo: isCombo ?? this.isCombo,
+      takeAwayPrice: takeAwayPrice ?? this.takeAwayPrice,
+      heatLevel: heatLevel ?? this.heatLevel,
+      type: type ?? this.type,
+      comboId: comboId ?? this.comboId,
+      totalDeliveryTime: totalDeliveryTime ?? this.totalDeliveryTime,
+      prepareTime: prepareTime ?? this.prepareTime,
+      subCategoryIds: subCategoryIds ?? this.subCategoryIds,
+      childCategoryIds: childCategoryIds ?? this.childCategoryIds,
+      childCategory: childCategory ?? this.childCategory,
+      categoryName: categoryName ?? this.categoryName,
+      spicy: spicy ?? this.spicy,
+      image: image ?? this.image,
+      disountPercent: disountPercent ?? this.disountPercent,
+      discountPrice: discountPrice ?? this.discountPrice,
+      addOnNames: addOnNames ?? this.addOnNames,
+      addOnPrices: addOnPrices ?? this.addOnPrices,
+      cartKey: cartKey ?? this.cartKey,
+    );
+  }
+}
+

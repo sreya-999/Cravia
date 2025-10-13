@@ -34,6 +34,8 @@ class AppColor{
   static const Color deleteRed = Color(0xFFE31E24);
   Color lightPink = const Color(0xFFFF939B);
 
+  static Color tableGreenColor = const Color(0xFF2EAA0F);
+
 //Color myColor = Color(0xFFCC5500);
  // Color myColor = Color(0xFFFFE0B2);
 

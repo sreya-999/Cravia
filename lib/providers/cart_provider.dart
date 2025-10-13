@@ -148,38 +148,81 @@ class CartProvider with ChangeNotifier {
   //   }
   //   notifyListeners();
   // }
-  void addToCart(BuildContext context, CartItemModel newItem) {
-    // Find existing item with same id & childCategoryId
+  void addToCart(BuildContext context, CartItemModel newItem, {String? sourcePage}) {
+    // Use childCategoryId if present, otherwise use sourcePage, otherwise 'default'
+    final String contextKey = newItem.childCategoryId ?? sourcePage ?? 'default';
+
+    // Find existing item by product id + contextKey
     final index = _items.indexWhere(
-          (item) => item.id == newItem.id && item.childCategoryId == newItem.childCategoryId,
+          (item) =>
+      item.id == newItem.id &&
+          ((item.childCategoryId ?? 'default') == contextKey),
     );
 
     if (index != -1 && _items[index].quantity == newItem.quantity) {
-      // Product already added with same quantity
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Product already added with same quantity!'),
-          duration: const Duration(seconds: 2),
+          duration: Duration(seconds: 2),
         ),
       );
-      return; // Do NOT add or replace, do NOT close dialog
+      return;
     }
 
+    final CartItemModel itemToStore = newItem.copyWith(childCategoryId: contextKey);
+
     if (index != -1) {
-      // Quantity is different, update the item
-      _items[index] = newItem;
+      // Update existing entry
+      _items[index] = itemToStore;
     } else {
-      // New item, add to cart
-      _items.add(newItem);
+      // Add as a distinct entry
+      _items.add(itemToStore);
     }
 
     notifyListeners();
   }
+/// how to call the addToCart function
+  // void addToCart(BuildContext context, CartItemModel newItem) {
+  //   // Find existing item with same id & childCategoryId
+  //   final index = _items.indexWhere(
+  //         (item) => item.id == newItem.id && item.childCategoryId == newItem.childCategoryId,
+  //   );
+  //
+  //   if (index != -1 && _items[index].quantity == newItem.quantity) {
+  //     // Product already added with same quantity
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Product already added with same quantity!'),
+  //         duration: const Duration(seconds: 2),
+  //       ),
+  //     );
+  //     return; // Do NOT add or replace, do NOT close dialog
+  //   }
+  //
+  //   if (index != -1) {
+  //     // Quantity is different, update the item
+  //     _items[index] = newItem;
+  //   } else {
+  //     // New item, add to cart
+  //     _items.add(newItem);
+  //   }
+  //
+  //   notifyListeners();
+  // }
 
 
-  bool isDuplicate(CartItemModel newItem) {
+  // bool isDuplicate(CartItemModel newItem) {
+  //   final index = _items.indexWhere(
+  //         (item) => item.id == newItem.id && item.childCategoryId == newItem.childCategoryId,
+  //   );
+  //   return index != -1 && _items[index].quantity == newItem.quantity;
+  // }
+  bool isDuplicate(CartItemModel newItem, {String? sourcePage}) {
+    final contextKey = newItem.childCategoryId ?? sourcePage ?? 'default';
     final index = _items.indexWhere(
-          (item) => item.id == newItem.id && item.childCategoryId == newItem.childCategoryId,
+          (item) =>
+      item.id == newItem.id &&
+          ((item.childCategoryId ?? 'default') == contextKey),
     );
     return index != -1 && _items[index].quantity == newItem.quantity;
   }
@@ -230,6 +273,15 @@ class CartProvider with ChangeNotifier {
     return total;
   }
 
+  double get taxAmount {
+    return subTotal * 0.12;
+  }
+
+// Total including tax
+  double get totalWithTax {
+    return subTotal + taxAmount;
+  }
+
   double get subTotalss {
     double total = 0;
     for (var item in _items) {
@@ -260,16 +312,33 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  CartItemModel? getCartItemById(int productId, {String? childCategoryId}) {
+  // CartItemModel? getCartItemById(int productId, {String? childCategoryId}) {
+  //   try {
+  //     return _items.firstWhere(
+  //           (item) => item.id == productId && item.childCategoryId == childCategoryId,
+  //     );
+  //   } catch (e) {
+  //     return null;
+  //   }
+  // }
+
+  CartItemModel? getCartItemById(
+      int productId, {
+        String? childCategoryId,
+        String? sourcePage,
+      }) {
+    final contextKey = childCategoryId ?? sourcePage ?? 'default';
+
     try {
       return _items.firstWhere(
-            (item) => item.id == productId && item.childCategoryId == childCategoryId,
+            (item) =>
+        item.id == productId &&
+            ((item.childCategoryId ?? 'default') == contextKey),
       );
     } catch (e) {
       return null;
     }
   }
-
 
   String? _selectedTable;
 
@@ -313,26 +382,49 @@ class CartProvider with ChangeNotifier {
   // }
 
   double get averageEstimatedTime {
-    int totalTime = 0;
-    int totalQuantity = 0;
+    double maxPrepTime = 0;
 
     for (var item in _items) {
-      if (item.prepareTime != null) {
-        // Clean up delivery time string like "30 mins"
-        final baseTime = int.tryParse(
-          item.prepareTime.toString().toLowerCase().replaceAll("mins", "").trim(),
-        ) ?? 0;
+      // Parse base prep time (in minutes)
+      final prepareTimeStr = item.prepareTime?.toString().trim() ?? '';
+      final baseTime = double.tryParse(
+        prepareTimeStr.replaceAll(RegExp(r'[^0-9]'), ''),
+      ) ??
+          0;
 
-        print("Item: ${item.name}, Prepare Time: $baseTime mins, Quantity: ${item.quantity}");
-
-        totalTime += baseTime * item.quantity;
-        totalQuantity += item.quantity;
+      if (baseTime <= 0) {
+        print("⚠️ Item: ${item.name}, Invalid or missing base time — skipped");
+        continue;
       }
+
+      // Derive extra time dynamically based on base time
+      double extraTime;
+      if (baseTime <= 5) {
+        extraTime = 1;
+      } else if (baseTime <= 10) {
+        extraTime = 2;
+      } else if (baseTime <= 20) {
+        extraTime = 3;
+      } else {
+        extraTime = 5;
+      }
+
+      // Apply formula: Base Time + (Extra Time × (Quantity - 1))
+      final itemPrepTime = baseTime + (extraTime * (item.quantity - 1));
+
+      // Track the max prep time across all items
+      if (itemPrepTime > maxPrepTime) {
+        maxPrepTime = itemPrepTime;
+      }
+
+      print(
+        "🕒 Item: ${item.name}, Base: $baseTime, Extra: $extraTime, Qty: ${item.quantity}, Total Prep: $itemPrepTime",
+      );
     }
 
-    if (totalQuantity == 0) return 0; // avoid division by zero
-    return totalTime / totalQuantity;
+    return maxPrepTime;
   }
+
 
   int get totalEstimatedTime {
     int totalTime = 0;
@@ -358,6 +450,15 @@ class CartProvider with ChangeNotifier {
       if (charge != null) totalCharge += charge * item.quantity;
     }
     return totalCharge;
+  }
+
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  void setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
   }
 
 }

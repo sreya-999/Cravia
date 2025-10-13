@@ -7,6 +7,7 @@ import 'package:ravathi_store/models/category_models.dart';
 import '../models/items_model.dart';
 import '../models/login_model.dart';
 import '../models/product_model.dart';
+import '../models/table_model.dart';
 import '../urls/api_endpoints.dart';
 import '../utlis/constant/constants.dart';
 import '../utlis/share_preference_helper/sharereference_helper.dart';
@@ -108,7 +109,7 @@ class DownloadManager {
 
       // Print final URL
       print("Request URL: $url");
-
+      print("Query Parameters: $queryParams");
       final response = await apiManager.dio.get(
         url,
         queryParameters: queryParams.isNotEmpty ? queryParams : null,
@@ -314,4 +315,30 @@ class DownloadManager {
     }
   }
 
+
+  Future<List<TableModel>?> getTable(BuildContext context) async {
+    try {
+      final response = await apiManager.dio.get(
+        '${ApiEndpoints.baseUrl}${ApiEndpoints.getTable}',
+      );
+
+      if (response.statusCode == 201) {
+        final List<dynamic> data = response.data['data'];
+        final tableResponse = TableResponse.fromJson(response.data);
+        final int count = tableResponse.count;
+        print(count);
+        print('timeslot: $data');
+
+        List<TableModel> tableList = data.map((e) => TableModel.fromJson(e)).toList();
+
+        print('timeslot: $tableList');
+        return tableList;
+      } else {
+        throw Exception('Unexpected status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      ErrorHandler.handleError(context, e);
+      return null;
+    }
+  }
 }

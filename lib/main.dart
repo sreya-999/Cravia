@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:ravathi_store/providers/dashboard_provider.dart';
 import 'package:ravathi_store/utlis/share_preference_helper/sharereference_helper.dart';
 import 'package:ravathi_store/views/selection_screen.dart';
+import 'package:ravathi_store/views/splash_screen.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -48,7 +49,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home:SelectionScreen()
+      home:SplashScreen()
     );
   }
 }

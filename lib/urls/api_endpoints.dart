@@ -1,7 +1,7 @@
 class ApiEndpoints {
   static const String baseUrl = 'https://m8cravia.m8talents.in';
   static const String imageBaseUrl = 'https://m8cravia.m8talents.in/public';
- ///static const String baseUrl='http://192.168.1.23/project/m8cravia';
+ //static const String baseUrl='http://192.168.1.23/project/m8cravia';
   static const String loginEndPoint='vendor/login';
   static const String banner='/api/banner';
   //static const String imageBaseUrl='http://192.168.1.23/project/m8cravia/public';
@@ -12,4 +12,6 @@ class ApiEndpoints {
   static const String login = '/api/sendOtp';
   static const String verifyOTP = '/api/verifyOtp';
   static const String placeOrder = '/api/placeOrder';
+  static const String getTable = '/api/table';
+ static const String addTableReserved = '/api/reserveTable';
 }

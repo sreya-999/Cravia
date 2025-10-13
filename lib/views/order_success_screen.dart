@@ -12,9 +12,9 @@ import '../providers/dashboard_provider.dart';
 import '../utlis/App_image.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-
 import '../utlis/widgets/responsive.dart';
 import '../utlis/widgets/responsiveness.dart';
+import 'boarding_screen.dart';
 
 class OrderSuccessScreen extends StatefulWidget {
   final OrderModel? order; // Add order model
@@ -26,7 +26,6 @@ class OrderSuccessScreen extends StatefulWidget {
 }
 
 class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -44,7 +43,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => SelectionScreen()),
-                (route) => false, // remove all previous routes
+            (route) => false, // remove all previous routes
           );
         }
       },
@@ -58,7 +57,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                 gradient: LinearGradient(
                   colors: [AppColor.secondary, AppColor.primaryColor],
                   begin: AlignmentDirectional(0.0, -3.0), // top-center
-                  end: AlignmentDirectional(0.0, 1.0),   // bottom-center
+                  end: AlignmentDirectional(0.0, 1.0), // bottom-center
                   stops: [0.0, 1.0],
                   tileMode: TileMode.clamp,
                 ),
@@ -73,8 +72,10 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                   vertical: r.hp(2),
                 ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center, // 👈 Center vertically
-                  crossAxisAlignment: CrossAxisAlignment.center, // 👈 Center horizontally
+                  mainAxisAlignment:
+                      MainAxisAlignment.center, // 👈 Center vertically
+                  crossAxisAlignment:
+                      CrossAxisAlignment.center, // 👈 Center horizontally
                   children: [
                     /// Success icon and text in the same row
                     Row(
@@ -98,15 +99,6 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                     ),
 
                     SizedBox(height: r.hp(5)),
-
-                    Image.asset(
-                      AppImage.receipt,
-                      height: r.hp(25),
-                      fit: BoxFit.cover,
-                    ),
-
-                    SizedBox(height: r.hp(3.5)),
-
                     Text(
                       "Your Order No: ${widget.order?.orderId}",
                       style: AppStyle.textStyleReemKufi.copyWith(
@@ -115,25 +107,14 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                         color: Colors.white,
                       ),
                     ),
-                    Text(
-                      "${widget.order?.orderNo}",
-                      style: AppStyle.textStyleReemKufi.copyWith(
-                        fontSize: r.sp(5, max: 27),
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                    SizedBox(height: r.hp(1)),
+                    Image.asset(
+                      AppImage.receipt,
+                      height: r.hp(25),
+                      fit: BoxFit.cover,
                     ),
-                    if (cartProvider.selectedTable != null)
-                      Text(
-                        'Selected table: ${cartProvider.selectedTable}',
-                        style: AppStyle.textStyleReemKufi.copyWith(
-                          fontSize: r.sp(5, max: 27),
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    SizedBox(height: r.hp(4)),
 
+                    SizedBox(height: r.hp(3.5)),
                     Text(
                       "Collect your Food on Counter",
                       textAlign: TextAlign.center,
@@ -143,17 +124,40 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                         color: Colors.white,
                       ),
                     ),
-
                     SizedBox(height: r.hp(1)),
-
                     Text(
-                      "Note: Please collect Your receipt",
-                      textAlign: TextAlign.center,
+                      "${widget.order?.orderNo}",
                       style: AppStyle.textStyleReemKufi.copyWith(
-                        fontSize: r.sp(3.5, max: 16),
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white70,
+                        fontSize: r.sp(5, max: 27),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
+                    ),
+                    if (isDineIn && cartProvider.selectedTable != null)
+                      Text(
+                        'Selected table: ${cartProvider.selectedTable}',
+                        style: AppStyle.textStyleReemKufi.copyWith(
+                          fontSize: r.sp(5, max: 27),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+
+                    SizedBox(height: r.hp(4)),
+                    SizedBox(height: r.hp(1)),
+                    Row(
+                      children: [
+                        Text(
+                          "Thanks a bunch for grabbing a bite with us!",
+                          textAlign: TextAlign.center,
+                          style: AppStyle.textStyleReemKufi.copyWith(
+                            fontSize: r.sp(5, max: 22),
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Image.asset(AppImage.emoji)
+                      ],
                     ),
 
                     SizedBox(height: r.hp(15)),
@@ -163,8 +167,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 35.0),
                           child: SizedBox(
-                            height:isTablet ? 50 :45,
-
+                            height: isTablet ? 50 : 45,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 minimumSize: Size(double.infinity, r.hp(4)),
@@ -175,14 +178,18 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                 ),
                               ),
                               onPressed: () {
-                                final provider = Provider.of<DashboardProvider>(context, listen: false);
+                                final provider = Provider.of<DashboardProvider>(
+                                    context,
+                                    listen: false);
                                 provider.clearSort();
                                 cartProvider.clearCart();
                                 cartProvider.clearSelection();
                                 Navigator.pushAndRemoveUntil(
                                   context,
-                                  MaterialPageRoute(builder: (_) => SelectionScreen()),
-                                      (Route<dynamic> route) => false,
+                                  MaterialPageRoute(
+                                      builder: (_) =>
+                                          AutoScrollLiquidSwipeScreen()),
+                                  (Route<dynamic> route) => false,
                                 );
                               },
                               child: Text(
@@ -205,7 +212,6 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
           ],
         ),
       ),
-
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:ravathi_store/utlis/App_color.dart';
 import 'package:ravathi_store/utlis/widgets/responsiveness.dart';
+import 'package:ravathi_store/views/table_seat_selection.dart';
 import 'package:ravathi_store/views/table_selection_screen.dart';
 // import your OrderModel
 import '../models/order_model.dart';
@@ -26,31 +27,56 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
   @override
   void initState() {
     super.initState();
-
-    // Wait for 3 seconds, then navigate
     Future.delayed(const Duration(seconds: 3), () {
-
-      if (mounted) {
-        final isDineIn = Provider.of<CategoryProvider>(context, listen: false).isDineIn;
-
-        if (isDineIn) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => TableSelectionScreen(order: widget.order)),
-          );
-          context.read<CartProvider>().clearCart();
-          // Navigator.pushReplacement(
-          //   context,
-          //   MaterialPageRoute(builder: (_) => OrderSuccessScreen(order: widget.order,)),
-          // );
-        } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => OrderSuccessScreen(order: widget.order,)),
-          );
-        }
-      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => OrderSuccessScreen(order: widget.order,)),
+      );
+      // if (mounted) {
+      //   final isDineIn = Provider.of<CategoryProvider>(context, listen: false).isDineIn;
+      //
+      //   if (isDineIn) {
+      //     Navigator.pushReplacement(
+      //       context,
+      //       MaterialPageRoute(builder: (_) => TableSelectionScreen(order: widget.order)),
+      //     );
+      //     context.read<CartProvider>().clearCart();
+      //     // Navigator.pushReplacement(
+      //     //   context,
+      //     //   MaterialPageRoute(builder: (_) => OrderSuccessScreen(order: widget.order,)),
+      //     // );
+      //   } else {
+      //     Navigator.pushReplacement(
+      //       context,
+      //       MaterialPageRoute(builder: (_) => OrderSuccessScreen(order: widget.order,)),
+      //     );
+      //   }
+      // }
     });
+    // Wait for 3 seconds, then navigate
+    // Future.delayed(const Duration(seconds: 3), () {
+    //
+    //   if (mounted) {
+    //     final isDineIn = Provider.of<CategoryProvider>(context, listen: false).isDineIn;
+    //
+    //     if (isDineIn) {
+    //       // Navigator.pushReplacement(
+    //       //   context,
+    //       //   MaterialPageRoute(builder: (_) => TableAvailableScreen(order: widget.order)),
+    //       // );
+    //       context.read<CartProvider>().clearCart();
+    //       // Navigator.pushReplacement(
+    //       //   context,
+    //       //   MaterialPageRoute(builder: (_) => OrderSuccessScreen(order: widget.order,)),
+    //       // );
+    //     } else {
+    //       Navigator.pushReplacement(
+    //         context,
+    //         MaterialPageRoute(builder: (_) => OrderSuccessScreen(order: widget.order,)),
+    //       );
+    //     }
+    //   }
+    // });
 
   }
 

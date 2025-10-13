@@ -4,6 +4,7 @@ import 'package:ravathi_store/models/category_models.dart';
 import '../models/banner_model.dart';
 import '../models/items_model.dart';
 import '../models/product_model.dart';
+import '../models/table_model.dart';
 import '../service/download_manager.dart';
 
 class DashboardProvider extends ChangeNotifier {
@@ -20,6 +21,10 @@ class DashboardProvider extends ChangeNotifier {
 
   String get selectedSort => _selectedSort;
   String get selectedSortLabel => _selectedSortLabel;
+
+  List<TableModel>? _table;
+
+  List<TableModel>? get table => _table;
 
   void setSortOption(String apiSort, String label) {
     _selectedSort = apiSort;
@@ -44,10 +49,13 @@ class DashboardProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void clearComboSort() {
+  void clearComboSort({bool notify = true}) {
     _comboSelectedSort = '';
     _comboSelectedSortLabel = '';
-    notifyListeners();
+
+    if (notify) {
+      notifyListeners();
+    }
   }
 
   // 🔸 Offer products
@@ -116,12 +124,38 @@ class DashboardProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getSearchProduct(BuildContext context,String? searchText,int? categoryId) async {
-    setLoading(true);
-    _items = await DownloadManager().searchText(context,searchText,categoryId);
-    setLoading(false);
-    notifyListeners();
+  Future<void> getSearchProduct(BuildContext context, String? searchText, int? categoryId) async {
+    try {
+      setLoading(true);
+
+      // If search text is empty, reset selected category
+      if (searchText == null || searchText.isEmpty) {
+        selectCategory(selectedCategoryId); // reset category
+        _items = []; // clear previous search results
+        notifyListeners();
+        return;
+      }
+
+      // Fetch search result from your DownloadManager
+      final searchResults = await DownloadManager().searchText(context, searchText, categoryId);
+
+      _items = searchResults; // Assign to your list
+
+      // If items are found, set the selected category from the first item
+      if (_items!.isNotEmpty && _items?.first.categoryId != null) {
+        selectCategory(_items!.first.categoryId);
+      }
+
+    } catch (e) {
+      debugPrint('Error fetching search products: $e');
+    } finally {
+      setLoading(false);
+      notifyListeners();
+    }
   }
+
+
+
 
   Future<void> getBuyOneOffer(BuildContext context,String? searchText,String? sortBy) async {
     setLoading(true);
@@ -140,6 +174,13 @@ class DashboardProvider extends ChangeNotifier {
   Future<void> getComboProduct(BuildContext context,String? searchText,String sortBy) async {
     setLoading(true);
     _comboProduct = await DownloadManager().getComboOffer(context,searchText,sortBy);
+    setLoading(false);
+    notifyListeners();
+  }
+
+  Future<void> getTable(BuildContext context) async {
+    setLoading(true);
+    _table = await DownloadManager().getTable(context);
     setLoading(false);
     notifyListeners();
   }

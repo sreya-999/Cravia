@@ -48,14 +48,12 @@ class ShowSnackBar {
                     ),
                   ),
                 ),
-                // Lottie.asset(
-                //   type == "1"
-                //       ? 'assets/lottie/snack_success.json'
-                //       : 'assets/lottie/snack_failed.json',
-                //   width: 24,
-                //   height: 24,
-                //   repeat: false,
-                // ),
+                Icon(
+                  type == "1" ? Icons.check_circle : Icons.error, // success or error
+                  color: type == "1" ? Colors.white : Colors.white, // green for success, red for error
+                  size: 24,
+                )
+
               ],
             ),
           ),

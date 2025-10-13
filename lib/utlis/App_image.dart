@@ -20,7 +20,7 @@ class AppImage{
   static const String logo3='assets/icons/logo3.png';
   static const String logo2='assets/icons/logo5.png';
   static const String cross ='assets/icons/cross.svg';
-  static const String emoji ='assets/icons/emoji.svg';
+  static const String emoji ='assets/icons/emoji1.png';
   static const String addOn ='assets/icons/add_on.svg';
   static const String backArrow ='assets/icons/backarrow.svg';
   static const String take ='assets/icons/take.svg';
@@ -30,5 +30,6 @@ class AppImage{
   static const String cancel ='assets/icons/cancel.svg';
   static const String logout ='assets/icons/logout.svg';
   static const String spoon ='assets/icons/spoon.svg';
-
+  static const String tickIcon ='assets/icons/tick_icon.svg';
+  
 }

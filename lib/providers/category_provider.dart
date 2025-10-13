@@ -30,6 +30,50 @@ class CategoryProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Map<String, int> _spicyLevels = {};
+
+  Map<String, int> get spicyLevels => _spicyLevels;
+
+// Set spicy level for a category
+  void setSpicyLevel(String categoryId, int level) {
+    _spicyLevels[categoryId] = level;
+    notifyListeners();
+  }
+
+// Get spicy level for a specific category
+  int getSpicyLevel(String categoryId) {
+    return _spicyLevels[categoryId] ?? 0;
+  }
+
+  void loadSpicyFromCart(CartItemModel cartItem) {
+    _spicyLevels.clear();
+
+    // Safely check for null or mismatched lengths
+    if (cartItem.categoryIds == null || cartItem.spicyLevel == null) {
+      print("⚠️ Missing categoryIds or spicyLevel in cartItem");
+      return;
+    }
+
+    final int minLength =
+    cartItem.categoryIds!.length < cartItem.spicyLevel!.length
+        ? cartItem.categoryIds!.length
+        : cartItem.spicyLevel!.length;
+
+    for (int i = 0; i < minLength; i++) {
+      final String categoryId = cartItem.categoryIds![i];
+      final String spicyValue = cartItem.spicyLevel![i];
+
+      if (categoryId.isNotEmpty && spicyValue.isNotEmpty) {
+        _spicyLevels[categoryId] = int.tryParse(spicyValue) ?? 0;
+        print("✅ Category ID: $categoryId | Selected Spicy Level: ${_spicyLevels[categoryId]}");
+      }
+    }
+
+    notifyListeners();
+  }
+
+
+
 
   String _selectedSize = 'Small';
 

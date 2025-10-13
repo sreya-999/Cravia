@@ -20,11 +20,12 @@ import '../utlis/App_image.dart';
 import '../utlis/App_style.dart';
 import '../utlis/share_preference_helper/sharereference_helper.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import 'package:country_code_picker/country_code_picker.dart';
 import '../utlis/widgets/app_text_style.dart';
 import '../utlis/widgets/custom_exit_dialog.dart';
 import '../utlis/widgets/responsiveness.dart';
 import 'combo_offer_screen.dart';
+import 'expandable_menu_button.dart';
 import 'home_screen.dart';
 
 class ViewOrderScreen extends StatelessWidget {
@@ -42,7 +43,7 @@ class ViewOrderScreen extends StatelessWidget {
       print('Discount Price: ${item.discountPrice}');
       print('Quantity: ${item.quantity}');
       print('Selected Child Category: ${item.childCategoryId}');
-      print('TakeAway Price: ${item.takeAwayPrice}');
+      print('time: ${item.prepareTime}');
       print('Total Price: ${item.totalPrice}');
     }
     final responsive = Responsiveness(context);
@@ -52,13 +53,13 @@ class ViewOrderScreen extends StatelessWidget {
     final double buttonPaddingH = isDesktop
         ? 36
         : isTablet
-            ? 32
-            : 28;
+        ? 32
+        : 28;
     final double buttonPaddingV = isDesktop
         ? 18
         : isTablet
-            ? 16
-            : 14;
+        ? 16
+        : 14;
     int totalQuantity = orderedItems.fold<int>(
       0,
           (sum, item) => sum + item.quantity,
@@ -74,313 +75,28 @@ class ViewOrderScreen extends StatelessWidget {
       appBar: const CustomAppBar(
         title: 'Your Cart',
       ),
-      // bottomNavigationBar: Consumer<CartProvider>(
-      //   builder: (context, cartProvider, _) {
-      //     final prefHelper = getIt<SharedPreferenceHelper>();
-      //     final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
-      //     int estimatedTimeInMinutes =
-      //         cartProvider.averageEstimatedTime.round();
-      //     String formattedTime = formatTime(estimatedTimeInMinutes);
-      //     final estimatedTime = cartProvider
-      //         .formatTime(cartProvider.averageEstimatedTime.round());
-      //     // int estimatedTimeInMinutes = cartProvider.totalEstimatedTime;
-      //     // String formattedTime = formatTime(estimatedTimeInMinutes);
-      //     // final estimatedTime =
-      //     // cartProvider.formatTime(cartProvider.totalEstimatedTime);
-      //     double packingCharge = cartProvider.totalPackingCharge;
-      //     print("Packing Charge: $packingCharge");
-      //     if (cartProvider.items.isEmpty) {
-      //       return const SizedBox.shrink(); // empty widget
-      //     }
-      //     double total;
-      //
-      //     if (isTakeAway) {
-      //       total = cartProvider.subTotal;
-      //     } else {
-      //       total = cartProvider.subTotal - packingCharge;
-      //       ;
-      //     }
-      //
-      //     double subTotal;
-      //     if (isTakeAway) {
-      //       // When isTakeAway is TRUE → subtract the packing charge
-      //       subTotal = cartProvider.subTotal - packingCharge;
-      //     } else {
-      //       // When isTakeAway is FALSE → keep the subtotal as it is
-      //       subTotal = cartProvider.subTotal;
-      //     }
-      //     final double buttonFontSize = isDesktop
-      //         ? 22
-      //         : isTablet
-      //             ? 17
-      //             : 16;
-      //     return Container(
-      //       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      //       decoration: const BoxDecoration(
-      //         gradient: const LinearGradient(
-      //           colors: [AppColor.secondary, AppColor.primaryColor],
-      //           begin: AlignmentDirectional(0.0, -3.0), // top-center
-      //           end: AlignmentDirectional(0.0, 1.0), // bottom-center
-      //
-      //           stops: [0.0, 1.0], // smooth gradient
-      //           tileMode: TileMode.clamp,
-      //         ),
-      //         borderRadius: BorderRadius.only(
-      //           topLeft: Radius.circular(20),
-      //           topRight: Radius.circular(20),
-      //         ),
-      //         boxShadow: [
-      //           BoxShadow(
-      //             color: Colors.black12,
-      //             blurRadius: 6,
-      //             offset: Offset(0, -2),
-      //           ),
-      //         ],
-      //       ),
-      //       child: Column(
-      //         mainAxisSize: MainAxisSize.min,
-      //         crossAxisAlignment: CrossAxisAlignment.stretch,
-      //         children: [
-      //           // Price details
-      //           Padding(
-      //             padding:
-      //                 const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      //             child: Column(
-      //               children: [
-      //                 _priceRow("Sub-Total", "₹${subTotal.toStringAsFixed(2)}"),
-      //                 Visibility(
-      //                     visible: isTakeAway,
-      //                     child: _priceRow("Packing Charge",
-      //                         "₹${packingCharge.toStringAsFixed(2)}")), // Show packing charge
-      //                 // _priceRow("Packing Charge",
-      //                 //     "₹${packingCharge.toStringAsFixed(2)}"),
-      //                 const Divider(color: Colors.white54),
-      //                 _priceRow(
-      //                   "Total",
-      //                   "₹${total.toStringAsFixed(2)}",
-      //                   isBold: true,
-      //                 ),
-      //                 const SizedBox(height: 4),
-      //                 Row(
-      //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //                   children: [
-      //                     Text(
-      //                       "Order ready time",
-      //                       style: AppStyle.textStyleReemKufi.copyWith(
-      //                         color: Colors.white60,
-      //                         fontWeight: FontWeight.w100,
-      //                         fontSize: 12,
-      //                       ),
-      //                     ),
-      //                     Text(
-      //                       estimatedTime,
-      //                       style: AppStyle.textStyleReemKufi.copyWith(
-      //                         color: Colors.white60,
-      //                         fontWeight: FontWeight.w100,
-      //                         fontSize: 12,
-      //                       ),
-      //                     ),
-      //                   ],
-      //                 ),
-      //               ],
-      //             ),
-      //           ),
-      //           const SizedBox(height: 8),
-      //           // Place Order button
-      //           SizedBox(
-      //             // height: 60,
-      //             child: ElevatedButton(
-      //               onPressed: () {
-      //                 showLoginSheet(context);
-      //               },
-      //               style: ElevatedButton.styleFrom(
-      //                 backgroundColor: Colors.white,
-      //                 shape: RoundedRectangleBorder(
-      //                   borderRadius: BorderRadius.circular(12),
-      //                 ),
-      //                 padding: EdgeInsets.symmetric(
-      //                   horizontal: buttonPaddingH,
-      //                   vertical: buttonPaddingV,
-      //                 ),
-      //               ),
-      //               child: Text(
-      //                 'Place Order',
-      //                 style: AppStyle.textStyleReemKufi.copyWith(
-      //                   fontWeight: FontWeight.w600,
-      //                   color: AppColor.primaryColor,
-      //                   fontSize: buttonFontSize,
-      //                 ),
-      //               ),
-      //             ),
-      //           ),
-      //         ],
-      //       ),
-      //     );
-      //   },
-      // ),
-      // bottomNavigationBar: Consumer<CartProvider>(
-      //     builder: (context, cartProvider, _) {
-      //       final prefHelper = getIt<SharedPreferenceHelper>();
-      //       final isTakeAway =
-      //           prefHelper.getBool(StorageKey.isTakeAway) ?? false;
-      //       int estimatedTimeInMinutes =
-      //           cartProvider.averageEstimatedTime.round();
-      //       String formattedTime = formatTime(estimatedTimeInMinutes);
-      //       final estimatedTime = cartProvider
-      //           .formatTime(cartProvider.averageEstimatedTime.round());
-      //       double packingCharge = cartProvider.totalPackingCharge;
-      //       if (cartProvider.items.isEmpty) {
-      //         return const SizedBox.shrink(); // empty widget
-      //       }
-      //
-      //       double total =
-      //           isTakeAway ? cartProvider.subTotal : cartProvider.subTotal;
-      //
-      //       double subTotal = isTakeAway
-      //           ? cartProvider.subTotal - packingCharge
-      //           : cartProvider.subTotal;
-      //
-      //       final double buttonFontSize = isDesktop
-      //           ? 22
-      //           : isTablet
-      //               ? 17
-      //               : 17;
-      //
-      //       return SafeArea(
-      //         bottom: false,
-      //         // ✅ this prevents hiding under nav bar
-      //         child: Container(
-      //           margin: const EdgeInsets.all(12),
-      //           padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-      //           decoration: const BoxDecoration(
-      //             gradient: const LinearGradient(
-      //               colors: [AppColor.secondary, AppColor.primaryColor],
-      //               begin: AlignmentDirectional(0.0, -3.0), // top-center
-      //               end: AlignmentDirectional(0.0, 1.0), // bottom-center
-      //
-      //               stops: [0.0, 1.0], // smooth gradient
-      //               tileMode: TileMode.clamp,
-      //             ),
-      //             borderRadius: BorderRadius.only(
-      //               topLeft: Radius.circular(20),
-      //               topRight: Radius.circular(20),
-      //               bottomRight: Radius.circular(20),
-      //               bottomLeft: Radius.circular(20),
-      //             ),
-      //             boxShadow: [
-      //               BoxShadow(
-      //                 color: Colors.black12,
-      //                 blurRadius: 6,
-      //                 offset: Offset(0, -2),
-      //               ),
-      //             ],
-      //           ),
-      //           child: Column(
-      //             mainAxisSize: MainAxisSize.min,
-      //             crossAxisAlignment: CrossAxisAlignment.stretch,
-      //             children: [
-      //               // Price details
-      //               Padding(
-      //                 padding: const EdgeInsets.symmetric(
-      //                     horizontal: 4, vertical: 4),
-      //                 child: Column(
-      //                   children: [
-      //                     _priceRow(
-      //                         "Sub-Total", "₹${subTotal.toStringAsFixed(2)}"),
-      //                     if (isTakeAway)
-      //                       _priceRow("Packing Charge",
-      //                           "₹${packingCharge.toStringAsFixed(2)}"),
-      //                     const Divider(color: Colors.white54),
-      //                     _priceRow(
-      //                       "Tax",
-      //                       "${15}%",
-      //                       isBold: false,
-      //                     ),
-      //                     _priceRow(
-      //                       "Total",
-      //                       "₹${total.toStringAsFixed(2)}",
-      //                       isBold: true,
-      //                     ),
-      //                     const SizedBox(height: 4),
-      //                     Row(
-      //                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //                       children: [
-      //                         Text(
-      //                           isTakeAway
-      //                               ? "Order ready time.."
-      //                               : " Ready to serve in...",
-      //                           style: AppStyle.textStyleReemKufi.copyWith(
-      //                             color: Colors.white60,
-      //                             fontWeight: FontWeight.w100,
-      //                             fontSize: 12,
-      //                           ),
-      //                         ),
-      //                         Text(
-      //                           estimatedTime,
-      //                           style: AppStyle.textStyleReemKufi.copyWith(
-      //                             color: Colors.white60,
-      //                             fontWeight: FontWeight.w100,
-      //                             fontSize: 12,
-      //                           ),
-      //                         ),
-      //                       ],
-      //                     ),
-      //                   ],
-      //                 ),
-      //               ),
-      //               const SizedBox(height: 8),
-      //               // Place Order button
-      //               SizedBox(
-      //                 width: double.infinity, // ✅ force full width
-      //                 child: ElevatedButton(
-      //                   onPressed: () {
-      //                     showLoginSheet(context);
-      //                   },
-      //                   style: ElevatedButton.styleFrom(
-      //                     backgroundColor: Colors.white,
-      //                     shape: RoundedRectangleBorder(
-      //                       borderRadius: BorderRadius.circular(12),
-      //                     ),
-      //                     padding: EdgeInsets.symmetric(
-      //                       horizontal: buttonPaddingH,
-      //                       vertical: buttonPaddingV,
-      //                     ),
-      //                   ),
-      //                   child: Text(
-      //                     'Place Order',
-      //                     style: AppStyle.textStyleReemKufi.copyWith(
-      //                       fontWeight: FontWeight.w600,
-      //                       color: AppColor.primaryColor,
-      //                       fontSize: buttonFontSize,
-      //                     ),
-      //                   ),
-      //                 ),
-      //               ),
-      //             ],
-      //           ),
-      //         ),
-      //       );
-      //     },
-      //   ),
 
-      body: orderedItems.isEmpty
-          ? Center(
-              child: Text(
-              'No items were ordered',
-              style: AppStyle.textStyleReemKufi.copyWith(
-                fontWeight: FontWeight.w500,
-                color: AppColor.greyColor,
-                fontSize: 18,
-                height: 1.0, // remove extra line height
-              ),
-            ))
-          : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+
+      body: Stack(
+          children: [
+            orderedItems.isEmpty
+                ? Center(
+                child: Text(
+                  'No items were ordered',
+                  style: AppStyle.textStyleReemKufi.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: AppColor.greyColor,
+                    fontSize: 18,
+                    height: 1.0, // remove extra line height
+                  ),
+                ))
+                : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Text(
                   quantityText,
-                 // "${orderedItems.length} ${orderedItems.length == 1 ? 'Item' : 'Items'} in cart",
+                  // "${orderedItems.length} ${orderedItems.length == 1 ? 'Item' : 'Items'} in cart",
                   style: AppStyle.textStyleReemKufi.copyWith(
                     fontWeight: FontWeight.w600,
                     fontSize: responsive.subtitleSize,
@@ -476,7 +192,7 @@ class ViewOrderScreen extends StatelessWidget {
 
                                     return Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      CrossAxisAlignment.start,
                                       children: [
                                         if (item.isCombo != null)
                                           const SizedBox(height: 5),
@@ -487,9 +203,9 @@ class ViewOrderScreen extends StatelessWidget {
                                           LayoutBuilder(
                                             builder: (context, constraints) {
                                               final imageSize =
-                                                  (constraints.maxWidth * 0.20)
-                                                      .clamp(40, 100)
-                                                      .toDouble();
+                                              (constraints.maxWidth * 0.20)
+                                                  .clamp(40, 100)
+                                                  .toDouble();
 
                                               return Padding(
                                                 padding: const EdgeInsets.only(
@@ -501,29 +217,29 @@ class ViewOrderScreen extends StatelessWidget {
                                                     },
                                                     child: Row(
                                                       crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start, // Align images to top
+                                                      CrossAxisAlignment
+                                                          .start, // Align images to top
                                                       mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center, // 👈 Center the whole row horizontally
+                                                      MainAxisAlignment
+                                                          .center, // 👈 Center the whole row horizontally
                                                       children: [
                                                         for (int i = 0;
-                                                            i <
-                                                                item.images
-                                                                    .length;
-                                                            i++) ...[
+                                                        i <
+                                                            item.images
+                                                                .length;
+                                                        i++) ...[
                                                           // image
                                                           Container(
                                                             width: imageSize,
                                                             height: imageSize,
                                                             child:
-                                                                Image.network(
+                                                            Image.network(
                                                               "${ApiEndpoints.imageBaseUrl}${item.images[i]}",
                                                               // fit: BoxFit.fill,
                                                               errorBuilder:
                                                                   (context,
-                                                                      error,
-                                                                      stackTrace) {
+                                                                  error,
+                                                                  stackTrace) {
                                                                 return const Icon(
                                                                   Icons
                                                                       .broken_image,
@@ -538,18 +254,18 @@ class ViewOrderScreen extends StatelessWidget {
                                                           // add icon centered to image height
                                                           if (i <
                                                               item.images
-                                                                      .length -
+                                                                  .length -
                                                                   1)
                                                             SizedBox(
                                                               height:
-                                                                  imageSize, // match image height
+                                                              imageSize, // match image height
                                                               child:
-                                                                  const Center(
+                                                              const Center(
                                                                 child: Padding(
                                                                   padding: EdgeInsets
                                                                       .symmetric(
-                                                                          horizontal:
-                                                                              5),
+                                                                      horizontal:
+                                                                      5),
                                                                   child: Icon(
                                                                     Icons.add,
                                                                     size: 28,
@@ -580,25 +296,25 @@ class ViewOrderScreen extends StatelessWidget {
                                                       ),
                                                       padding: EdgeInsets.zero,
                                                       constraints:
-                                                          const BoxConstraints(
-                                                              minWidth: 30,
-                                                              minHeight: 30),
+                                                      const BoxConstraints(
+                                                          minWidth: 30,
+                                                          minHeight: 30),
                                                       onPressed: () async {
                                                         final confirm =
-                                                            await CustomActionDialog
-                                                                .show(
+                                                        await CustomActionDialog
+                                                            .show(
                                                           context: context,
                                                           title:
-                                                              "Are you sure you want to delete this item?",
+                                                          "Are you sure you want to delete this item?",
                                                           // message: "Are you sure you want to delete this item?",
                                                           imagePath:
-                                                              AppImage.cancel,
+                                                          AppImage.cancel,
                                                           iconColor: Colors
                                                               .red, // Highlight delete action
                                                           cancelText:
-                                                              "Back to order",
+                                                          "Back to order",
                                                           confirmText:
-                                                              "Yes, Delete",
+                                                          "Yes, Delete",
                                                           // confirmButtonColor:  AppColor.deleteRed,  // Red confirm button
                                                         );
 
@@ -627,7 +343,7 @@ class ViewOrderScreen extends StatelessWidget {
                                                 left: 12.0),
                                             child: Column(
                                               crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                               children: [
                                                 /// Product name and delete button
                                                 Row(
@@ -635,26 +351,27 @@ class ViewOrderScreen extends StatelessWidget {
                                                     Expanded(
                                                       child: Text(
                                                         (item.name != null &&
-                                                                item.name!
-                                                                    .isNotEmpty)
+                                                            item.name!
+                                                                .isNotEmpty)
                                                             ? item.name![0]
-                                                                    .toUpperCase() +
-                                                                item.name!
-                                                                    .substring(
-                                                                        1)
-                                                                    .toLowerCase()
+                                                            .toUpperCase() +
+                                                            item.name!
+                                                                .substring(
+                                                                1)
+                                                                .toLowerCase()
                                                             : '',
                                                         //item.name,
                                                         style: AppTextStyles
                                                             .nunitoBold(
-                                                                responsive
-                                                                    .mainTitleSize,
-                                                                color: AppColor
-                                                                    .blackColor),
+                                                            responsive
+                                                                .mainTitleSize,
+                                                            color: AppColor
+                                                                .blackColor),
                                                         overflow: TextOverflow
                                                             .ellipsis,
                                                       ),
                                                     ),
+
                                                   ],
                                                 ),
                                                 const SizedBox(
@@ -663,31 +380,31 @@ class ViewOrderScreen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     for (int i = 0;
-                                                        i <
-                                                            (item.categoryName
-                                                                    ?.length ??
-                                                                0);
-                                                        i++) ...[
+                                                    i <
+                                                        (item.categoryName
+                                                            ?.length ??
+                                                            0);
+                                                    i++) ...[
                                                       Text(
                                                         item.categoryName![i],
                                                         style: AppTextStyles
                                                             .latoRegular(
-                                                                responsive
-                                                                    .descriptionSize,
-                                                                color: AppColor
-                                                                    .blackColor),
+                                                            responsive
+                                                                .descriptionSize,
+                                                            color: AppColor
+                                                                .blackColor),
                                                         overflow: TextOverflow
                                                             .ellipsis,
                                                       ),
                                                       if (i <
                                                           item.categoryName!
-                                                                  .length -
+                                                              .length -
                                                               1) // only add "+" between, not after last
                                                         const Padding(
                                                           padding: EdgeInsets
                                                               .symmetric(
-                                                                  horizontal:
-                                                                      4),
+                                                              horizontal:
+                                                              4),
                                                           child: Icon(
                                                             Icons.add,
                                                             size: 18,
@@ -705,55 +422,55 @@ class ViewOrderScreen extends StatelessWidget {
                                                 /// Price
                                                 Row(
                                                   mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                                   children: [
                                                     Text(
                                                       '₹${(item.price * quantity).toStringAsFixed(2)}',
                                                       style: AppTextStyles
                                                           .nunitoBold(
-                                                              responsive.adOn,
-                                                              color: AppColor
-                                                                  .blackColor),
+                                                          responsive.adOn,
+                                                          color: AppColor
+                                                              .blackColor),
                                                     ),
                                                     Row(
                                                       children: [
                                                         GestureDetector(
                                                           onTap: () => cartProvider
                                                               .decrement(
-                                                                  item.id,
-                                                                  childCategoryId:
-                                                                      item.childCategoryId),
+                                                              item.id,
+                                                              childCategoryId:
+                                                              item.childCategoryId),
                                                           child:
-                                                              _buildQtyButton(
-                                                                  context,
-                                                                  Icons.remove),
+                                                          _buildQtyButton(
+                                                              context,
+                                                              Icons.remove),
                                                         ),
                                                         SizedBox(
                                                             width: constraints
-                                                                    .maxWidth *
+                                                                .maxWidth *
                                                                 0.030),
                                                         Text(
                                                           '$quantity',
                                                           style: AppTextStyles
                                                               .latoBold(15,
-                                                                  color: AppColor
-                                                                      .blackColor),
+                                                              color: AppColor
+                                                                  .blackColor),
                                                         ),
                                                         SizedBox(
                                                             width: constraints
-                                                                    .maxWidth *
+                                                                .maxWidth *
                                                                 0.030),
                                                         GestureDetector(
                                                           onTap: () => cartProvider
                                                               .increment(
-                                                                  item.id,
-                                                                  childCategoryId:
-                                                                      item.childCategoryId),
+                                                              item.id,
+                                                              childCategoryId:
+                                                              item.childCategoryId),
                                                           child:
-                                                              _buildQtyButton(
-                                                                  context,
-                                                                  Icons.add),
+                                                          _buildQtyButton(
+                                                              context,
+                                                              Icons.add),
                                                         ),
                                                       ],
                                                     ),
@@ -774,17 +491,17 @@ class ViewOrderScreen extends StatelessWidget {
                                           Stack(children: [
                                             Row(
                                               crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                               children: [
                                                 /// Single Product Image
                                                 LayoutBuilder(
                                                   builder:
                                                       (context, constraints) {
                                                     final imageSize =
-                                                        (constraints.maxWidth *
-                                                                0.20)
-                                                            .clamp(40, 100)
-                                                            .toDouble();
+                                                    (constraints.maxWidth *
+                                                        0.20)
+                                                        .clamp(40, 100)
+                                                        .toDouble();
 
                                                     return GestureDetector(
                                                       onTap: () {
@@ -793,34 +510,34 @@ class ViewOrderScreen extends StatelessWidget {
                                                       },
                                                       child: Padding(
                                                         padding:
-                                                            const EdgeInsets
-                                                                .only(
-                                                                left: 2.0),
+                                                        const EdgeInsets
+                                                            .only(
+                                                            left: 2.0),
                                                         child: Container(
                                                           width: imageSize,
                                                           height: imageSize,
                                                           decoration:
-                                                              BoxDecoration(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              12), // optional rounded edges
-                                                                  color: Colors
-                                                                      .transparent // background if image fails
-                                                                  ),
+                                                          BoxDecoration(
+                                                              borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                  12), // optional rounded edges
+                                                              color: Colors
+                                                                  .transparent // background if image fails
+                                                          ),
                                                           clipBehavior:
-                                                              Clip.antiAlias,
+                                                          Clip.antiAlias,
                                                           child: Image.network(
                                                             "${ApiEndpoints.imageBaseUrl}${item.images.isNotEmpty ? item.images.first : ''}",
                                                             errorBuilder:
                                                                 (context, error,
-                                                                    stackTrace) {
+                                                                stackTrace) {
                                                               return const Icon(
                                                                 Icons
                                                                     .broken_image,
                                                                 size: 40,
                                                                 color:
-                                                                    Colors.grey,
+                                                                Colors.grey,
                                                               );
                                                             },
                                                           ),
@@ -836,56 +553,74 @@ class ViewOrderScreen extends StatelessWidget {
                                                 Expanded(
                                                   child: Column(
                                                     crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
+                                                    CrossAxisAlignment
+                                                        .start,
                                                     mainAxisSize:
-                                                        MainAxisSize.min,
+                                                    MainAxisSize.min,
                                                     children: [
                                                       /// Product name and delete button
                                                       Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        mainAxisAlignment: MainAxisAlignment.start,
                                                         children: [
-                                                          /// Product Name
-                                                          Expanded(
-                                                            child: Text(
-                                                              item.name,
-                                                              style: AppTextStyles.nunitoBold(
-                                                                  responsive
-                                                                      .mainTitleSize,
-                                                                  color: AppColor
-                                                                      .blackColor),
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                              maxLines: 1,
+                                                          Flexible(
+                                                            child: Wrap(
+                                                              crossAxisAlignment: WrapCrossAlignment.start,
+                                                              children: [
+                                                                Text(
+                                                                  item.name,
+                                                                  style: AppTextStyles.nunitoBold(
+                                                                    responsive.mainTitleSize,
+                                                                    color: AppColor.blackColor,
+                                                                  ),
+                                                                  softWrap: true,
+                                                                  maxLines: 2,
+                                                                  overflow: TextOverflow.ellipsis,
+                                                                ),
+
+                                                                const SizedBox(width: 6),
+
+                                                                if (item.isCombo == false)
+                                                                  Padding(
+                                                                    padding: const EdgeInsets.only(right:18.0),
+                                                                    child: Text(
+                                                                      'x${item.quantity * 2}',
+                                                                      style: AppTextStyles.nunitoMedium(
+                                                                        responsive.hintTextSize,
+                                                                        color: AppColor.primaryColor,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                              ],
                                                             ),
                                                           ),
                                                         ],
                                                       ),
+
+
+
                                                       const SizedBox(
                                                         height: 5,
                                                       ),
 
                                                       Row(
                                                         mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
+                                                        MainAxisAlignment
+                                                            .start,
                                                         children: [
                                                           Flexible(
                                                             child: Text(
                                                               (item.childCategoryName !=
-                                                                          null &&
-                                                                      item.childCategoryName!
-                                                                          .isNotEmpty)
+                                                                  null &&
+                                                                  item.childCategoryName!
+                                                                      .isNotEmpty)
                                                                   ? item.childCategoryName![
-                                                                              0]
-                                                                          .toUpperCase() +
-                                                                      item.childCategoryName!
-                                                                          .substring(
-                                                                              1)
-                                                                          .toLowerCase()
+                                                              0]
+                                                                  .toUpperCase() +
+                                                                  item.childCategoryName!
+                                                                      .substring(
+                                                                      1)
+                                                                      .toLowerCase()
                                                                   : '',
                                                               style: AppTextStyles
                                                                   .latoRegular(
@@ -895,8 +630,8 @@ class ViewOrderScreen extends StatelessWidget {
                                                                     .blackColor,
                                                               ),
                                                               overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
+                                                              TextOverflow
+                                                                  .ellipsis,
                                                               maxLines: 1,
                                                             ),
                                                           ),
@@ -919,29 +654,29 @@ class ViewOrderScreen extends StatelessWidget {
 
                                                       Row(
                                                         mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
                                                         children: [
                                                           Text(
                                                             '₹${(isTakeAway ? (item.price * quantity) // If TakeAway is true
                                                                 : (item.childCategoryId == null ? (item.price * quantity) // If TakeAway is false AND childCategory is null
-                                                                    : ((item.price * quantity) - (item.takeAwayPrice ?? 0.0)) // If TakeAway is false AND childCategory is not null
-                                                                )).toStringAsFixed(2)}',
+                                                                : ((item.price * quantity) - (item.takeAwayPrice ?? 0.0)) // If TakeAway is false AND childCategory is not null
+                                                            )).toStringAsFixed(2)}',
                                                             style: AppTextStyles
                                                                 .nunitoBold(
-                                                                    responsive
-                                                                        .adOn,
-                                                                    color: AppColor
-                                                                        .blackColor),
+                                                                responsive
+                                                                    .adOn,
+                                                                color: AppColor
+                                                                    .blackColor),
                                                           ),
                                                           Row(
                                                             children: [
                                                               GestureDetector(
                                                                 onTap: () => cartProvider
                                                                     .decrement(
-                                                                        item.id,
-                                                                        childCategoryId:
-                                                                            item.childCategoryId),
+                                                                    item.id,
+                                                                    childCategoryId:
+                                                                    item.childCategoryId),
                                                                 child: _buildQtyButton(
                                                                     context,
                                                                     Icons
@@ -949,7 +684,7 @@ class ViewOrderScreen extends StatelessWidget {
                                                               ),
                                                               SizedBox(
                                                                   width: constraints
-                                                                          .maxWidth *
+                                                                      .maxWidth *
                                                                       0.030),
                                                               Text(
                                                                 '$quantity',
@@ -961,21 +696,21 @@ class ViewOrderScreen extends StatelessWidget {
                                                               ),
                                                               SizedBox(
                                                                   width: constraints
-                                                                          .maxWidth *
+                                                                      .maxWidth *
                                                                       0.030),
                                                               GestureDetector(
                                                                 onTap: () =>
                                                                     cartProvider
                                                                         .increment(
-                                                                  item.id,
-                                                                  childCategoryId:
+                                                                      item.id,
+                                                                      childCategoryId:
                                                                       item.childCategoryId,
-                                                                ),
+                                                                    ),
                                                                 child:
-                                                                    _buildQtyButton(
-                                                                        context,
-                                                                        Icons
-                                                                            .add),
+                                                                _buildQtyButton(
+                                                                    context,
+                                                                    Icons
+                                                                        .add),
                                                               ),
                                                             ],
                                                           ),
@@ -993,23 +728,23 @@ class ViewOrderScreen extends StatelessWidget {
                                                 icon: SvgPicture.asset(
                                                   AppImage.cross,
                                                   width:
-                                                      responsive.mainTitleSize,
+                                                  responsive.mainTitleSize,
                                                   height:
-                                                      responsive.mainTitleSize,
+                                                  responsive.mainTitleSize,
                                                   color: AppColor.primaryColor,
                                                 ),
                                                 padding: EdgeInsets.zero,
                                                 constraints:
-                                                    const BoxConstraints(
-                                                        minWidth: 30,
-                                                        minHeight: 30),
+                                                const BoxConstraints(
+                                                    minWidth: 30,
+                                                    minHeight: 30),
                                                 onPressed: () async {
                                                   final confirm =
-                                                      await CustomActionDialog
-                                                          .show(
+                                                  await CustomActionDialog
+                                                      .show(
                                                     context: context,
                                                     title:
-                                                        "Are you sure you want to delete this item?",
+                                                    "Are you sure you want to delete this item?",
                                                     // message: "Are you sure you want to delete this item?",
                                                     imagePath: AppImage.cancel,
                                                     iconColor: Colors
@@ -1024,7 +759,7 @@ class ViewOrderScreen extends StatelessWidget {
                                                     cartProvider.removeItem(context,
                                                       item.id,
                                                       childCategoryId:
-                                                          item.childCategoryId,
+                                                      item.childCategoryId,
                                                     );
                                                   }
                                                 },
@@ -1068,6 +803,14 @@ class ViewOrderScreen extends StatelessWidget {
 
               /// in extra add 1 position i want to show the add to more items
             ]),
+            Positioned(
+              bottom: 280, // adjust to sit above your cart FAB
+              right: 16,
+              child: ExpandableMenuButton(), // your custom expandable menu widget
+            ),
+
+          ]
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Consumer<CartProvider>(
         builder: (context, cartProvider, _) {
@@ -1077,7 +820,7 @@ class ViewOrderScreen extends StatelessWidget {
           if (cartProvider.items.isEmpty) return const SizedBox.shrink();
 
           int estimatedTimeInMinutes =
-              cartProvider.averageEstimatedTime.round();
+          cartProvider.averageEstimatedTime.round();
           String estimatedTime = formatTime(estimatedTimeInMinutes);
           double packingCharge = cartProvider.totalPackingCharge;
 
@@ -1089,8 +832,8 @@ class ViewOrderScreen extends StatelessWidget {
           final double buttonFontSize = isDesktop
               ? 25
               : isTablet
-                  ? 22
-                  : 17;
+              ? 22
+              : 17;
 
           return SafeArea(
             child: Container(
@@ -1164,7 +907,7 @@ class ViewOrderScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       padding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     ),
                     child: Text(
                       'Place Order',
@@ -1262,7 +1005,7 @@ class ViewOrderScreen extends StatelessWidget {
             style: AppStyle.textStyleReemKufi.copyWith(
               color: Colors.white,
               fontSize:
-                  isBold & isTablet ? responsive.subTotal : responsive.adOn,
+              isBold & isTablet ? responsive.subTotal : responsive.adOn,
               //    fontSize: isBold ? 20 : 17,
               fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             ),
@@ -1272,7 +1015,7 @@ class ViewOrderScreen extends StatelessWidget {
             style: AppStyle.textStyleReemKufi.copyWith(
               color: Colors.white,
               fontSize:
-                  isBold & isTablet ? responsive.subTotal : responsive.adOn,
+              isBold & isTablet ? responsive.subTotal : responsive.adOn,
               fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             ),
           ),
@@ -1288,356 +1031,329 @@ class ViewOrderScreen extends StatelessWidget {
     final ValueNotifier<bool> isLoading = ValueNotifier(false);
     final screenWidth = MediaQuery.of(context).size.width;
     final responsive = Responsiveness(context);
-    final bool isDesktop = screenWidth >= 1024;
     final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
-    showGeneralDialog(
+
+    showDialog(
       context: context,
       barrierDismissible: false,
-      barrierLabel: '',
-      pageBuilder: (_, __, ___) {
-        final screenHeight = MediaQuery.of(context).size.height;
-        return Align(
-          alignment: Alignment.center,
-          child: Material(
-            color: Colors.transparent,
-            child: Padding(
-              padding: EdgeInsets.all(screenWidth * 0.04),
-              child: SingleChildScrollView(
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  // ✅ Removed fixed height
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [AppColor.secondary, AppColor.primaryColor],
-                      begin: AlignmentDirectional(0.0, -2.0),
-                      end: AlignmentDirectional(0.0, 1.0),
-                      stops: [0.0, 1.0],
-                      tileMode: TileMode.clamp,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(16),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return StatefulBuilder(
+                builder: (context, setState) {
+                  return AnimatedPadding(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
                     ),
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(20),
-                      bottom: Radius.circular(20),
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(16),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize:
-                          MainAxisSize.min, // ✅ Adjust height dynamically
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            GestureDetector(
-                              onTap: () => Navigator.pop(context),
-                              child: SvgPicture.asset(
-                                AppImage.cross,
-                                height: responsive.mainTitleSize,
-                                width: responsive.mainTitleSize,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Text(
-                          "Login",
-                          style: AppTextStyles.nunitoMedium(
-                              responsive.mainTitleSize,
-                              color: AppColor.whiteColor),
-                          // style: AppStyle.textStyleReemKufi.copyWith(
-                          //   fontWeight: FontWeight.w400,
-                          //   color: AppColor.whiteColor,
-                          //   fontSize: 20,
-                          // ),
-                        ),
-                        const SizedBox(height: 20),
-                        const Divider(color: Colors.white54),
-
-                        /// Name Label
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Name (Optional)',
-                              style: AppTextStyles.nunitoMedium(
-                                  responsive.subtitleSize,
-                                  color: AppColor.whiteColor),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-
-                        /// Name TextField
-                        TextFormField(
-                          controller: name,
-                          keyboardType: TextInputType.text,
-                          decoration: InputDecoration(
-                            hintText: "Enter your name",
-                            hintStyle: AppStyle.textStyleReemKufi.copyWith(
-                              fontWeight: FontWeight.w200,
-                              color: AppColor.lightGreyColor,
-                              fontSize: responsive.hintTextSize,
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            errorStyle: const TextStyle(
-                              fontSize: 12,
-                              height: 1.2,
-                              color: Colors.grey,
-                            ),
-                            helperText: " ",
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.circular(12), // Rounded corners
-                              borderSide: BorderSide(
-                                color: Colors.grey
-                                    .shade50, // Border color when not focused
-                                width: 1.5,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.circular(12), // Rounded corners
-                              borderSide: const BorderSide(
-                                color: AppColor
-                                    .primaryColor, // Border color when focused
-                                width: 1,
-                              ),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: Colors.red, // Border color on error
-                                width: 1,
-                              ),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: Colors
-                                    .red, // Border color on error while focused
-                                width: 2,
-                              ),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 14,
-                              horizontal: 12,
-                            ),
+                    child: Center(
+                      child: SingleChildScrollView(
+                        child: Container(
+                          constraints: BoxConstraints(
+                            maxWidth: 500,
                           ),
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                        ),
-
-                        /// Mobile Label
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Mobile Number',
-                              style: AppTextStyles.nunitoMedium(
-                                  responsive.subtitleSize,
-                                  color: AppColor.whiteColor),
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [AppColor.secondary, AppColor.primaryColor],
+                              begin: AlignmentDirectional(0.0, -2.0),
+                              end: AlignmentDirectional(0.0, 1.0),
+                              stops: [0.0, 1.0],
+                              tileMode: TileMode.clamp,
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-
-                        /// Country code + mobile input
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: isTablet ? 15 : 13,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.grey.shade300),
-                              ),
-                              child: const Text(
-                                "+91",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                          ),
+                          padding: const EdgeInsets.all(16),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () => Navigator.pop(context),
+                                      child: SvgPicture.asset(
+                                        AppImage.cross,
+                                        height: responsive.mainTitleSize,
+                                        width: responsive.mainTitleSize,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: TextFormField(
-                                controller: phoneController,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [
-                                  LengthLimitingTextInputFormatter(10),
-                                  FilteringTextInputFormatter.digitsOnly,
-                                ],
-                                decoration: InputDecoration(
-                                  hintText: "Enter your mobile number",
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  hintStyle:
-                                      AppStyle.textStyleReemKufi.copyWith(
-                                    fontWeight: FontWeight.w200,
-                                    color: AppColor.lightGreyColor,
-                                    fontSize: responsive.hintTextSize,
-                                  ),
-                                  errorStyle: const TextStyle(
-                                    fontSize: 12,
-                                    height: 1.2,
-                                    color: Colors.grey,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(
-                                        12), // Rounded corners
-                                    borderSide: BorderSide(
-                                      color: Colors.grey
-                                          .shade50, // Border color when not focused
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(
-                                        12), // Rounded corners
-                                    borderSide: const BorderSide(
-                                      color: AppColor
-                                          .primaryColor, // Border color when focused
-                                      width: 1,
-                                    ),
-                                  ),
-                                  errorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(
-                                      color:
-                                          Colors.red, // Border color on error
-                                      width: 1,
-                                    ),
-                                  ),
-                                  focusedErrorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(
-                                      color: Colors
-                                          .red, // Border color on error while focused
-                                      width: 2,
-                                    ),
-                                  ),
-                                  helperText: " ",
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 14,
-                                    horizontal: 12,
+                                Text(
+                                  "Login",
+                                  style: AppTextStyles.nunitoMedium(
+                                    responsive.mainTitleSize,
+                                    color: AppColor.whiteColor,
                                   ),
                                 ),
-                                autovalidateMode:
-                                    AutovalidateMode.onUserInteraction,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return "Please enter your mobile number";
-                                  } else if (value.length != 10) {
-                                    return "Enter a valid 10-digit number";
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-
-                        /// Submit Button
-                        SizedBox(
-                          width: double.infinity,
-                          height: isTablet ? 55 : 45,
-                          child: ValueListenableBuilder<bool>(
-                            valueListenable: isLoading,
-                            builder: (_, loading, __) {
-                              return ElevatedButton(
-                                onPressed: loading
-                                    ? null
-                                    : () async {
-                                        if (_formKey.currentState!.validate()) {
-                                          isLoading.value = true;
-                                          final otp = await SyncManager.login(
-                                            context,
-                                            phoneController.text,
-                                          );
-                                          isLoading.value = false;
-
-                                          if (otp != null) {
-                                            Navigator.pop(context);
-                                            Future.delayed(
-                                              const Duration(milliseconds: 100),
-                                              () {
-                                                showOtpDialog(
-                                                  context,
-                                                  otp.toString(),
-                                                  phoneController.text,
-                                                );
-                                              },
-                                            );
-                                          }
-                                        }
-                                      },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  foregroundColor: AppColor.primaryColor,
-                                  elevation: 2,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                const SizedBox(height: 20),
+                                const Divider(color: Colors.white54),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Name (Optional)',
+                                      style: AppTextStyles.nunitoMedium(
+                                        responsive.subtitleSize,
+                                        color: AppColor.whiteColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                TextFormField(
+                                  controller: name,
+                                  keyboardType: TextInputType.text,
+                                  decoration: InputDecoration(
+                                    hintText: "Enter your name",
+                                    hintStyle: AppStyle.textStyleReemKufi.copyWith(
+                                      fontWeight: FontWeight.w200,
+                                      color: AppColor.lightGreyColor,
+                                      fontSize: responsive.hintTextSize,
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
                                   ),
                                 ),
-                                child: loading
-                                    ? const SizedBox(
-                                        height: 22,
-                                        width: 22,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: AppColor.primaryColor,
+                                const SizedBox(height: 20),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Mobile Number',
+                                      style: AppTextStyles.nunitoMedium(
+                                        responsive.subtitleSize,
+                                        color: AppColor.whiteColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                // Row(
+                                //   children: [
+                                //     Container(
+                                //       padding: EdgeInsets.symmetric(
+                                //         horizontal: 12,
+                                //         vertical: isTablet ? 15 : 13,
+                                //       ),
+                                //       decoration: BoxDecoration(
+                                //         color: Colors.white,
+                                //         borderRadius: BorderRadius.circular(12),
+                                //         border: Border.all(color: Colors.grey.shade300),
+                                //       ),
+                                //       child: const Text(
+                                //         "+91",
+                                //         style: TextStyle(
+                                //           fontSize: 16,
+                                //           fontWeight: FontWeight.w500,
+                                //         ),
+                                //       ),
+                                //     ),
+                                //     const SizedBox(width: 10),
+                                //     Expanded(
+                                //       child: TextFormField(
+                                //         controller: phoneController,
+                                //         keyboardType: TextInputType.number,
+                                //         inputFormatters: [
+                                //           LengthLimitingTextInputFormatter(10),
+                                //           FilteringTextInputFormatter.digitsOnly,
+                                //         ],
+                                //         decoration: InputDecoration(
+                                //           hintText: "Enter your mobile number",
+                                //           filled: true,
+                                //           fillColor: Colors.white,
+                                //           border: OutlineInputBorder(
+                                //             borderRadius: BorderRadius.circular(12),
+                                //           ),
+                                //         ),
+                                //         validator: (value) {
+                                //           if (value == null || value.isEmpty) {
+                                //             return "Please enter your mobile number";
+                                //           } else if (value.length != 10) {
+                                //             return "Enter a valid 10-digit number";
+                                //           }
+                                //           return null;
+                                //         },
+                                //       ),
+                                //     ),
+                                //   ],
+                                // ),
+                                Row(
+                                  children: [
+                                    SizedBox(
+                                      height: 50,
+                                      width: 90,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(color: Colors.grey.shade300),
                                         ),
-                                      )
-                                    : Text(
-                                        'Get OTP',
-                                        style:
-                                            AppStyle.textStyleReemKufi.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColor.primaryColor,
-                                          fontSize: responsive.adOn,
+                                        child: FittedBox( // ✅ Prevent overflow
+                                          fit: BoxFit.scaleDown,
+                                          child: CountryCodePicker(
+                                              onChanged: (value) {
+                                                print(value.dialCode);
+                                              },
+                                              initialSelection: 'IN',
+                                              favorite: const ['+91', 'IN'],
+                                              showDropDownButton: true,
+                                              showFlag: true,
+                                              showFlagDialog: true,
+                                              // IMPORTANT FIXES BELOW
+                                              showCountryOnly: false,
+                                              showOnlyCountryWhenClosed: false, // ✅ hide country name when closed
+                                              hideMainText: false,
+                                              textOverflow: TextOverflow.visible,
+                                              flagWidth: 22,
+                                              padding: EdgeInsets.zero,
+                                              textStyle: AppTextStyles.latoBold(responsive.adOn,)
+                                          ),
                                         ),
                                       ),
-                              );
-                            },
+                                    )
+                                    ,
+
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: SizedBox(
+                                        height: 50, // Same height here
+                                        child: TextFormField(
+                                          controller: phoneController,
+                                          keyboardType: TextInputType.number,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(10),
+                                            FilteringTextInputFormatter.digitsOnly,
+                                          ],
+                                          decoration: InputDecoration(
+                                            hintText: "Enter your mobile number",
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                            hintStyle: AppStyle.textStyleReemKufi.copyWith(
+                                              fontWeight: FontWeight.w200,
+                                              color: AppColor.lightGreyColor,
+                                              fontSize: responsive.hintTextSize,
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(12),
+                                              borderSide: BorderSide(color: Colors.grey.shade300),
+                                            ),
+                                          ),
+                                          validator: (value) {
+                                            if (value == null || value.isEmpty) {
+                                              return "Please enter your mobile number";
+                                            } else if (value.length != 10) {
+                                              return "Enter a valid 10-digit number";
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: isTablet ? 55 : 45,
+                                  child: ValueListenableBuilder<bool>(
+                                    valueListenable: isLoading,
+                                    builder: (_, loading, __) {
+                                      return ElevatedButton(
+                                        onPressed: loading
+                                            ? null
+                                            : () async {
+                                          if (_formKey.currentState!.validate()) {
+                                            isLoading.value = true;
+                                            final otp = await SyncManager.login(
+                                              context,
+                                              phoneController.text,name.text
+                                            );
+                                            isLoading.value = false;
+
+                                            if (otp != null) {
+                                              Navigator.pop(context);
+                                              Future.delayed(
+                                                const Duration(milliseconds: 100),
+                                                    () {
+                                                  showOtpDialog(
+                                                    context,
+                                                    otp.toString(),
+                                                    phoneController.text,name.text
+                                                  );
+                                                },
+                                              );
+                                            }
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.white,
+                                          foregroundColor: AppColor.primaryColor,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                        child: loading
+                                            ? const SizedBox(
+                                          height: 22,
+                                          width: 22,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: AppColor.primaryColor,
+                                          ),
+                                        )
+                                            : Text(
+                                          'Get OTP',
+                                          style: AppStyle.textStyleReemKufi.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColor.primaryColor,
+                                            fontSize: responsive.adOn,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 30),
+                              ],
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 30),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              ),
-            ),
+                  );
+                },
+              );
+            },
           ),
         );
       },
     );
   }
 
-  void showOtpDialog(BuildContext context, String? otp, String phoneNumber) {
+
+
+
+  void showOtpDialog(BuildContext context, String? otp, String phoneNumber,String name) {
     final screenWidth = MediaQuery.of(context).size.width;
     List<TextEditingController> controllers =
-        List.generate(4, (_) => TextEditingController());
+    List.generate(4, (_) => TextEditingController());
     final ValueNotifier<bool> isLoading = ValueNotifier(false);
     final responsive = Responsiveness(context);
     final bool isDesktop = screenWidth >= 1024;
     final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
     List<FocusNode> focusNodes = List.generate(4, (_) => FocusNode());
     final ValueNotifier<String?> errorNotifier =
-        ValueNotifier(null); // ✅ error state
+    ValueNotifier(null); // ✅ error state
 
     if (otp != null) {
       for (int i = 0; i < controllers.length && i < otp.length; i++) {
@@ -1775,7 +1491,7 @@ class ViewOrderScreen extends StatelessWidget {
                                         ),
                                       ),
                                       contentPadding:
-                                          const EdgeInsets.symmetric(
+                                      const EdgeInsets.symmetric(
                                         vertical: 12,
                                       ),
                                     ),
@@ -1832,52 +1548,52 @@ class ViewOrderScreen extends StatelessWidget {
                               onPressed: loading
                                   ? null // disable when loading
                                   : () async {
-                                      final enteredOtp =
-                                          controllers.map((c) => c.text).join();
+                                final enteredOtp =
+                                controllers.map((c) => c.text).join();
 
-                                      if (enteredOtp.length != 4) {
-                                        errorNotifier.value =
-                                            "Please enter 4-digit OTP";
-                                        return;
-                                      }
-                                      errorNotifier.value = null;
-                                      isLoading.value = true; // start loading ✅
+                                if (enteredOtp.length != 4) {
+                                  errorNotifier.value =
+                                  "Please enter 4-digit OTP";
+                                  return;
+                                }
+                                errorNotifier.value = null;
+                                isLoading.value = true; // start loading ✅
 
-                                      final userId =
-                                          await SyncManager.verifyOtp(
-                                        context,
-                                        phoneNumber,
-                                        int.tryParse(enteredOtp),
-                                      );
+                                final userId =
+                                await SyncManager.verifyOtp(
+                                  context,
+                                  phoneNumber,
+                                  int.tryParse(enteredOtp),
+                                );
 
-                                      final cartProvider =
-                                          Provider.of<CartProvider>(context,
-                                              listen: false);
-                                      final subTotal = cartProvider.subTotal;
-                                      final total = subTotal;
-                                      final orderedItems = cartProvider.items;
+                                final cartProvider =
+                                Provider.of<CartProvider>(context,
+                                    listen: false);
+                                final subTotal = cartProvider.subTotal;
+                                final total = subTotal;
+                                final orderedItems = cartProvider.items;
 
-                                      final order =
-                                          await SyncManager.placeOrder(
-                                        context,
-                                        userId,
-                                        total,
-                                        orderedItems,
-                                      );
+                                final order =
+                                await SyncManager.placeOrder(
+                                  context,
+                                  userId,
+                                  total,
+                                  orderedItems,
+                                );
 
-                                      isLoading.value = false; // stop loading ✅
+                                isLoading.value = false; // stop loading ✅
 
-                                      if (order != null) {
-                                        Navigator.pop(context);
-                                        Future.delayed(
-                                            Duration(milliseconds: 100), () {
-                                          showSuccessDialog(context, order);
-                                        });
-                                        //  context.read<CartProvider>().clearCart();
+                                if (order != null) {
+                                  Navigator.pop(context);
+                                  Future.delayed(
+                                      Duration(milliseconds: 100), () {
+                                    showSuccessDialog(context, order);
+                                  });
+                                  //  context.read<CartProvider>().clearCart();
 
-                                        //  Navigator.pop(context);
-                                      }
-                                    },
+                                  //  Navigator.pop(context);
+                                }
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 foregroundColor: AppColor.primaryColor,
@@ -1888,22 +1604,22 @@ class ViewOrderScreen extends StatelessWidget {
                               ),
                               child: loading
                                   ? const SizedBox(
-                                      height: 22,
-                                      width: 22,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: AppColor.primaryColor,
-                                      ),
-                                    )
+                                height: 22,
+                                width: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColor.primaryColor,
+                                ),
+                              )
                                   : Text(
-                                      'Verify',
-                                      style:
-                                          AppStyle.textStyleReemKufi.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColor.primaryColor,
-                                        fontSize: responsive.adOn,
-                                      ),
-                                    ),
+                                'Verify',
+                                style:
+                                AppStyle.textStyleReemKufi.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColor.primaryColor,
+                                  fontSize: responsive.adOn,
+                                ),
+                              ),
                             ),
                           );
                         },
@@ -1932,7 +1648,7 @@ class ViewOrderScreen extends StatelessWidget {
                           GestureDetector(
                             onTap: () async {
                               final newOtpInt =
-                                  await SyncManager.login(context, phoneNumber);
+                              await SyncManager.login(context, phoneNumber,name);
 
                               if (newOtpInt != null) {
                                 final newOtp = newOtpInt
@@ -1943,17 +1659,17 @@ class ViewOrderScreen extends StatelessWidget {
                                 (context as Element)
                                     .markNeedsBuild(); // ensures rebuild in StatefulBuilder
                                 for (int i = 0;
-                                    i < controllers.length && i < newOtp.length;
-                                    i++) {
+                                i < controllers.length && i < newOtp.length;
+                                i++) {
                                   controllers[i].text = newOtp[i];
                                 }
 
                                 errorNotifier.value =
-                                    null; // clear any previous error
+                                null; // clear any previous error
                               } else {
                                 // Optionally show an error if OTP is null
                                 errorNotifier.value =
-                                    "Failed to resend OTP. Try again.";
+                                "Failed to resend OTP. Try again.";
                               }
                             },
                             child: Text(
@@ -1964,7 +1680,7 @@ class ViewOrderScreen extends StatelessWidget {
                                 fontSize: responsive.hintTextSize,
                                 //   decoration: TextDecoration.underline,
                                 decorationColor:
-                                    AppColor.whiteColor, // underline color
+                                AppColor.whiteColor, // underline color
                               ),
                             ),
                           ),
@@ -1981,7 +1697,7 @@ class ViewOrderScreen extends StatelessWidget {
       transitionBuilder: (_, anim, __, child) {
         return SlideTransition(
           position:
-              Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim),
+          Tween(begin: const Offset(0, 1), end: Offset.zero).animate(anim),
           child: child,
         );
       },
@@ -1989,134 +1705,134 @@ class ViewOrderScreen extends StatelessWidget {
   }
 
   Widget _buildOptionBox(
-    BuildContext context,
-    String title,
-    String price, {
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
+      BuildContext context,
+      String title,
+      String price, {
+        required bool isSelected,
+        required VoidCallback onTap,
+      }) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isDesktop = screenWidth >= 1024;
     final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
     final double priceSize = isDesktop
         ? 20
         : isTablet
-            ? 17
-            : 14;
+        ? 17
+        : 14;
     return GestureDetector(
       onTap: onTap,
       child: isSelected
           ? Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColor.secondary, AppColor.primaryColor],
-                    begin: AlignmentDirectional(0.0, -2.0), // top-center
-                    end: AlignmentDirectional(0.0, 1.0), // bottom-center
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          padding:
+          const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [AppColor.secondary, AppColor.primaryColor],
+              begin: AlignmentDirectional(0.0, -2.0), // top-center
+              end: AlignmentDirectional(0.0, 1.0), // bottom-center
 
-                    stops: [0.0, 1.0], // smooth gradient
-                    tileMode: TileMode.clamp,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  // boxShadow: [
-                  //   BoxShadow(
-                  //     color: Colors.black.withOpacity(0.1), // subtle shadow color
-                  //     blurRadius: 8, // how soft the shadow looks
-                  //     spreadRadius: 2, // how wide the shadow spreads
-                  //     offset: const Offset(0, 4), // position of shadow (x, y)
-                  //   ),
-                  // ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      (title.isNotEmpty)
-                          ? title[0].toUpperCase() +
-                              title.substring(1).toLowerCase()
-                          : '',
-                      style: AppStyle.textStyleReemKufi.copyWith(
-                        fontSize: priceSize,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      price,
-                      style: AppStyle.textStyleReemKufi.copyWith(
-                        fontSize: priceSize,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          : Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                padding: const EdgeInsets.all(2), // border thickness
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColor.secondary, AppColor.primaryColor],
-                    begin: AlignmentDirectional(0.0, -2.0), // top-center
-                    end: AlignmentDirectional(0.0, 1.0), // bottom-center
-
-                    stops: [0.0, 1.0], // smooth gradient
-                    tileMode: TileMode.clamp,
-                  ),
-                  borderRadius:
-                      BorderRadius.circular(14), // slightly bigger for border
-                ),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black
-                            .withOpacity(0.1), // subtle shadow color
-                        blurRadius: 8, // how soft the shadow looks
-                        spreadRadius: 5, // how wide the shadow spreads
-                        offset: const Offset(0, 4), // position of shadow (x, y)
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        (title.isNotEmpty)
-                            ? title[0].toUpperCase() +
-                                title.substring(1).toLowerCase()
-                            : '',
-                        style: AppStyle.textStyleReemKufi.copyWith(
-                          fontSize: priceSize,
-                          fontWeight: FontWeight.bold,
-                          color: AppColor.blackColor,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        price,
-                        style: AppStyle.textStyleReemKufi.copyWith(
-                          fontSize: priceSize,
-                          fontWeight: FontWeight.bold,
-                          color: AppColor.blackColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              stops: [0.0, 1.0], // smooth gradient
+              tileMode: TileMode.clamp,
             ),
+            borderRadius: BorderRadius.circular(12),
+            // boxShadow: [
+            //   BoxShadow(
+            //     color: Colors.black.withOpacity(0.1), // subtle shadow color
+            //     blurRadius: 8, // how soft the shadow looks
+            //     spreadRadius: 2, // how wide the shadow spreads
+            //     offset: const Offset(0, 4), // position of shadow (x, y)
+            //   ),
+            // ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                (title.isNotEmpty)
+                    ? title[0].toUpperCase() +
+                    title.substring(1).toLowerCase()
+                    : '',
+                style: AppStyle.textStyleReemKufi.copyWith(
+                  fontSize: priceSize,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                price,
+                style: AppStyle.textStyleReemKufi.copyWith(
+                  fontSize: priceSize,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      )
+          : Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          padding: const EdgeInsets.all(2), // border thickness
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [AppColor.secondary, AppColor.primaryColor],
+              begin: AlignmentDirectional(0.0, -2.0), // top-center
+              end: AlignmentDirectional(0.0, 1.0), // bottom-center
+
+              stops: [0.0, 1.0], // smooth gradient
+              tileMode: TileMode.clamp,
+            ),
+            borderRadius:
+            BorderRadius.circular(14), // slightly bigger for border
+          ),
+          child: Container(
+            padding:
+            const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black
+                      .withOpacity(0.1), // subtle shadow color
+                  blurRadius: 8, // how soft the shadow looks
+                  spreadRadius: 5, // how wide the shadow spreads
+                  offset: const Offset(0, 4), // position of shadow (x, y)
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  (title.isNotEmpty)
+                      ? title[0].toUpperCase() +
+                      title.substring(1).toLowerCase()
+                      : '',
+                  style: AppStyle.textStyleReemKufi.copyWith(
+                    fontSize: priceSize,
+                    fontWeight: FontWeight.bold,
+                    color: AppColor.blackColor,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  price,
+                  style: AppStyle.textStyleReemKufi.copyWith(
+                    fontSize: priceSize,
+                    fontWeight: FontWeight.bold,
+                    color: AppColor.blackColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -3109,7 +2825,7 @@ class ViewOrderScreen extends StatelessWidget {
 
   void showComboBurgerDialog(BuildContext context, CartItemModel product) {
     final selectedProvider =
-        Provider.of<CategoryProvider>(context, listen: false);
+    Provider.of<CategoryProvider>(context, listen: false);
     final prefHelper = getIt<SharedPreferenceHelper>();
     final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
     //selectedProvider.setBasePrice(product.price.toDouble());
@@ -3125,7 +2841,7 @@ class ViewOrderScreen extends StatelessWidget {
       selectedProvider.setBasePrice(
         product.discountPrice != null && product.discountPrice!.isNotEmpty
             ? double.tryParse(product.discountPrice!) ??
-                product.price.toDouble()
+            product.price.toDouble()
             : product.price.toDouble(),
       );
     }
@@ -3134,9 +2850,9 @@ class ViewOrderScreen extends StatelessWidget {
     print('Final Total: $total');
     selectedProvider.setPrices(
       discount:
-          double.tryParse(product.discountPrice?.toString() ?? '0') ?? 0.0,
+      double.tryParse(product.discountPrice?.toString() ?? '0') ?? 0.0,
       takeAway:
-          double.tryParse(product.takeAwayPrice?.toString() ?? '0') ?? 0.0,
+      double.tryParse(product.takeAwayPrice?.toString() ?? '0') ?? 0.0,
     );
     // selectedProvider.setBasePriceWithTakeAwayCombo(product);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
@@ -3146,18 +2862,18 @@ class ViewOrderScreen extends StatelessWidget {
     final double buttonFontSize = isDesktop
         ? 25
         : isTablet
-            ? 17
-            : 16;
+        ? 17
+        : 16;
     final double priceSize = isDesktop
         ? 27
         : isTablet
-            ? 20
-            : 20;
+        ? 20
+        : 20;
     final double description = isDesktop
         ? 20
         : isTablet
-            ? 15
-            : 15;
+        ? 15
+        : 15;
     final size = MediaQuery.of(context).size;
     final badgeSize = size.width * 0.15;
 
@@ -3214,7 +2930,7 @@ class ViewOrderScreen extends StatelessWidget {
                               stops: [0.3, 0.25],
                             ),
                             borderRadius:
-                                BorderRadius.vertical(top: Radius.circular(24)),
+                            BorderRadius.vertical(top: Radius.circular(24)),
                           ),
                           child: Stack(children: [
                             Column(
@@ -3248,7 +2964,7 @@ class ViewOrderScreen extends StatelessWidget {
                                       final spacing = 8.0;
 
                                       final imageSize = (screenWidth -
-                                              (spacing * (totalItems - 1))) /
+                                          (spacing * (totalItems - 1))) /
                                           totalItems;
 
                                       return Container(
@@ -3280,47 +2996,47 @@ class ViewOrderScreen extends StatelessWidget {
                                             /// Product Name and Price
                                             Padding(
                                               padding:
-                                                  const EdgeInsets.all(8.0),
+                                              const EdgeInsets.all(8.0),
                                               child: Padding(
                                                 padding: const EdgeInsets.only(
                                                     left: 15.0, top: 25),
                                                 child: Column(
                                                   crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
+                                                  CrossAxisAlignment.start,
                                                   mainAxisAlignment:
-                                                      MainAxisAlignment.center,
+                                                  MainAxisAlignment.center,
                                                   children: [
                                                     /// Product Name
                                                     Row(
                                                       mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
                                                       children: [
                                                         Text(
                                                           (product.name !=
-                                                                      null &&
-                                                                  product.name!
-                                                                      .isNotEmpty)
+                                                              null &&
+                                                              product.name!
+                                                                  .isNotEmpty)
                                                               ? product.name![0]
-                                                                      .toUpperCase() +
-                                                                  product.name!
-                                                                      .substring(
-                                                                          1)
-                                                                      .toLowerCase()
+                                                              .toUpperCase() +
+                                                              product.name!
+                                                                  .substring(
+                                                                  1)
+                                                                  .toLowerCase()
                                                               : '',
                                                           style: AppTextStyles
                                                               .nunitoBold(
-                                                                  priceSize,
-                                                                  color: AppColor
-                                                                      .whiteColor),
+                                                              priceSize,
+                                                              color: AppColor
+                                                                  .whiteColor),
                                                         ),
                                                         Text(
                                                           "₹${(num.tryParse(product.discountPrice ?? '0') ?? 0).toStringAsFixed(2)}",
                                                           style: AppTextStyles
                                                               .nunitoBold(
-                                                                  priceSize,
-                                                                  color: AppColor
-                                                                      .whiteColor),
+                                                              priceSize,
+                                                              color: AppColor
+                                                                  .whiteColor),
                                                         ),
                                                       ],
                                                     ),
@@ -3330,12 +3046,12 @@ class ViewOrderScreen extends StatelessWidget {
                                                     /// Product Price
                                                     Row(
                                                       mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
                                                       children: [
                                                         // Left Side: Prep Time (Shown only if available)
                                                         if (product.prepareTime !=
-                                                                null &&
+                                                            null &&
                                                             product.prepareTime!
                                                                 .trim()
                                                                 .isNotEmpty)
@@ -3351,11 +3067,11 @@ class ViewOrderScreen extends StatelessWidget {
                                                                   width: 6),
                                                               Text(
                                                                 product.prepareTime!
-                                                                        .toLowerCase()
-                                                                        .contains(
-                                                                            "mins")
+                                                                    .toLowerCase()
+                                                                    .contains(
+                                                                    "mins")
                                                                     ? product
-                                                                        .prepareTime!
+                                                                    .prepareTime!
                                                                     : "${product.prepareTime} mins",
                                                                 style: AppStyle
                                                                     .textStyleReemKufi
@@ -3370,7 +3086,7 @@ class ViewOrderScreen extends StatelessWidget {
 
                                                         // Right Side: Price
                                                         if (product.takeAwayPrice !=
-                                                                null &&
+                                                            null &&
                                                             isTakeAway)
                                                           Row(
                                                             children: [
@@ -3386,21 +3102,21 @@ class ViewOrderScreen extends StatelessWidget {
                                                                 builder:
                                                                     (context) {
                                                                   final dynamic
-                                                                      packingCharge =
+                                                                  packingCharge =
                                                                       product
                                                                           .takeAwayPrice;
                                                                   final double? chargeValue = packingCharge
-                                                                          is String
+                                                                  is String
                                                                       ? double.tryParse(
-                                                                          packingCharge)
+                                                                      packingCharge)
                                                                       : (packingCharge
-                                                                              is double
-                                                                          ? packingCharge
-                                                                          : null);
+                                                                  is double
+                                                                      ? packingCharge
+                                                                      : null);
 
                                                                   return Text(
                                                                     chargeValue !=
-                                                                            null
+                                                                        null
                                                                         ? "Wrap & Pack Fee Rs  ${chargeValue.toStringAsFixed(2)}"
                                                                         : "Rs 0.00",
                                                                     style: AppStyle
@@ -3409,7 +3125,7 @@ class ViewOrderScreen extends StatelessWidget {
                                                                       color: AppColor
                                                                           .whiteColor,
                                                                       fontSize:
-                                                                          12,
+                                                                      12,
                                                                     ),
                                                                   );
                                                                 },
@@ -3444,40 +3160,40 @@ class ViewOrderScreen extends StatelessWidget {
                                     ),
                                     child: SingleChildScrollView(
                                       padding:
-                                          EdgeInsets.all(screenWidth * 0.04),
+                                      EdgeInsets.all(screenWidth * 0.04),
                                       child: Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: [
                                           const SizedBox(
                                             height: 25,
                                           ),
                                           Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment.end,
+                                            MainAxisAlignment.end,
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.center,
+                                            CrossAxisAlignment.center,
                                             children: [
                                               Text(
                                                 "Quantity",
                                                 style:
-                                                    AppTextStyles.nunitoMedium(
-                                                        buttonFontSize,
-                                                        color: AppColor
-                                                            .blackColor),
+                                                AppTextStyles.nunitoMedium(
+                                                    buttonFontSize,
+                                                    color: AppColor
+                                                        .blackColor),
                                               ),
                                               const SizedBox(
                                                 width: 20,
                                               ),
                                               Row(
                                                 mainAxisAlignment:
-                                                    MainAxisAlignment.start,
+                                                MainAxisAlignment.start,
                                                 children: [
                                                   _buildIconButton(Icons.remove,
-                                                      () {
-                                                    selectedProvider
-                                                        .decreaseQuantity();
-                                                  }),
+                                                          () {
+                                                        selectedProvider
+                                                            .decreaseQuantity();
+                                                      }),
                                                   const SizedBox(width: 12),
                                                   Consumer<CategoryProvider>(
                                                     builder: (context, provider,
@@ -3488,7 +3204,7 @@ class ViewOrderScreen extends StatelessWidget {
                                                             .textStyleReemKufi
                                                             .copyWith(
                                                           fontWeight:
-                                                              FontWeight.w600,
+                                                          FontWeight.w600,
                                                           fontSize: 20,
                                                         ),
                                                       );
@@ -3496,10 +3212,10 @@ class ViewOrderScreen extends StatelessWidget {
                                                   ),
                                                   const SizedBox(width: 12),
                                                   _buildIconButton(Icons.add,
-                                                      () {
-                                                    selectedProvider
-                                                        .increaseQuantity();
-                                                  }),
+                                                          () {
+                                                        selectedProvider
+                                                            .increaseQuantity();
+                                                      }),
                                                 ],
                                               ),
                                             ],
@@ -3520,8 +3236,8 @@ class ViewOrderScreen extends StatelessWidget {
                                                   // 👈 ensures Row takes full height of card
                                                   child: Row(
                                                     crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
+                                                    CrossAxisAlignment
+                                                        .start,
                                                     children: [
                                                       /// Circle + Line
                                                       Column(
@@ -3530,8 +3246,8 @@ class ViewOrderScreen extends StatelessWidget {
                                                           CircleAvatar(
                                                             radius: 12,
                                                             backgroundColor:
-                                                                AppColor
-                                                                    .primaryColor,
+                                                            AppColor
+                                                                .primaryColor,
                                                             child: Text(
                                                               '${index + 1}',
                                                               style: const TextStyle(
@@ -3544,7 +3260,7 @@ class ViewOrderScreen extends StatelessWidget {
                                                           // Vertical Line (only if not last item)
                                                           if (index <
                                                               product.images
-                                                                      .length -
+                                                                  .length -
                                                                   1)
                                                             Expanded(
                                                               // 👈 this makes line auto-match card height
@@ -3564,40 +3280,40 @@ class ViewOrderScreen extends StatelessWidget {
                                                       Expanded(
                                                         child: Container(
                                                           padding:
-                                                              const EdgeInsets
-                                                                  .all(12),
+                                                          const EdgeInsets
+                                                              .all(12),
                                                           decoration:
-                                                              BoxDecoration(
+                                                          BoxDecoration(
                                                             color: Colors
                                                                 .orange.shade50,
                                                             borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        12),
+                                                            BorderRadius
+                                                                .circular(
+                                                                12),
                                                             boxShadow: [
                                                               BoxShadow(
                                                                 color: Colors
                                                                     .black
                                                                     .withOpacity(
-                                                                        0.1),
+                                                                    0.1),
                                                                 blurRadius: 6,
                                                                 offset:
-                                                                    const Offset(
-                                                                        0, 3),
+                                                                const Offset(
+                                                                    0, 3),
                                                               ),
                                                             ],
                                                           ),
                                                           child: Row(
                                                             crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
+                                                            CrossAxisAlignment
+                                                                .start,
                                                             children: [
                                                               /// Product Image
                                                               ClipRRect(
                                                                 borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            10),
+                                                                BorderRadius
+                                                                    .circular(
+                                                                    10),
                                                                 child: Image
                                                                     .network(
                                                                   imageUrl,
@@ -3611,42 +3327,42 @@ class ViewOrderScreen extends StatelessWidget {
                                                               Expanded(
                                                                 child: Column(
                                                                   crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
+                                                                  CrossAxisAlignment
+                                                                      .start,
                                                                   children: [
                                                                     /// Product Name
                                                                     Padding(
                                                                       padding: const EdgeInsets
                                                                           .only(
                                                                           left:
-                                                                              13.0),
+                                                                          13.0),
                                                                       child:
-                                                                          Text(
+                                                                      Text(
                                                                         product.categoryName![
-                                                                            index],
+                                                                        index],
                                                                         style: AppTextStyles
                                                                             .nunitoMedium(
                                                                           18,
                                                                           color:
-                                                                              AppColor.blackColor,
+                                                                          AppColor.blackColor,
                                                                         ),
                                                                       ),
                                                                     ),
                                                                     const SizedBox(
                                                                         height:
-                                                                            4),
+                                                                        4),
 
                                                                     /// Description with See More
                                                                     if (product
-                                                                            .descriptions
-                                                                            ?.isNotEmpty ??
+                                                                        .descriptions
+                                                                        ?.isNotEmpty ??
                                                                         false)
                                                                       Builder(
                                                                         builder:
                                                                             (context) {
                                                                           bool
-                                                                              isExpanded =
-                                                                              false;
+                                                                          isExpanded =
+                                                                          false;
                                                                           return StatefulBuilder(
                                                                             builder:
                                                                                 (context, setState) {
@@ -3691,22 +3407,22 @@ class ViewOrderScreen extends StatelessWidget {
 
                                                                     const SizedBox(
                                                                         height:
-                                                                            10),
+                                                                        10),
 
                                                                     /// Spicy Label
                                                                     Padding(
                                                                       padding: const EdgeInsets
                                                                           .only(
                                                                           left:
-                                                                              17.0),
+                                                                          17.0),
                                                                       child:
-                                                                          Text(
+                                                                      Text(
                                                                         "Spicy",
                                                                         style: AppTextStyles
                                                                             .nunitoMedium(
                                                                           buttonFontSize,
                                                                           color:
-                                                                              AppColor.blackColor,
+                                                                          AppColor.blackColor,
                                                                         ),
                                                                       ),
                                                                     ),
@@ -3719,13 +3435,13 @@ class ViewOrderScreen extends StatelessWidget {
                                                                       padding: const EdgeInsets
                                                                           .only(
                                                                           left:
-                                                                              15.0,
+                                                                          15.0,
                                                                           right:
-                                                                              10),
+                                                                          10),
                                                                       child:
-                                                                          Row(
+                                                                      Row(
                                                                         mainAxisAlignment:
-                                                                            MainAxisAlignment.spaceBetween,
+                                                                        MainAxisAlignment.spaceBetween,
                                                                         children: [
                                                                           _buildSpicyLabel(
                                                                               "Mild",
@@ -3785,20 +3501,20 @@ class ViewOrderScreen extends StatelessWidget {
                                           const SizedBox(width: 12),
                                           Column(
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                             children: [
                                               Text("Add Add-Ons",
                                                   style: AppTextStyles.latoBold(
                                                       15,
                                                       color:
-                                                          AppColor.blackColor)),
+                                                      AppColor.blackColor)),
                                               Text(
                                                   "Make It Special — Choose Your Add-Ons Now!",
                                                   style:
-                                                      AppTextStyles.latoMedium(
-                                                          12,
-                                                          color: AppColor
-                                                              .lightGreyColor)),
+                                                  AppTextStyles.latoMedium(
+                                                      12,
+                                                      color: AppColor
+                                                          .lightGreyColor)),
                                             ],
                                           ),
                                           const Spacer(),
@@ -3845,18 +3561,18 @@ class ViewOrderScreen extends StatelessWidget {
                                         decoration: BoxDecoration(
                                           color: Colors.white,
                                           borderRadius:
-                                              BorderRadius.circular(12),
+                                          BorderRadius.circular(12),
                                         ),
                                         child: Column(
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                           children: [
                                             ShaderMask(
                                               shaderCallback: (bounds) =>
                                                   const LinearGradient(colors: [
-                                                AppColor.primaryColor,
-                                                AppColor.primaryColor
-                                              ]).createShader(Rect.fromLTWH(
+                                                    AppColor.primaryColor,
+                                                    AppColor.primaryColor
+                                                  ]).createShader(Rect.fromLTWH(
                                                       0,
                                                       0,
                                                       bounds.width,
@@ -3873,27 +3589,27 @@ class ViewOrderScreen extends StatelessWidget {
                                             Selector<CategoryProvider, double>(
                                               selector: (_, provider) =>
                                                   provider.totalComboPrice(
-                                                selectedChild: provider
-                                                    .selectedChildCategory,
-                                                provider: provider,
-                                              ),
+                                                    selectedChild: provider
+                                                        .selectedChildCategory,
+                                                    provider: provider,
+                                                  ),
                                               builder: (context,
                                                   totalComboPrice, child) {
                                                 final provider = Provider.of<
-                                                        CategoryProvider>(
+                                                    CategoryProvider>(
                                                     context,
                                                     listen: false);
                                                 double displayPrice = isTakeAway
                                                     ? provider.totalComboPrice(
-                                                        selectedChild: provider
-                                                            .selectedChildCategory,
-                                                        provider: provider,
-                                                      )
+                                                  selectedChild: provider
+                                                      .selectedChildCategory,
+                                                  provider: provider,
+                                                )
                                                     : provider.getChildCategoryOrDiscountTotal(
-                                                        product,
-                                                        provider
-                                                            .selectedChildCategory,
-                                                        provider); // assume you have totalPrice getter for normal cas
+                                                    product,
+                                                    provider
+                                                        .selectedChildCategory,
+                                                    provider); // assume you have totalPrice getter for normal cas
                                                 print(
                                                     'Quantity: ${provider.quantity}');
                                                 print(
@@ -3906,11 +3622,11 @@ class ViewOrderScreen extends StatelessWidget {
                                                 return ShaderMask(
                                                   shaderCallback: (bounds) =>
                                                       const LinearGradient(
-                                                    colors: [
-                                                      AppColor.primaryColor,
-                                                      AppColor.primaryColor,
-                                                    ],
-                                                  ).createShader(Rect.fromLTWH(
+                                                        colors: [
+                                                          AppColor.primaryColor,
+                                                          AppColor.primaryColor,
+                                                        ],
+                                                      ).createShader(Rect.fromLTWH(
                                                           0,
                                                           0,
                                                           bounds.width,
@@ -3922,9 +3638,9 @@ class ViewOrderScreen extends StatelessWidget {
                                                         .copyWith(
                                                       color: Colors.white,
                                                       fontSize:
-                                                          isDesktop ? 18 : 18,
+                                                      isDesktop ? 18 : 18,
                                                       fontWeight:
-                                                          FontWeight.bold,
+                                                      FontWeight.bold,
                                                     ),
                                                   ),
                                                 );
@@ -3942,7 +3658,7 @@ class ViewOrderScreen extends StatelessWidget {
                                           decoration: BoxDecoration(
                                             color: Colors.white,
                                             borderRadius:
-                                                BorderRadius.circular(12),
+                                            BorderRadius.circular(12),
                                           ),
                                           child: ElevatedButton(
                                             onPressed: () {
@@ -3952,12 +3668,12 @@ class ViewOrderScreen extends StatelessWidget {
 
                                               // Convert to double safely
                                               final double? packingChargeValue =
-                                                  packingCharge is String
-                                                      ? double.tryParse(
-                                                          packingCharge)
-                                                      : (packingCharge is double
-                                                          ? packingCharge
-                                                          : null);
+                                              packingCharge is String
+                                                  ? double.tryParse(
+                                                  packingCharge)
+                                                  : (packingCharge is double
+                                                  ? packingCharge
+                                                  : null);
 
                                               final selectedChild = context
                                                   .read<CategoryProvider>()
@@ -3968,47 +3684,47 @@ class ViewOrderScreen extends StatelessWidget {
                                                   .read<CategoryProvider>()
                                                   .totalTime;
                                               final cartProvider =
-                                                  Provider.of<CartProvider>(
-                                                      context,
-                                                      listen: false);
+                                              Provider.of<CartProvider>(
+                                                  context,
+                                                  listen: false);
                                               final cartItem = CartItemModel(
                                                   id: product.id,
                                                   name: product.name,
                                                   categoryName:
-                                                      product.categoryName,
+                                                  product.categoryName,
                                                   disountPercent:
-                                                      product.disountPercent,
+                                                  product.disountPercent,
                                                   discountPrice:
-                                                      product.discountPrice,
+                                                  product.discountPrice,
                                                   descriptions:
-                                                      product.descriptions,
+                                                  product.descriptions,
                                                   // name: product.name,
                                                   images: product.images,
                                                   categoryId:
-                                                      product.categoryId,
+                                                  product.categoryId,
                                                   price: isTakeAway
                                                       ? ((double.tryParse(product
-                                                                      .discountPrice
-                                                                      ?.toString() ??
-                                                                  '0') ??
-                                                              0.0) +
-                                                          (double.tryParse(product
-                                                                      .takeAwayPrice
-                                                                      ?.toString() ??
-                                                                  '0') ??
-                                                              0.0))
+                                                      .discountPrice
+                                                      ?.toString() ??
+                                                      '0') ??
+                                                      0.0) +
+                                                      (double.tryParse(product
+                                                          .takeAwayPrice
+                                                          ?.toString() ??
+                                                          '0') ??
+                                                          0.0))
                                                       : (selectedProvider
-                                                              .selectedPrices ??
-                                                          0.0),
+                                                      .selectedPrices ??
+                                                      0.0),
                                                   quantity:
-                                                      selectedProvider.quantity,
+                                                  selectedProvider.quantity,
                                                   isCombo: true,
                                                   type: "combo",
                                                   comboId: product.id,
                                                   takeAwayPrice:
-                                                      packingChargeValue,
+                                                  packingChargeValue,
                                                   childCategory:
-                                                      product.childCategory,
+                                                  product.childCategory,
                                                   totalDeliveryTime: totalTime);
                                               cartProvider.addToCart(
                                                   context, cartItem);
@@ -4023,29 +3739,29 @@ class ViewOrderScreen extends StatelessWidget {
                                             },
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:
-                                                  AppColor.whiteColor,
+                                              AppColor.whiteColor,
                                               foregroundColor:
-                                                  AppColor.whiteColor,
+                                              AppColor.whiteColor,
                                               elevation: 0,
                                               padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 28,
-                                                      vertical: 14),
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 28,
+                                                  vertical: 14),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
-                                                    BorderRadius.circular(12),
+                                                BorderRadius.circular(12),
                                               ),
                                             ),
                                             child: ShaderMask(
                                               shaderCallback: (bounds) =>
                                                   const LinearGradient(
-                                                colors: [
-                                                  AppColor.primaryColor,
-                                                  AppColor.primaryColor
-                                                ],
-                                                begin: Alignment.topCenter,
-                                                end: Alignment.bottomRight,
-                                              ).createShader(Rect.fromLTWH(
+                                                    colors: [
+                                                      AppColor.primaryColor,
+                                                      AppColor.primaryColor
+                                                    ],
+                                                    begin: Alignment.topCenter,
+                                                    end: Alignment.bottomRight,
+                                                  ).createShader(Rect.fromLTWH(
                                                       0,
                                                       0,
                                                       bounds.width,
@@ -4131,8 +3847,8 @@ class ViewOrderScreen extends StatelessWidget {
     final double description = isDesktop
         ? 20
         : isTablet
-            ? 15
-            : 15;
+        ? 15
+        : 15;
     return Text(
       text,
       style: AppStyle.textStyleReemKufi.copyWith(
@@ -4145,7 +3861,7 @@ class ViewOrderScreen extends StatelessWidget {
 
   void showAddOnDialog(BuildContext context, CartItemModel product) {
     final selectedProvider =
-        Provider.of<CategoryProvider>(context, listen: false);
+    Provider.of<CategoryProvider>(context, listen: false);
     final prefHelper = getIt<SharedPreferenceHelper>();
     final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
     final screenSize = MediaQuery.of(context).size;
@@ -4188,7 +3904,7 @@ class ViewOrderScreen extends StatelessWidget {
                 children: [
                   Padding(
                     padding:
-                        const EdgeInsets.only(left: 22.0, top: 18, bottom: 5),
+                    const EdgeInsets.only(left: 22.0, top: 18, bottom: 5),
                     child: GestureDetector(
                       onTap: () {
                         Navigator.pop(context);
@@ -4219,7 +3935,7 @@ class ViewOrderScreen extends StatelessWidget {
                             width: imageSize,
                             //   fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
-                                const Icon(Icons.image_not_supported, size: 70),
+                            const Icon(Icons.image_not_supported, size: 70),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -4232,9 +3948,9 @@ class ViewOrderScreen extends StatelessWidget {
                             children: [
                               Text(
                                 (product.name != null &&
-                                        product.name!.isNotEmpty)
+                                    product.name!.isNotEmpty)
                                     ? product.name![0].toUpperCase() +
-                                        product.name!.substring(1).toLowerCase()
+                                    product.name!.substring(1).toLowerCase()
                                     : '',
                                 style: AppTextStyles.nunitoBold(20,
                                     color: AppColor.whiteColor),
@@ -4300,7 +4016,7 @@ class ViewOrderScreen extends StatelessWidget {
                           Expanded(
                             child: ListView.builder(
                               padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
+                              const EdgeInsets.symmetric(horizontal: 16),
                               itemCount: sampleAddOnJson
                                   .length, // Use sample data length
                               itemBuilder: (context, index) {
@@ -4310,9 +4026,9 @@ class ViewOrderScreen extends StatelessWidget {
                                     .toList();
 
                                 final addOn = addOns[
-                                    index]; // <-- Fix: reference the specific addOn
+                                index]; // <-- Fix: reference the specific addOn
                                 final isSelected =
-                                    selectedAddOns.contains(addOn.name);
+                                selectedAddOns.contains(addOn.name);
 
                                 return GestureDetector(
                                   onTap: () {
@@ -4328,10 +4044,10 @@ class ViewOrderScreen extends StatelessWidget {
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 12, horizontal: 8),
                                     decoration: BoxDecoration(
-                                        // border: Border(
-                                        //   bottom: BorderSide(color: Colors.grey.shade300),
-                                        // ),
-                                        ),
+                                      // border: Border(
+                                      //   bottom: BorderSide(color: Colors.grey.shade300),
+                                      // ),
+                                    ),
                                     child: Row(
                                       children: [
                                         // Custom Checkbox
@@ -4343,7 +4059,7 @@ class ViewOrderScreen extends StatelessWidget {
                                                 ? AppColor.primaryColor
                                                 : Colors.white,
                                             borderRadius:
-                                                BorderRadius.circular(4),
+                                            BorderRadius.circular(4),
                                             border: Border.all(
                                               color: AppColor.primaryColor,
                                               width: 1.5,
@@ -4351,7 +4067,7 @@ class ViewOrderScreen extends StatelessWidget {
                                           ),
                                           child: isSelected
                                               ? const Icon(Icons.check,
-                                                  size: 16, color: Colors.white)
+                                              size: 16, color: Colors.white)
                                               : null,
                                         ),
                                         const SizedBox(width: 12),
@@ -4424,21 +4140,21 @@ class ViewOrderScreen extends StatelessWidget {
                               Selector<CategoryProvider, double>(
                                 selector: (_, provider) =>
                                     provider.totalComboPrice(
-                                  selectedChild: provider.selectedChildCategory,
-                                  provider: provider,
-                                ),
+                                      selectedChild: provider.selectedChildCategory,
+                                      provider: provider,
+                                    ),
                                 builder: (context, totalComboPrice, child) {
                                   final provider =
-                                      Provider.of<CategoryProvider>(context,
-                                          listen: false);
+                                  Provider.of<CategoryProvider>(context,
+                                      listen: false);
                                   double displayPrice = isTakeAway
                                       ? provider.totalComboPrice(
-                                          selectedChild:
-                                              provider.selectedChildCategory,
-                                          provider: provider,
-                                        )
+                                    selectedChild:
+                                    provider.selectedChildCategory,
+                                    provider: provider,
+                                  )
                                       : provider
-                                          .totalPrices; // assume you have totalPrice getter for normal cas
+                                      .totalPrices; // assume you have totalPrice getter for normal cas
                                   print('Quantity: ${provider.quantity}');
                                   print(
                                       'Discount Price: ${provider.discountPrice}');
@@ -4449,16 +4165,16 @@ class ViewOrderScreen extends StatelessWidget {
                                   return ShaderMask(
                                     shaderCallback: (bounds) =>
                                         const LinearGradient(
-                                      colors: [
-                                        AppColor.primaryColor,
-                                        AppColor.primaryColor,
-                                      ],
-                                    ).createShader(Rect.fromLTWH(
+                                          colors: [
+                                            AppColor.primaryColor,
+                                            AppColor.primaryColor,
+                                          ],
+                                        ).createShader(Rect.fromLTWH(
                                             0, 0, bounds.width, bounds.height)),
                                     child: Text(
                                       '₹${displayPrice.toStringAsFixed(2)}',
                                       style:
-                                          AppStyle.textStyleReemKufi.copyWith(
+                                      AppStyle.textStyleReemKufi.copyWith(
                                         color: Colors.white,
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -4477,7 +4193,7 @@ class ViewOrderScreen extends StatelessWidget {
                           child: ElevatedButton(
                             onPressed: () {
                               final prefHelper =
-                                  getIt<SharedPreferenceHelper>();
+                              getIt<SharedPreferenceHelper>();
                               final isTakeAway =
                                   prefHelper.getBool(StorageKey.isTakeAway) ??
                                       false;
@@ -4490,11 +4206,11 @@ class ViewOrderScreen extends StatelessWidget {
                                   context.read<CategoryProvider>().totalTime;
                               // Convert to double safely
                               final double? packingChargeValue =
-                                  packingCharge is String
-                                      ? double.tryParse(packingCharge)
-                                      : (packingCharge is double
-                                          ? packingCharge
-                                          : null);
+                              packingCharge is String
+                                  ? double.tryParse(packingCharge)
+                                  : (packingCharge is double
+                                  ? packingCharge
+                                  : null);
 
                               final selectedChild = context
                                   .read<CategoryProvider>()
@@ -4509,16 +4225,16 @@ class ViewOrderScreen extends StatelessWidget {
                                   price: isTakeAway
                                       ? (selectedProvider.selectedPrices ?? 0.0)
                                       : (selectedProvider.selectedPrices ??
-                                          0.0),
+                                      0.0),
                                   quantity: selectedProvider.quantity,
                                   takeAwayPrice:
-                                      isTakeAway ? packingChargeValue : null,
+                                  isTakeAway ? packingChargeValue : null,
                                   childCategory: product.childCategory,
                                   subCategoryId: product.id,
                                   childCategoryId: selectedChild?.id.toString(),
                                   childCategoryName: selectedChild?.name,
                                   isCombo: null,
-                                  heatLevel: selectedProvider.selectedHeatLabel,
+                                 // heatLevel: selectedProvider.selectedHeatLabel,
                                   totalDeliveryTime: totalTime,
                                   type: "normal",
                                   prepareTime: product.prepareTime,
@@ -4558,7 +4274,7 @@ class ViewOrderScreen extends StatelessWidget {
 
   void showComboAddOnDialog(BuildContext context, CartItemModel product) {
     final selectedProvider =
-        Provider.of<CategoryProvider>(context, listen: false);
+    Provider.of<CategoryProvider>(context, listen: false);
     final prefHelper = getIt<SharedPreferenceHelper>();
     final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
     final screenSize = MediaQuery.of(context).size;
@@ -4599,7 +4315,7 @@ class ViewOrderScreen extends StatelessWidget {
                   /// in flutter app my printing things that app connecct in another device this code is no in that device and when user open the app open that app printed text all arw display in another device console why?how to solve it
                   Padding(
                     padding:
-                        const EdgeInsets.only(left: 22.0, top: 18, bottom: 0),
+                    const EdgeInsets.only(left: 22.0, top: 18, bottom: 0),
                     child: GestureDetector(
                       onTap: () {
                         Navigator.pop(context);
@@ -4615,7 +4331,7 @@ class ViewOrderScreen extends StatelessWidget {
                       color: AppColor.primaryColor,
                       borderRadius: BorderRadius.only(
                         topLeft:
-                            Radius.circular(24), // Only top-left corner rounded
+                        Radius.circular(24), // Only top-left corner rounded
                         topRight: Radius.circular(24),
                       ),
                     ),
@@ -4651,7 +4367,7 @@ class ViewOrderScreen extends StatelessWidget {
                                   // Add plus icon between images
                                   return const Padding(
                                     padding:
-                                        EdgeInsets.symmetric(horizontal: 2.0),
+                                    EdgeInsets.symmetric(horizontal: 2.0),
                                     child: Icon(Icons.add,
                                         size: 24, color: Colors.white),
                                   );
@@ -4695,11 +4411,11 @@ class ViewOrderScreen extends StatelessWidget {
                                 padding: const EdgeInsets.only(left: 8.0),
                                 child: Text(
                                   (product.name != null &&
-                                          product.name!.isNotEmpty)
+                                      product.name!.isNotEmpty)
                                       ? product.name![0].toUpperCase() +
-                                          product.name!
-                                              .substring(1)
-                                              .toLowerCase()
+                                      product.name!
+                                          .substring(1)
+                                          .toLowerCase()
                                       : '',
                                   style: AppTextStyles.nunitoBold(20,
                                       color: AppColor.whiteColor),
@@ -4762,7 +4478,7 @@ class ViewOrderScreen extends StatelessWidget {
                           Expanded(
                             child: ListView.builder(
                               padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
+                              const EdgeInsets.symmetric(horizontal: 16),
                               itemCount: sampleAddOnJson
                                   .length, // Use sample data length
                               itemBuilder: (context, index) {
@@ -4772,9 +4488,9 @@ class ViewOrderScreen extends StatelessWidget {
                                     .toList();
 
                                 final addOn = addOns[
-                                    index]; // <-- Fix: reference the specific addOn
+                                index]; // <-- Fix: reference the specific addOn
                                 final isSelected =
-                                    selectedAddOns.contains(addOn.name);
+                                selectedAddOns.contains(addOn.name);
 
                                 return GestureDetector(
                                   onTap: () {
@@ -4790,10 +4506,10 @@ class ViewOrderScreen extends StatelessWidget {
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 12, horizontal: 8),
                                     decoration: BoxDecoration(
-                                        // border: Border(
-                                        //   bottom: BorderSide(color: Colors.grey.shade300),
-                                        // ),
-                                        ),
+                                      // border: Border(
+                                      //   bottom: BorderSide(color: Colors.grey.shade300),
+                                      // ),
+                                    ),
                                     child: Row(
                                       children: [
                                         // Custom Checkbox
@@ -4805,7 +4521,7 @@ class ViewOrderScreen extends StatelessWidget {
                                                 ? AppColor.primaryColor
                                                 : Colors.white,
                                             borderRadius:
-                                                BorderRadius.circular(4),
+                                            BorderRadius.circular(4),
                                             border: Border.all(
                                               color: AppColor.primaryColor,
                                               width: 1.5,
@@ -4813,7 +4529,7 @@ class ViewOrderScreen extends StatelessWidget {
                                           ),
                                           child: isSelected
                                               ? const Icon(Icons.check,
-                                                  size: 16, color: Colors.white)
+                                              size: 16, color: Colors.white)
                                               : null,
                                         ),
                                         const SizedBox(width: 12),
@@ -4891,21 +4607,21 @@ class ViewOrderScreen extends StatelessWidget {
                               Selector<CategoryProvider, double>(
                                 selector: (_, provider) =>
                                     provider.totalComboPrice(
-                                  selectedChild: provider.selectedChildCategory,
-                                  provider: provider,
-                                ),
+                                      selectedChild: provider.selectedChildCategory,
+                                      provider: provider,
+                                    ),
                                 builder: (context, totalComboPrice, child) {
                                   final provider =
-                                      Provider.of<CategoryProvider>(context,
-                                          listen: false);
+                                  Provider.of<CategoryProvider>(context,
+                                      listen: false);
                                   double displayPrice = isTakeAway
                                       ? provider.totalComboPrice(
-                                          selectedChild:
-                                              provider.selectedChildCategory,
-                                          provider: provider,
-                                        )
+                                    selectedChild:
+                                    provider.selectedChildCategory,
+                                    provider: provider,
+                                  )
                                       : provider
-                                          .totalPrices; // assume you have totalPrice getter for normal cas
+                                      .totalPrices; // assume you have totalPrice getter for normal cas
                                   print('Quantity: ${provider.quantity}');
                                   print(
                                       'Discount Price: ${provider.discountPrice}');
@@ -4916,16 +4632,16 @@ class ViewOrderScreen extends StatelessWidget {
                                   return ShaderMask(
                                     shaderCallback: (bounds) =>
                                         const LinearGradient(
-                                      colors: [
-                                        AppColor.primaryColor,
-                                        AppColor.primaryColor,
-                                      ],
-                                    ).createShader(Rect.fromLTWH(
+                                          colors: [
+                                            AppColor.primaryColor,
+                                            AppColor.primaryColor,
+                                          ],
+                                        ).createShader(Rect.fromLTWH(
                                             0, 0, bounds.width, bounds.height)),
                                     child: Text(
                                       '₹${displayPrice.toStringAsFixed(2)}',
                                       style:
-                                          AppStyle.textStyleReemKufi.copyWith(
+                                      AppStyle.textStyleReemKufi.copyWith(
                                         color: Colors.white,
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -4949,11 +4665,11 @@ class ViewOrderScreen extends StatelessWidget {
 
                               // Convert to double safely
                               final double? packingChargeValue =
-                                  packingCharge is String
-                                      ? double.tryParse(packingCharge)
-                                      : (packingCharge is double
-                                          ? packingCharge
-                                          : null);
+                              packingCharge is String
+                                  ? double.tryParse(packingCharge)
+                                  : (packingCharge is double
+                                  ? packingCharge
+                                  : null);
 
                               final selectedChild = context
                                   .read<CategoryProvider>()
@@ -4976,15 +4692,15 @@ class ViewOrderScreen extends StatelessWidget {
                                   categoryId: product.categoryId,
                                   price: isTakeAway
                                       ? ((double.tryParse(product.discountPrice
-                                                      ?.toString() ??
-                                                  '0') ??
-                                              0.0) +
-                                          (double.tryParse(product.takeAwayPrice
-                                                      ?.toString() ??
-                                                  '0') ??
-                                              0.0))
+                                      ?.toString() ??
+                                      '0') ??
+                                      0.0) +
+                                      (double.tryParse(product.takeAwayPrice
+                                          ?.toString() ??
+                                          '0') ??
+                                          0.0))
                                       : (selectedProvider.selectedPrices ??
-                                          0.0),
+                                      0.0),
                                   quantity: selectedProvider.quantity,
                                   isCombo: true,
                                   type: "combo",
@@ -5072,7 +4788,7 @@ class ViewOrderScreen extends StatelessWidget {
               color: Colors.transparent,
               child: Padding(
                 padding:
-                    EdgeInsets.all(screenWidth * 0.04), // 4% of screen width
+                EdgeInsets.all(screenWidth * 0.04), // 4% of screen width
                 child: Container(
                   width: screenWidth,
                   // height: screenHeight * 0.5,
@@ -5092,9 +4808,9 @@ class ViewOrderScreen extends StatelessWidget {
                   ),
                   child: Column(
                     mainAxisAlignment:
-                        MainAxisAlignment.center, // Center vertically
+                    MainAxisAlignment.center, // Center vertically
                     crossAxisAlignment:
-                        CrossAxisAlignment.center, // Center horizontally
+                    CrossAxisAlignment.center, // Center horizontally
                     children: [
                       const Icon(Icons.check_circle,
                           size: 60, color: Colors.white),
@@ -5129,8 +4845,8 @@ class ViewOrderScreen extends StatelessWidget {
           context,
           MaterialPageRoute(
               builder: (_) => PaymentScreen(
-                    order: order,
-                  )),
+                order: order,
+              )),
         );
       });
     });
@@ -5156,9 +4872,9 @@ class _HeatLevelSelectorState extends State<HeatLevelSelector> {
           data: SliderTheme.of(context).copyWith(
               trackHeight: 8,
               activeTrackColor:
-                  AppColor.primaryColor, // Hide default active track color
+              AppColor.primaryColor, // Hide default active track color
               inactiveTrackColor:
-                  Colors.grey, // Hide default inactive track color
+              Colors.grey, // Hide default inactive track color
               valueIndicatorColor: AppColor.primaryColor,
               thumbColor: AppColor.primaryColor),
           child: Slider(
