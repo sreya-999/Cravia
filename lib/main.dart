@@ -20,6 +20,10 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 Future<void> main() async {
+  FlutterError.onError = (FlutterErrorDetails details) {
+    print('Flutter Error: ${details.exception}');
+    print('Stack trace: ${details.stack}');
+  };
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
   await initLocatorService();
@@ -46,7 +50,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
      debugShowCheckedModeBanner:false ,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
         useMaterial3: true,
       ),
       home:SplashScreen()

@@ -86,57 +86,64 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
     final isTablet = size.width > 600;
     final double buttonSize = isTablet ? 20 : 18;
     final responsive = Responsiveness(context);
-    return Scaffold(
-      backgroundColor: AppColor.whiteColor, // Light pink background
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // ✅ Success Icon with Green Circle
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Green particles effect
-
-                    Container(
-                      height: MediaQuery.of(context).size.height * 0.20, // 15% of screen height
-                      width: MediaQuery.of(context).size.width * 0.50, // Optional: width scaling
-                      child: Lottie.asset(
-                        'assets/icons/success.json',
-                        repeat: false,
+    return WillPopScope(
+      onWillPop: () async {
+        // return false to prevent back navigation
+        // return true to allow it
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: AppColor.whiteColor, // Light pink background
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // ✅ Success Icon with Green Circle
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Green particles effect
+      
+                      Container(
+                        height: MediaQuery.of(context).size.height * 0.20, // 15% of screen height
+                        width: MediaQuery.of(context).size.width * 0.50, // Optional: width scaling
+                        child: Lottie.asset(
+                          'assets/icons/success.json',
+                          repeat: false,
+                        ),
                       ),
+      
+                    ],
+                  ),
+                  const SizedBox(height: 40),
+      
+                  // ✅ "Thank you!" text
+                   Text(
+                    "Thank you!",
+                    style: AppTextStyles.nunitoBold(
+                      responsive.success,
+                      color: AppColor.blackColor,
                     ),
-
-                  ],
-                ),
-                const SizedBox(height: 40),
-
-                // ✅ "Thank you!" text
-                 Text(
-                  "Thank you!",
-                  style: AppTextStyles.nunitoBold(
-                    responsive.success,
-                    color: AppColor.blackColor,
                   ),
-                ),
-
-                const SizedBox(height: 8),
-
-                // ✅ Subtitle text
-                 Text(
-                  "Your payment has been completed successfully",
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.nunitoRegular(
-                    responsive.hintTextSize,
-                    color: AppColor.lightBlackColor,
+      
+                  const SizedBox(height: 8),
+      
+                  // ✅ Subtitle text
+                   Text(
+                    "Your payment has been completed successfully",
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.nunitoRegular(
+                      responsive.hintTextSize,
+                      color: AppColor.lightBlackColor,
+                    ),
                   ),
-                ),
-
-
-              ],
+      
+      
+                ],
+              ),
             ),
           ),
         ),

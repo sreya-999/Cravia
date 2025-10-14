@@ -19,6 +19,7 @@ import '../utlis/App_style.dart';
 import '../utlis/share_preference_helper/sharereference_helper.dart';
 import '../utlis/widgets/app_text_style.dart';
 import '../utlis/widgets/custom_appbar.dart';
+import '../utlis/widgets/listening_waves.dart';
 import '../utlis/widgets/responsiveness.dart';
 import '../utlis/widgets/shimmer_loading.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -232,7 +233,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                           end: Alignment.bottomRight,
                         ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
                         child: Text(
-                          'Go To Cart',
+                          'View Order',
                           style: AppStyle.textStyleReemKufi.copyWith(
                             color: Colors.white,
                             fontSize: responsive.priceTotal,
@@ -282,10 +283,11 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                             ),
                           ],
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
+                            SizedBox(width: 5,),
                             Icon(
                               Icons.search,
                               size: iconSize.clamp(18, 28),
@@ -296,38 +298,78 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                               child: Row(
                                 children: [
                                   Expanded(
-                                    child: TextField(
-                                      controller: _controller,
-                                      focusNode: _searchFocusNode,
-                                      textAlign: TextAlign.start,
-                                      style: AppStyle.textStyleReemKufi.copyWith(
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: fontSize.clamp(14, 20),
-                                        color: AppColor.blackColor,
-                                      ),
-                                      decoration: InputDecoration(
-                                        hintText: 'Looking for BOGO? Type here...',
-                                        hintStyle: AppTextStyles.nunitoRegular(
-                                          responsive.hintTextSize,
-                                          color: AppColor.lightGreyColor,
+                                    child: Stack(
+                                      alignment: Alignment.centerLeft,
+                                      children: [
+                                        // Hint + waves overlay
+                                        if (_controller.text.isEmpty)
+                                          AnimatedSwitcher(
+                                            duration: const Duration(milliseconds: 300),
+                                            child: _isListening
+                                                ? Row(
+                                              key: const ValueKey('listening'),
+                                              children: [
+                                                Text(
+                                                  'Listening...',
+                                                  style: AppTextStyles.nunitoRegular(
+                                                    responsive.hintTextSize,
+                                                    color: AppColor.primaryColor,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 6),
+                                                 ListeningWave(
+                                                   color: AppColor.primaryColor,
+                                                  size: 10,
+                                                ),
+                                              ],
+                                            )
+                                                : Text(
+                                              'Looking for BOGO? Type here...',
+                                              key: const ValueKey('default'),
+                                              style: AppTextStyles.nunitoRegular(
+                                                responsive.hintTextSize,
+                                                color: AppColor.lightGreyColor,
+                                              ),
+                                            ),
+                                          ),
+                                        // The actual TextField
+                                        TextField(
+                                          controller: _controller,
+                                          focusNode: _searchFocusNode,
+                                          textAlign: TextAlign.start,
+                                          style: AppStyle.textStyleReemKufi.copyWith(
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: fontSize.clamp(14, 20),
+                                            color: AppColor.blackColor,
+                                          ),
+                                          decoration: const InputDecoration(
+                                            border: InputBorder.none,
+                                            isDense: true,
+                                            contentPadding: EdgeInsets.zero,
+                                            hintText: '', // handled manually by AnimatedSwitcher
+                                          ),
+                                          onChanged: (value) {
+                                            final provider =
+                                            Provider.of<DashboardProvider>(context, listen: false);
+                                            provider.bugOneGetOneOfferSearch(context, _controller.text);
+                                          },
                                         ),
-                                        border: InputBorder.none,
-                                        isDense: true,
-                                        contentPadding: EdgeInsets.zero,
-                                      ),
-                                      onChanged: (value) {
-                                        final provider = Provider.of<DashboardProvider>(
-                                          context,
-                                          listen: false,
-                                        );
-                                        provider.bugOneGetOneOfferSearch(context, _controller.text);
-                                      },
+                                      ],
                                     ),
                                   ),
+
                                   IconButton(
-                                    icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
-                                    onPressed: _isListening ? _stopListening : _startListening,
+                                    icon: Icon(_isListening ? Icons.mic : Icons.mic_none,
+                                        color: _isListening ? AppColor.primaryColor : Colors.grey),
+                                    onPressed: () {
+                                      if (_isListening) {
+                                        _stopListening();
+                                      } else {
+                                        _startListening();
+                                      }
+                                    },
                                   ),
+
                                 ],
                               ),
                             ),
@@ -463,7 +505,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
 
                         if (screenWidth >= 1000) {
                           crossAxisCount = 4;
-                          aspectRatio = 0.95;
+                          aspectRatio = 0.75;
                           imageHeight = 180;
                         } else if (screenWidth >= 700) {
                           crossAxisCount = 3;
@@ -1781,7 +1823,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                   snackBar.customSnackBar(
                                                     context: context,
                                                     type: "1",
-                                                    strMessage: 'Item Added',
+                                                    strMessage: 'Item(s) Added',
                                                   );
                                                 } else {
                                                   FloatingMessage.show(
@@ -1816,7 +1858,7 @@ class _BuyOneGetOneState extends State<BuyOneGetOne> {
                                                     ).createShader(Rect.fromLTWH(0, 0,
                                                         bounds.width, bounds.height)),
                                                 child: Text(
-                                                  'Add To Cart',
+                                                  'Add To Order',
                                                   style: AppStyle.textStyleReemKufi
                                                       .copyWith(
                                                     color: Colors.white,

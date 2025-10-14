@@ -10,14 +10,14 @@ class ShowSnackBar {
     required BuildContext context,
     required String type,
     required String strMessage,
-    Duration duration = const Duration(seconds: 4),
+    Duration duration = const Duration(seconds: 1),
   }) {
     _overlayEntry?.remove(); // Remove existing snackbar if any
 
     OverlayState overlayState = Overlay.of(context);
     _overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
-        bottom: MediaQuery.of(context).padding.bottom + 10, // Positioning at top
+        bottom: MediaQuery.of(context).padding.bottom + 90, // Positioning at top
         left: 20,
         right: 20,
         child: Material(

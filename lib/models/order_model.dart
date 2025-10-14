@@ -9,6 +9,7 @@ class OrderModel {
     required this.amount,
   });
 
+
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     return OrderModel(
       orderId: json['order_id'],

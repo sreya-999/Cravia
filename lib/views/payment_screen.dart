@@ -59,108 +59,115 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget build(BuildContext context) {
 
 final responsive = Responsiveness(context);
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: CustomAppBar(title: 'Payment'),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Center(
-                  child: Builder(
-                    builder: (context) {
-                      final screenWidth = MediaQuery.of(context).size.width;
-                      final isMobile = screenWidth < 600;
+    return WillPopScope(
+      onWillPop: () async {
+        // return false to prevent back navigation
+        // return true to allow it
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: CustomAppBar(title: 'Payment'),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Center(
+                    child: Builder(
+                      builder: (context) {
+                        final screenWidth = MediaQuery.of(context).size.width;
+                        final isMobile = screenWidth < 600;
 
-                      // Dynamic sizes
-                      final qrSize = screenWidth * 0.4; // 60% of width
-                      final titleFontSize = isMobile ? 16.0 : 22.0;
-                      final totalLabelFontSize = isMobile ? 14.0 : 18.0;
-                      final totalAmountFontSize = isMobile ? 18.0 : 24.0;
+                        // Dynamic sizes
+                        final qrSize = screenWidth * 0.4; // 60% of width
+                        final titleFontSize = isMobile ? 16.0 : 22.0;
+                        final totalLabelFontSize = isMobile ? 14.0 : 18.0;
+                        final totalAmountFontSize = isMobile ? 18.0 : 24.0;
 
-                      return Column(
-                        children: [
-                          SizedBox(height: isMobile ? 20 : 40),
+                        return Column(
+                          children: [
+                            SizedBox(height: isMobile ? 20 : 40),
 
-                          // Title
-                          Text(
-                            "Scan QR to pay",
-                            style: AppStyle.textStyleReemKufi.copyWith(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: titleFontSize,
-                            ),
-                          ),
-
-                          SizedBox(height: isMobile ? 20 : 30),
-
-                          // QR Code
-                          Image.asset(
-                            AppImage.qrCode,
-                            width: qrSize,
-                            height: qrSize,
-                            fit: BoxFit.contain,
-                          ),
-
-                          SizedBox(height: isMobile ? 16 : 24),
-
-                          // Payment method logos
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                AppImage.payment,
-                                width: screenWidth * 0.5, // 50% of screen width
-                                fit: BoxFit.contain,
+                            // Title
+                            Text(
+                              "Scan QR to pay",
+                              style: AppStyle.textStyleReemKufi.copyWith(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: titleFontSize,
                               ),
-                            ],
-                          ),
+                            ),
 
-                          SizedBox(height: isMobile ? 20 : 30),
-                        ],
-                      );
-                    },
+                            SizedBox(height: isMobile ? 20 : 30),
+
+                            // QR Code
+                            Image.asset(
+                              AppImage.qrCode,
+                              width: qrSize,
+                              height: qrSize,
+                              fit: BoxFit.contain,
+                            ),
+
+                            SizedBox(height: isMobile ? 16 : 24),
+
+                            // Payment method logos
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  AppImage.payment,
+                                  width: screenWidth * 0.5, // 50% of screen width
+                                  fit: BoxFit.contain,
+                                ),
+                              ],
+                            ),
+
+                            SizedBox(height: isMobile ? 20 : 30),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            // Fixed total section
-            Builder(
-              builder: (context) {
-                final screenWidth = MediaQuery.of(context).size.width;
-                final isMobile = screenWidth < 600;
-                final cartProvider = Provider.of<CartProvider>(context);
-                return Container(
-                  padding: EdgeInsets.all(isMobile ? 16 : 24),
-                  color: Colors.white,
-                  child: Column(
-                    children: [
-                      Text(
-                        "Total",
-                        style: AppStyle.textStyleReemKufi.copyWith(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: responsive.subtitleSize
+              // Fixed total section
+              Builder(
+                builder: (context) {
+                  final screenWidth = MediaQuery.of(context).size.width;
+                  final isMobile = screenWidth < 600;
+                  final cartProvider = Provider.of<CartProvider>(context);
+                  return Container(
+                    padding: EdgeInsets.all(isMobile ? 16 : 24),
+                    color: Colors.white,
+                    child: Column(
+                      children: [
+                        Text(
+                          "Total",
+                          style: AppStyle.textStyleReemKufi.copyWith(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: responsive.subtitleSize
+                          ),
                         ),
-                      ),
-                      SizedBox(height: isMobile ? 5 : 8),
-                      Text(
-                        "Rs ${cartProvider.total.toStringAsFixed(2)}",
-                        style: AppStyle.textStyleReemKufi.copyWith(
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                          fontSize: responsive.subtitleSize
+                        SizedBox(height: isMobile ? 5 : 8),
+                        Text(
+                          "Rs ${cartProvider.total.toStringAsFixed(2)}",
+                          style: AppStyle.textStyleReemKufi.copyWith(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                            fontSize: responsive.subtitleSize
+                          ),
                         ),
-                      ),
 
-                    ],
-                  ),
-                );
-              },
-            ),
-          ],
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

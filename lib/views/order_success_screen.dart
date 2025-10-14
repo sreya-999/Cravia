@@ -11,6 +11,7 @@ import '../providers/category_provider.dart';
 import '../providers/dashboard_provider.dart';
 import '../utlis/App_image.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 
 import '../utlis/widgets/responsive.dart';
 import '../utlis/widgets/responsiveness.dart';
@@ -28,6 +29,8 @@ class OrderSuccessScreen extends StatefulWidget {
 class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
   @override
   Widget build(BuildContext context) {
+    final String formattedDate =
+    DateFormat('dd-MM-yyyy    hh:mm a').format(DateTime.now());
     final screenWidth = MediaQuery.of(context).size.width;
     final responsive = Responsiveness(context);
     final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
@@ -39,10 +42,16 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) {
+        final provider = Provider.of<DashboardProvider>(
+            context,
+            listen: false);
+        provider.clearSort();
+        cartProvider.clearCart();
+        cartProvider.clearSelection();
         if (!didPop) {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => SelectionScreen()),
+            MaterialPageRoute(builder: (context) => AutoScrollLiquidSwipeScreen()),
             (route) => false, // remove all previous routes
           );
         }
@@ -108,6 +117,14 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                       ),
                     ),
                     SizedBox(height: r.hp(1)),
+                    Text(
+                      formattedDate,
+                      style: AppStyle.textStyleReemKufi.copyWith(
+                        fontSize: responsive.hintTextSize,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: r.hp(1)),
                     Image.asset(
                       AppImage.receipt,
                       height: r.hp(25),
@@ -145,21 +162,36 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
 
                     SizedBox(height: r.hp(4)),
                     SizedBox(height: r.hp(1)),
-                    Row(
-                      children: [
-                        Text(
-                          "Thanks a bunch for grabbing a bite with us!",
-                          textAlign: TextAlign.center,
-                          style: AppStyle.textStyleReemKufi.copyWith(
-                            fontSize: r.sp(5, max: 22),
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Image.asset(AppImage.emoji)
-                      ],
-                    ),
+                    Center(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          // Example: emoji width and height 8% of screen width
+                          final double emojiSize = constraints.maxWidth * 0.08;
 
+                          return RichText(
+                            textAlign: TextAlign.center,
+                            text: TextSpan(
+                              style: AppStyle.textStyleReemKufi.copyWith(
+                                fontSize: r.sp(5, max: 27), // keep text responsive
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                              children: [
+                                const TextSpan(text: "Thanks a bunch for grabbing a bite with us! "),
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: Image.asset(
+                                    AppImage.emoji,
+                                    width: emojiSize,
+                                    height: emojiSize,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                     SizedBox(height: r.hp(15)),
 
                     Consumer<CartProvider>(
@@ -214,4 +246,6 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
       ),
     );
   }
+
+
 }

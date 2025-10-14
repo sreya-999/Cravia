@@ -159,15 +159,15 @@ class CartProvider with ChangeNotifier {
           ((item.childCategoryId ?? 'default') == contextKey),
     );
 
-    if (index != -1 && _items[index].quantity == newItem.quantity) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Product already added with same quantity!'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
+    // if (index != -1 && _items[index].quantity == newItem.quantity) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(
+    //       content: Text('Product already added with same quantity!'),
+    //       duration: Duration(seconds: 2),
+    //     ),
+    //   );
+    //   return;
+    // }
 
     final CartItemModel itemToStore = newItem.copyWith(childCategoryId: contextKey);
 
@@ -221,9 +221,35 @@ class CartProvider with ChangeNotifier {
     final contextKey = newItem.childCategoryId ?? sourcePage ?? 'default';
     final index = _items.indexWhere(
           (item) =>
-      item.id == newItem.id &&
-          ((item.childCategoryId ?? 'default') == contextKey),
+          item.id == newItem.id &&
+              ((item.childCategoryId ?? 'default') == contextKey) &&
+              (item.heatLevel == newItem.heatLevel)
     );
+    return index != -1 && _items[index].quantity == newItem.quantity;
+  }
+
+  bool isComboDuplicate(CartItemModel newItem, {String? sourcePage}) {
+    final contextKey = newItem.childCategoryId ?? sourcePage ?? 'default';
+
+    bool listEqualsIgnoreOrder(List<String>? a, List<String>? b) {
+      if (a == null && b == null) return true;
+      if (a == null || b == null) return false;
+      if (a.length != b.length) return false;
+      // Order-insensitive comparison
+      final sortedA = List<String>.from(a)..sort();
+      final sortedB = List<String>.from(b)..sort();
+      return sortedA.toString() == sortedB.toString();
+    }
+
+    final index = _items.indexWhere(
+          (item) =>
+      item.id == newItem.id &&
+          ((item.childCategoryId ?? 'default') == contextKey) &&
+          (item.heatLevel == newItem.heatLevel) &&
+          listEqualsIgnoreOrder(item.spicyLevel, newItem.spicyLevel) &&
+          listEqualsIgnoreOrder(item.categoryIds, newItem.categoryIds),
+    );
+
     return index != -1 && _items[index].quantity == newItem.quantity;
   }
 

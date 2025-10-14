@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,6 +7,7 @@ import 'package:ravathi_store/service/sync_manager.dart';
 import 'package:ravathi_store/urls/api_endpoints.dart';
 import 'package:ravathi_store/utlis/widgets/custom_appbar.dart';
 import 'package:ravathi_store/views/payment_screen.dart';
+import 'package:ravathi_store/views/table_seat_selection.dart';
 import 'dart:math';
 import '../models/add_on.dart';
 import '../models/items_model.dart';
@@ -43,7 +45,8 @@ class ViewOrderScreen extends StatelessWidget {
       print('Discount Price: ${item.discountPrice}');
       print('Quantity: ${item.quantity}');
       print('Selected Child Category: ${item.childCategoryId}');
-      print('time: ${item.prepareTime}');
+      print('spicy: ${item.spicyLevel}');
+      print('heat: ${item.categoryIds}');
       print('Total Price: ${item.totalPrice}');
     }
     final responsive = Responsiveness(context);
@@ -73,7 +76,7 @@ class ViewOrderScreen extends StatelessWidget {
       // bottom: false,
       backgroundColor: AppColor.whiteColor,
       appBar: const CustomAppBar(
-        title: 'Your Cart',
+        title: 'Your Orders',
       ),
 
 
@@ -233,21 +236,17 @@ class ViewOrderScreen extends StatelessWidget {
                                                             width: imageSize,
                                                             height: imageSize,
                                                             child:
-                                                            Image.network(
-                                                              "${ApiEndpoints.imageBaseUrl}${item.images[i]}",
+                                                            CachedNetworkImage(
+                                                              imageUrl: "${ApiEndpoints.imageBaseUrl}${item.images[i]}",
                                                               // fit: BoxFit.fill,
-                                                              errorBuilder:
-                                                                  (context,
-                                                                  error,
-                                                                  stackTrace) {
-                                                                return const Icon(
-                                                                  Icons
-                                                                      .broken_image,
-                                                                  size: 40,
-                                                                  color: Colors
-                                                                      .grey,
-                                                                );
-                                                              },
+                                                              placeholder: (context, url) =>  const Icon(
+                                                                Icons
+                                                                    .image,),
+                                                              errorWidget: (context, url, error) => const Icon(
+                                                                Icons.broken_image,
+                                                                size: 40,
+                                                                color: Colors.grey,
+                                                              ),
                                                             ),
                                                           ),
 
@@ -527,20 +526,35 @@ class ViewOrderScreen extends StatelessWidget {
                                                           ),
                                                           clipBehavior:
                                                           Clip.antiAlias,
-                                                          child: Image.network(
-                                                            "${ApiEndpoints.imageBaseUrl}${item.images.isNotEmpty ? item.images.first : ''}",
-                                                            errorBuilder:
-                                                                (context, error,
-                                                                stackTrace) {
-                                                              return const Icon(
-                                                                Icons
-                                                                    .broken_image,
-                                                                size: 40,
-                                                                color:
-                                                                Colors.grey,
-                                                              );
-                                                            },
+
+                                                        child: CachedNetworkImage(
+                                                        imageUrl: item.images.isNotEmpty
+                                                        ? "${ApiEndpoints.imageBaseUrl}${item.images.first}"
+                                                            : "", // fallback to empty string if no image
+                                                          placeholder: (context, url) =>  const Icon(
+                                                              Icons
+                                                                  .image,),
+                                                          errorWidget: (context, url, error) => const Icon(
+                                                            Icons.broken_image,
+                                                            size: 40,
+                                                            color: Colors.grey,
                                                           ),
+                                                        ),
+
+                                                        // child: Image.network(
+                                                          //   "${ApiEndpoints.imageBaseUrl}${item.images.isNotEmpty ? item.images.first : ''}",
+                                                          //   errorBuilder:
+                                                          //       (context, error,
+                                                          //       stackTrace) {
+                                                          //     return const Icon(
+                                                          //       Icons
+                                                          //           .broken_image,
+                                                          //       size: 40,
+                                                          //       color:
+                                                          //       Colors.grey,
+                                                          //     );
+                                                          //   },
+                                                          // ),
                                                         ),
                                                       ),
                                                     );
@@ -568,7 +582,9 @@ class ViewOrderScreen extends StatelessWidget {
                                                               crossAxisAlignment: WrapCrossAlignment.start,
                                                               children: [
                                                                 Text(
-                                                                  item.name,
+                                                                  item.name.isNotEmpty
+                                                                      ? item.name[0].toUpperCase() + item.name.substring(1).toLowerCase()
+                                                                      : '',
                                                                   style: AppTextStyles.nunitoBold(
                                                                     responsive.mainTitleSize,
                                                                     color: AppColor.blackColor,
@@ -577,6 +593,7 @@ class ViewOrderScreen extends StatelessWidget {
                                                                   maxLines: 2,
                                                                   overflow: TextOverflow.ellipsis,
                                                                 ),
+
 
                                                                 const SizedBox(width: 6),
 
@@ -803,11 +820,14 @@ class ViewOrderScreen extends StatelessWidget {
 
               /// in extra add 1 position i want to show the add to more items
             ]),
+            // Using ternary operator
+
             Positioned(
-              bottom: 280, // adjust to sit above your cart FAB
+              bottom: isTablet ? 360 : 280, // adjust to sit above your cart FAB
               right: 16,
-              child: ExpandableMenuButton(), // your custom expandable menu widget
+              child: MenuButton(), // your custom expandable menu widget
             ),
+
 
           ]
       ),
@@ -824,7 +844,7 @@ class ViewOrderScreen extends StatelessWidget {
           String estimatedTime = formatTime(estimatedTimeInMinutes);
           double packingCharge = cartProvider.totalPackingCharge;
 
-          double total = cartProvider.subTotal;
+          double total = cartProvider.totalWithTax;
           double subTotal = isTakeAway
               ? cartProvider.subTotal - packingCharge
               : cartProvider.subTotal;
@@ -863,13 +883,13 @@ class ViewOrderScreen extends StatelessWidget {
                 children: [
                   // Price details
                   _priceRow(
-                      "Sub-Total", context, "₹${subTotal.toStringAsFixed(2)}"),
+                      "Item Total", context, "₹${subTotal.toStringAsFixed(2)}"),
                   if (isTakeAway)
                     _priceRow("Packing Charge", context,
                         "₹${packingCharge.toStringAsFixed(2)}"),
                   const Divider(color: Colors.white54),
-                  _priceRow("Tax", context, "15%", isBold: false),
-                  _priceRow("Total", context, "₹${total.toStringAsFixed(2)}",
+                  _priceRow("Tax", context, "12%", isBold: false),
+                  _priceRow("To Pay", context, "₹${total.toStringAsFixed(2)}",
                       isBold: true),
                   const SizedBox(height: 4),
                   Row(
@@ -910,7 +930,7 @@ class ViewOrderScreen extends StatelessWidget {
                       EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     ),
                     child: Text(
-                      'Place Order',
+                      'Login & Place Order',
                       style: AppStyle.textStyleReemKufi.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppColor.primaryColor,
@@ -1032,7 +1052,8 @@ class ViewOrderScreen extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final responsive = Responsiveness(context);
     final bool isTablet = screenWidth >= 600 && screenWidth < 1024;
-
+    final rootContext = context;
+    final screenHeight = MediaQuery.of(context).size.height;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -1053,12 +1074,18 @@ class ViewOrderScreen extends StatelessWidget {
                     child: Center(
                       child: SingleChildScrollView(
                         child: Container(
-                          constraints: BoxConstraints(
-                            maxWidth: 500,
-                          ),
+                          width: screenWidth * 0.90,
+                          height: isTablet ? screenHeight * 0.4 : screenHeight * 0.5,
+                          padding: const EdgeInsets.all(16),
+                          // constraints: BoxConstraints(
+                          //   maxWidth: 500,
+                          // ),
                           decoration: const BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [AppColor.secondary, AppColor.primaryColor],
+                              colors: [
+                                AppColor.secondary,
+                                AppColor.primaryColor
+                              ],
                               begin: AlignmentDirectional(0.0, -2.0),
                               end: AlignmentDirectional(0.0, 1.0),
                               stops: [0.0, 1.0],
@@ -1066,7 +1093,6 @@ class ViewOrderScreen extends StatelessWidget {
                             ),
                             borderRadius: BorderRadius.all(Radius.circular(20)),
                           ),
-                          padding: const EdgeInsets.all(16),
                           child: Form(
                             key: _formKey,
                             child: Column(
@@ -1112,7 +1138,8 @@ class ViewOrderScreen extends StatelessWidget {
                                   keyboardType: TextInputType.text,
                                   decoration: InputDecoration(
                                     hintText: "Enter your name",
-                                    hintStyle: AppStyle.textStyleReemKufi.copyWith(
+                                    hintStyle:
+                                    AppStyle.textStyleReemKufi.copyWith(
                                       fontWeight: FontWeight.w200,
                                       color: AppColor.lightGreyColor,
                                       fontSize: responsive.hintTextSize,
@@ -1138,129 +1165,80 @@ class ViewOrderScreen extends StatelessWidget {
                                   ],
                                 ),
                                 const SizedBox(height: 10),
-                                // Row(
-                                //   children: [
-                                //     Container(
-                                //       padding: EdgeInsets.symmetric(
-                                //         horizontal: 12,
-                                //         vertical: isTablet ? 15 : 13,
-                                //       ),
-                                //       decoration: BoxDecoration(
-                                //         color: Colors.white,
-                                //         borderRadius: BorderRadius.circular(12),
-                                //         border: Border.all(color: Colors.grey.shade300),
-                                //       ),
-                                //       child: const Text(
-                                //         "+91",
-                                //         style: TextStyle(
-                                //           fontSize: 16,
-                                //           fontWeight: FontWeight.w500,
-                                //         ),
-                                //       ),
-                                //     ),
-                                //     const SizedBox(width: 10),
-                                //     Expanded(
-                                //       child: TextFormField(
-                                //         controller: phoneController,
-                                //         keyboardType: TextInputType.number,
-                                //         inputFormatters: [
-                                //           LengthLimitingTextInputFormatter(10),
-                                //           FilteringTextInputFormatter.digitsOnly,
-                                //         ],
-                                //         decoration: InputDecoration(
-                                //           hintText: "Enter your mobile number",
-                                //           filled: true,
-                                //           fillColor: Colors.white,
-                                //           border: OutlineInputBorder(
-                                //             borderRadius: BorderRadius.circular(12),
-                                //           ),
-                                //         ),
-                                //         validator: (value) {
-                                //           if (value == null || value.isEmpty) {
-                                //             return "Please enter your mobile number";
-                                //           } else if (value.length != 10) {
-                                //             return "Enter a valid 10-digit number";
-                                //           }
-                                //           return null;
-                                //         },
-                                //       ),
-                                //     ),
-                                //   ],
-                                // ),
-                                Row(
-                                  children: [
-                                    SizedBox(
-                                      height: 50,
-                                      width: 90,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(color: Colors.grey.shade300),
-                                        ),
-                                        child: FittedBox( // ✅ Prevent overflow
-                                          fit: BoxFit.scaleDown,
-                                          child: CountryCodePicker(
-                                              onChanged: (value) {
-                                                print(value.dialCode);
-                                              },
-                                              initialSelection: 'IN',
-                                              favorite: const ['+91', 'IN'],
-                                              showDropDownButton: true,
-                                              showFlag: true,
-                                              showFlagDialog: true,
-                                              // IMPORTANT FIXES BELOW
-                                              showCountryOnly: false,
-                                              showOnlyCountryWhenClosed: false, // ✅ hide country name when closed
-                                              hideMainText: false,
-                                              textOverflow: TextOverflow.visible,
-                                              flagWidth: 22,
-                                              padding: EdgeInsets.zero,
-                                              textStyle: AppTextStyles.latoBold(responsive.adOn,)
-                                          ),
-                                        ),
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    height: 50,
+                                    width: 90,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: Colors.grey.shade300),
                                       ),
-                                    )
-                                    ,
-
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: SizedBox(
-                                        height: 50, // Same height here
-                                        child: TextFormField(
-                                          controller: phoneController,
-                                          keyboardType: TextInputType.number,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(10),
-                                            FilteringTextInputFormatter.digitsOnly,
-                                          ],
-                                          decoration: InputDecoration(
-                                            hintText: "Enter your mobile number",
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintStyle: AppStyle.textStyleReemKufi.copyWith(
-                                              fontWeight: FontWeight.w200,
-                                              color: AppColor.lightGreyColor,
-                                              fontSize: responsive.hintTextSize,
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(12),
-                                              borderSide: BorderSide(color: Colors.grey.shade300),
-                                            ),
-                                          ),
-                                          validator: (value) {
-                                            if (value == null || value.isEmpty) {
-                                              return "Please enter your mobile number";
-                                            } else if (value.length != 10) {
-                                              return "Enter a valid 10-digit number";
-                                            }
-                                            return null;
-                                          },
+                                      child: FittedBox( // ✅ Prevent overflow
+                                        fit: BoxFit.scaleDown,
+                                        child: CountryCodePicker(
+                                            onChanged: (value) {
+                                              print(value.dialCode);
+                                            },
+                                            initialSelection: 'IN',
+                                            favorite: const ['+91', 'IN'],
+                                            showDropDownButton: true,
+                                            showFlag: true,
+                                            showFlagDialog: true,
+                                            // IMPORTANT FIXES BELOW
+                                            showCountryOnly: false,
+                                            showOnlyCountryWhenClosed: false, // ✅ hide country name when closed
+                                            hideMainText: false,
+                                            textOverflow: TextOverflow.visible,
+                                            flagWidth: 22,
+                                            padding: EdgeInsets.zero,
+                                            textStyle: AppTextStyles.latoBold(responsive.adOn,)
                                         ),
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  )
+                                  ,
+
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: SizedBox(
+                                      height: 50, // Same height here
+                                      child: TextFormField(
+                                        controller: phoneController,
+                                        keyboardType: TextInputType.number,
+                                        inputFormatters: [
+                                          LengthLimitingTextInputFormatter(10),
+                                          FilteringTextInputFormatter.digitsOnly,
+                                        ],
+                                        decoration: InputDecoration(
+                                          hintText: "Enter your mobile number",
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          hintStyle: AppStyle.textStyleReemKufi.copyWith(
+                                            fontWeight: FontWeight.w200,
+                                            color: AppColor.lightGreyColor,
+                                            fontSize: responsive.hintTextSize,
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide(color: Colors.grey.shade300),
+                                          ),
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return "Please enter your mobile number";
+                                          } else if (value.length != 10) {
+                                            return "Enter a valid 10-digit number";
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                                 const SizedBox(height: 20),
                                 SizedBox(
                                   width: double.infinity,
@@ -1272,24 +1250,28 @@ class ViewOrderScreen extends StatelessWidget {
                                         onPressed: loading
                                             ? null
                                             : () async {
-                                          if (_formKey.currentState!.validate()) {
+                                          if (_formKey.currentState!
+                                              .validate()) {
                                             isLoading.value = true;
-                                            final otp = await SyncManager.login(
-                                              context,
-                                              phoneController.text,name.text
-                                            );
+                                            final otp =
+                                            await SyncManager.login(
+                                                context,
+                                                phoneController.text,
+                                                name.text);
                                             isLoading.value = false;
 
                                             if (otp != null) {
                                               Navigator.pop(context);
                                               Future.delayed(
-                                                const Duration(milliseconds: 100),
+                                                const Duration(
+                                                    milliseconds: 100),
                                                     () {
                                                   showOtpDialog(
-                                                    context,
-                                                    otp.toString(),
-                                                    phoneController.text,name.text
-                                                  );
+                                                      rootContext,
+                                                      otp.toString(),
+                                                      phoneController
+                                                          .text,
+                                                      name.text);
                                                 },
                                               );
                                             }
@@ -1297,23 +1279,28 @@ class ViewOrderScreen extends StatelessWidget {
                                         },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.white,
-                                          foregroundColor: AppColor.primaryColor,
+                                          foregroundColor:
+                                          AppColor.primaryColor,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
+                                            borderRadius:
+                                            BorderRadius.circular(12),
                                           ),
                                         ),
                                         child: loading
                                             ? const SizedBox(
                                           height: 22,
                                           width: 22,
-                                          child: CircularProgressIndicator(
+                                          child:
+                                          CircularProgressIndicator(
                                             strokeWidth: 2,
                                             color: AppColor.primaryColor,
                                           ),
                                         )
                                             : Text(
                                           'Get OTP',
-                                          style: AppStyle.textStyleReemKufi.copyWith(
+                                          style: AppStyle
+                                              .textStyleReemKufi
+                                              .copyWith(
                                             fontWeight: FontWeight.w600,
                                             color: AppColor.primaryColor,
                                             fontSize: responsive.adOn,
@@ -1340,10 +1327,8 @@ class ViewOrderScreen extends StatelessWidget {
     );
   }
 
-
-
-
-  void showOtpDialog(BuildContext context, String? otp, String phoneNumber,String name) {
+  void showOtpDialog(
+      BuildContext context, String? otp, String phoneNumber, String name) {
     final screenWidth = MediaQuery.of(context).size.width;
     List<TextEditingController> controllers =
     List.generate(4, (_) => TextEditingController());
@@ -1561,10 +1546,9 @@ class ViewOrderScreen extends StatelessWidget {
 
                                 final userId =
                                 await SyncManager.verifyOtp(
-                                  context,
-                                  phoneNumber,
-                                  int.tryParse(enteredOtp),
-                                );
+                                    context,
+                                    phoneNumber,
+                                    int.tryParse(enteredOtp));
 
                                 final cartProvider =
                                 Provider.of<CartProvider>(context,
@@ -1647,8 +1631,8 @@ class ViewOrderScreen extends StatelessWidget {
                         children: [
                           GestureDetector(
                             onTap: () async {
-                              final newOtpInt =
-                              await SyncManager.login(context, phoneNumber,name);
+                              final newOtpInt = await SyncManager.login(
+                                  context, phoneNumber, name);
 
                               if (newOtpInt != null) {
                                 final newOtp = newOtpInt
@@ -4841,14 +4825,27 @@ class ViewOrderScreen extends StatelessWidget {
       // Automatically navigate to PaymentScreen after 2 seconds
       Future.delayed(const Duration(seconds: 2), () {
         Navigator.pop(context); // close success dialog
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (_) => PaymentScreen(
-                order: order,
-              )),
-        );
+        final prefHelper = getIt<SharedPreferenceHelper>();
+        final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
+        if (isTakeAway) {
+          // Navigate to PaymentScreen for Takeaway
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PaymentScreen(order: order),
+            ),
+          );
+        } else {
+          // Navigate to another screen (example: DineInPaymentScreen)
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => TableSelectionScreen(order: order),
+            ),
+          );
+        }
       });
+
     });
   }
 }

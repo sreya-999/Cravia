@@ -18,6 +18,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../utlis/widgets/floating_message.dart';
+import '../utlis/widgets/listening_waves.dart';
 import '../utlis/widgets/responsiveness.dart';
 import '../utlis/widgets/shimmer_loading.dart';
 import 'package:lottie/lottie.dart';
@@ -256,7 +257,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                         ).createShader(
                             Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
                         child: Text(
-                          'Go To Cart',
+                          'View Order',
                           style: AppStyle.textStyleReemKufi.copyWith(
                             color: Colors.white,
                             fontSize: responsive.priceTotal,
@@ -720,7 +721,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
     final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
     selectedProvider.setTakeAwayPrice(product.takeAwayPrice.toString());
     //selectedProvider.setBasePrice(product.price.toDouble());
-// Safely set base price
+
     selectedProvider.setBasePrice(
       product.discountPrice != null && product.discountPrice!.isNotEmpty
           ? double.tryParse(product.discountPrice!) ?? product.price.toDouble()
@@ -770,6 +771,19 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
     if (cartItem != null) {
       // Set dialog quantity to existing cart quantity
       selectedProvider.setQuantity(cartItem.quantity);
+      categoryProvider.setHeatLevel(cartItem.heatLevel ?? 0);
+      if (cartItem.categoryIds != null && cartItem.spicyLevel != null) {
+        final categoryIds = cartItem.categoryIds!;
+        final spicyLevels = cartItem.spicyLevel!;
+
+        // Ensure both lists match in length
+        for (int i = 0; i < categoryIds.length && i < spicyLevels.length; i++) {
+          final categoryId = categoryIds[i];
+          final spicy = int.tryParse(spicyLevels[i]) ?? 0;
+          categoryProvider.setSpicyLevel(categoryId, spicy);
+        }
+      }
+
     //  selectedProvider.loadSpicyFromCart(cartItem);
     } else {
 
@@ -1672,12 +1686,13 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                     : null,
                                                 totalDeliveryTime: totalTime,
                                                 prepareTime: product.time,
-                                                categoryIds:categoryIds,
-                                                spicyLevel: spicyLevels,
+                                                  categoryIds : categoryIds,
+                                                  spicyLevel : spicyLevels,
+
 
                                               );
                                               final wasAdded = cartProvider
-                                                  .isDuplicate(cartItem,
+                                                  .isComboDuplicate(cartItem,
                                                       sourcePage: "combo");
                                               if (!wasAdded) {
                                                 cartProvider.addToCart(
@@ -1695,7 +1710,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                 snackBar.customSnackBar(
                                                   context: context,
                                                   type: "1",
-                                                  strMessage: 'Item Added',
+                                                  strMessage: 'Item(s) Added',
                                                 );
                                               } else {
                                                 FloatingMessage.show(
@@ -1744,7 +1759,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                                       bounds.width,
                                                       bounds.height)),
                                               child: Text(
-                                                'Add To Cart',
+                                                'Add To Order',
                                                 style: AppStyle
                                                     .textStyleReemKufi
                                                     .copyWith(
@@ -1978,8 +1993,7 @@ class _ComboOfferScreenState extends State<ComboOfferScreen> {
                                         imageUrl: imageUrl,
                                         width: imageSize,
                                         height: imageSize,
-                                        fit: BoxFit
-                                            .cover, // optional, keeps proportions
+                                        // optional, keeps proportions
                                         placeholder: (context, url) =>
                                             const Center(
                                           child: Icon(
@@ -2333,7 +2347,8 @@ class HeatLevelSelector extends StatelessWidget {
           final newSpicy = value.round();
 
           // ✅ Update provider
-          spicyProvider.setSpicyLevel(categoryId, newSpicy); spicyProvider.setSpicyLevel(categoryId, value.round());
+          spicyProvider.setSpicyLevel(categoryId, newSpicy);
+          spicyProvider.setSpicyLevel(categoryId, value.round());
           print("Category ID: $categoryId | Selected Spicy Level: $newSpicy");
         },
       ),
@@ -2444,10 +2459,11 @@ class _SearchCartRowState extends State<SearchCartRow> {
                 ),
               ],
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 5),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                SizedBox(width: 5,),
                 Icon(
                   Icons.search,
                   size: iconSize.clamp(18, 28),
@@ -2455,40 +2471,114 @@ class _SearchCartRowState extends State<SearchCartRow> {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: TextField(
-                    controller: widget.controller,
-                    focusNode: widget.focusNode,
-                    textAlign: TextAlign.start,
-                    style: AppStyle.textStyleReemKufi.copyWith(
-                      fontWeight: FontWeight.normal,
-                      fontSize: fontSize.clamp(14, 20),
-                      color: AppColor.blackColor,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'Looking for a combo? Type here...',
-                      hintStyle: AppTextStyles.nunitoRegular(
-                        responsive.hintTextSize,
-                        color: AppColor.lightGreyColor,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Stack(
+                          alignment: Alignment.centerLeft,
+                          children: [
+                            // Hint + waves overlay
+                            if (_controller.text.isEmpty)
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 300),
+                                child: _isListening
+                                    ? Row(
+                                  key: const ValueKey('listening'),
+                                  children: [
+                                    Text(
+                                      'Listening...',
+                                      style: AppTextStyles.nunitoRegular(
+                                        responsive.hintTextSize,
+                                        color: AppColor.primaryColor,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    const ListeningWave(
+                                      color: AppColor.primaryColor,
+                                      size: 10,
+                                    ),
+                                  ],
+                                )
+                                    : Text(
+                                   'Looking for a combo? Type here...',
+                                  key: const ValueKey('default'),
+                                  maxLines: 1, // restrict to one line
+                                  overflow: TextOverflow.ellipsis, // show "..." if text is too long
+                                  style: AppTextStyles.nunitoRegular(
+                                    responsive.hintTextSize,
+                                    color: AppColor.lightGreyColor,
+
+                                  ),
+                                ),
+                              ),
+                            // The actual TextField
+                            TextField(
+                              controller: _controller,
+                              focusNode: _searchFocusNode,
+                              textAlign: TextAlign.start,
+                              style: AppStyle.textStyleReemKufi.copyWith(
+                                fontWeight: FontWeight.normal,
+                                fontSize: fontSize.clamp(14, 20),
+                                color: AppColor.blackColor,
+                              ),
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                                hintText: '', // handled manually by AnimatedSwitcher
+                              ),
+                              onChanged: (value) {
+                                Provider.of<DashboardProvider>(context, listen: false)
+                                           .getComboProduct(context, widget.controller.text, "");
+                              },
+                            ),
+                          ],
+                        ),
                       ),
 
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero, // removes extra padding
-                    ),
-                    onChanged: (value) {
-                      Provider.of<DashboardProvider>(context, listen: false)
-                          .getComboProduct(context, widget.controller.text, "");
-                    },
+                      IconButton(
+                        icon: Icon(_isListening ? Icons.mic : Icons.mic_none,
+                            color: _isListening ? AppColor.primaryColor : Colors.grey),
+                        onPressed: () {
+                          if (_isListening) {
+                            _stopListening();
+                          } else {
+                            _startListening();
+                          }
+                        },
+                      ),
 
+                    ],
                   ),
                 ),
-                IconButton(
-                  icon: Icon(
-                    _isListening ? Icons.mic : Icons.mic_none,
-                    color: AppColor.primaryColor,
-                  ),
-                  onPressed: _isListening ? _stopListening : _startListening,
-                ),
+                // Expanded(
+                //   child: TextField(
+                //     controller: widget.controller,
+                //     focusNode: widget.focusNode,
+                //     textAlign: TextAlign.start,
+                //     style: AppStyle.textStyleReemKufi.copyWith(
+                //       fontWeight: FontWeight.normal,
+                //       fontSize: fontSize.clamp(14, 20),
+                //       color: AppColor.blackColor,
+                //     ),
+                //     decoration: InputDecoration(
+                //       hintText: 'Looking for a combo? Type here...',
+                //       hintStyle: AppTextStyles.nunitoRegular(
+                //         responsive.hintTextSize,
+                //         color: AppColor.lightGreyColor,
+                //       ),
+                //
+                //       border: InputBorder.none,
+                //       isDense: true,
+                //       contentPadding: EdgeInsets.zero, // removes extra padding
+                //     ),
+                //     onChanged: (value) {
+                //       Provider.of<DashboardProvider>(context, listen: false)
+                //           .getComboProduct(context, widget.controller.text, "");
+                //     },
+                //
+                //   ),
+                // ),
               ],
             ),
           ),

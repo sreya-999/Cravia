@@ -28,6 +28,7 @@ import '../utlis/share_preference_helper/sharereference_helper.dart';
 import '../utlis/widgets/app_text_style.dart';
 import '../utlis/widgets/custom_exit_dialog.dart';
 import '../utlis/widgets/floating_message.dart';
+import '../utlis/widgets/listening_waves.dart';
 import '../utlis/widgets/responsiveness.dart';
 import '../utlis/widgets/shimmer_loading.dart';
 import '../utlis/widgets/snack_bar.dart';
@@ -38,6 +39,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'combo.dart';
 import 'combo_offer_screen.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -56,9 +58,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Timer? _hintTimer;
   Timer? _hintDebounce;
   bool _isTakeAway = false;
+  bool _isListening = false;
+  late stt.SpeechToText _speech;
 
   final List<String> _hints = [
-    "Craving something? Find it here 🍔",
+    "Craving something? Find it here🍔",
     "Search your favorite meal 🍕",
     "What’s for dinner tonight? 🍱",
     "Find delicious combos 🌮",
@@ -86,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     print("sreya");
-
+    _speech = stt.SpeechToText();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<DashboardProvider>(context, listen: false);
 
@@ -98,6 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final prefHelper = getIt<SharedPreferenceHelper>();
       final isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
       _isTakeAway = prefHelper.getBool(StorageKey.isTakeAway) ?? false;
+      print(isTakeAway);
       orderImage = _isTakeAway ? AppImage.takeaway : AppImage.dinein;
       setState(() {
         orderText = isTakeAway ? "Takeaway" : "Dine-In";
@@ -224,90 +229,74 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               actions: [
-            Padding(
-            padding: const EdgeInsets.only(right: 12),
-          child: GestureDetector(
-            onTapDown: (TapDownDetails details) async {
-              // Decide the opposite option for the popup
-              String alternativeOption = _isTakeAway ? "Dine In" : "Takeaway";
+                Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: GestureDetector(
+                    onTap: () async {
+                      // Toggle between Takeaway and Dine In
+                      setState(() {
+                        _isTakeAway = !_isTakeAway; // switch the option
+                        orderText = _isTakeAway ? "Takeaway" : "Dine In";
+                        orderImage = _isTakeAway ? AppImage.takeaway : AppImage.dinein;
+                        print("isTakeaway: $_isTakeAway");
+                      });
 
-              final selected = await showMenu(
-                context: context,
-                position: RelativeRect.fromLTRB(
-                  details.globalPosition.dx,
-                  details.globalPosition.dy,
-                  details.globalPosition.dx,
-                  details.globalPosition.dy,
-                ),
-                color: AppColor.whiteColor,
-                items: [
-                  PopupMenuItem(
-                    value: alternativeOption,
-                    child: Text(
-                      alternativeOption,
-                      style: AppTextStyles.latoBold(
-                        isDesktop ? 18 : 14,
-                        color: AppColor.blackColor,
+                      // Reset / update your providers and cart
+                      final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
+                      final dashProvider = Provider.of<DashboardProvider>(context, listen: false);
+                      categoryProvider.setQuantity(1);
+                      cartProvider.clearCart();
+                      dashProvider.clearSort();
+                      dashProvider.clearComboSort(notify: false);
+                      dashProvider.clearOfferSort();
+
+                      // Save the current selection
+                      await getIt<SharedPreferenceHelper>().storeBoolData(
+                        key: StorageKey.isTakeAway,
+                        value: _isTakeAway,
+                      );
+
+                      // Reload items
+                      dashProvider.getCategoryBasedItems(context, null, null, null);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [AppColor.secondary, AppColor.primaryColor],
+                          begin: AlignmentDirectional(0.0, -2.0),
+                          end: AlignmentDirectional(0.0, 1.0),
+                          stops: [0.0, 1.0],
+                          tileMode: TileMode.clamp,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: isDesktop ? 36 : isTablet ? 32 : 28,
+                            height: isDesktop ? 36 : isTablet ? 32 : 25,
+                            child: SvgPicture.asset(
+                              orderImage,
+                              fit: BoxFit.fill,
+                              color: AppColor.whiteColor,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            orderText,
+                            style: AppTextStyles.nunitoBold(
+                              isDesktop ? 20 : isTablet ? 18 : 12,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              );
-
-              if (selected != null) {
-                setState(() {
-                  orderText = selected;
-                  _isTakeAway = selected == "Takeaway";
-                  orderImage = _isTakeAway ? AppImage.takeaway : AppImage.dinein;
-                });
-                final categoryProvider =
-                Provider.of<CategoryProvider>(context, listen: false);
-                categoryProvider.setQuantity(1);
-                cartProvider.clearCart();
-                await getIt<SharedPreferenceHelper>().storeBoolData(
-                  key: StorageKey.isTakeAway,
-                  value: _isTakeAway,
-                );
-               // pr
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColor.secondary, AppColor.primaryColor],
-                  begin: AlignmentDirectional(0.0, -2.0),
-                  end: AlignmentDirectional(0.0, 1.0),
-                  stops: [0.0, 1.0],
-                  tileMode: TileMode.clamp,
                 ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: isDesktop ? 36 : isTablet ? 32 : 28,
-                    height: isDesktop ? 36 : isTablet ? 32 : 25,
-                    child: SvgPicture.asset(
-                      orderImage,
-                      fit: BoxFit.fill,
-                      color: AppColor.whiteColor,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    orderText,
-                    style: AppTextStyles.nunitoBold(
-                      isDesktop ? 20 : isTablet ? 18 : 12,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+
 
               ],
             ),
@@ -648,7 +637,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ).createShader(Rect.fromLTWH(
                                           0, 0, bounds.width, bounds.height)),
                                   child: Text(
-                                    'Go To Cart',
+                                    'View Order',
                                     style: AppStyle.textStyleReemKufi.copyWith(
                                       color: Colors.white,
                                       fontSize: responsive.priceTotal,
@@ -713,63 +702,116 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 const SizedBox(width: 10),/// when user search the serch filed cse not set the firsr catgeotyid
                                 Expanded(
-                                  child: Stack(
-                                    alignment: Alignment.centerLeft,
+                                  child: Row(
                                     children: [
-                                      // 🔹 Animated hint text
-                                      IgnorePointer(
-                                        child: AnimatedTextKit(
-                                          key: ValueKey('hintText'),
-                                          animatedTexts: _hints.map((hint) {
-                                            return FadeAnimatedText(
-                                              hint,
-                                              textStyle: AppTextStyles.nunitoRegular(
-                                                responsive.hintTextSize,
-                                                color: AppColor.lightGreyColor,
+                                      Expanded(
+                                        child: Stack(
+                                          alignment: Alignment.centerLeft,
+                                          children: [
+                                            // 🔹 Animated hint text (show only when search is empty)
+                                            ValueListenableBuilder<TextEditingValue>(
+                                              valueListenable: _searchController,
+                                              builder: (context, value, _) {
+                                                // Hide all hints if user typed or focused
+                                                if (value.text.isNotEmpty || _searchFocusNode.hasFocus) {
+                                                  return const SizedBox.shrink();
+                                                }
+
+                                                // Show listening indicator or animated hint
+                                                return AnimatedSwitcher(
+                                                  duration: const Duration(milliseconds: 300),
+                                                  child: _isListening
+                                                      ? Row(
+                                                    key: const ValueKey('listening'),
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      Text(
+                                                        'Listening...',
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: AppTextStyles.nunitoRegular(
+                                                          responsive.hintTextSize,
+                                                          color: AppColor.primaryColor,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 6),
+                                                      ListeningWave(
+                                                        color: AppColor.primaryColor,
+                                                        size: 10,
+                                                      ),
+                                                    ],
+                                                  )
+                                                      : IgnorePointer(
+                                                    key: const ValueKey('hintText'),
+                                                    child: AnimatedTextKit(
+                                                      animatedTexts: _hints.map((hint) {
+                                                        return FadeAnimatedText(
+                                                          hint,
+
+                                                          textStyle: AppTextStyles.nunitoRegular(
+                                                            responsive.hintTextSize,
+                                                            color: AppColor.lightGreyColor,
+                                                          ),
+                                                          duration: const Duration(seconds: 2),
+                                                        );
+                                                      }).toList(),
+                                                      repeatForever: true,
+                                                      pause: const Duration(seconds: 1),
+                                                      isRepeatingAnimation: true,
+                                                      displayFullTextOnTap: false,
+                                                      stopPauseOnTap: false,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                      
+                                            // 🔹 Actual TextField
+                                            TextField(
+                                              controller: _searchController,
+                                              focusNode: _searchFocusNode,
+                                              textAlign: TextAlign.start,
+                                              style: AppStyle.textStyleReemKufi.copyWith(
+                                                fontWeight: FontWeight.normal,
+                                                fontSize: fontSize.clamp(14, 20),
+                                                color: AppColor.blackColor,
                                               ),
-                                              duration: const Duration(seconds: 2),
-                                            );
-                                          }).toList(),
-                                          repeatForever: true,
-                                          pause: const Duration(seconds: 1),
-                                          isRepeatingAnimation: true,
-                                          displayFullTextOnTap: false,
-                                          stopPauseOnTap: false,
+                                              decoration: const InputDecoration(
+                                                border: InputBorder.none,
+                                                isDense: true,
+                                                contentPadding: EdgeInsets.zero,
+                                                hintText: '', // remove static hint
+                                              ),
+                                              onChanged: (value) {
+                                                if (_debounce?.isActive ?? false) _debounce!.cancel();
+                                                _debounce = Timer(const Duration(milliseconds: 600), () {
+                                                  final provider = Provider.of<DashboardProvider>(
+                                                    context,
+                                                    listen: false,
+                                                  );
+                                                  provider.getSearchProduct(context, value, null);
+                                                });
+                                              },
+                                            ),
+                                          ],
                                         ),
                                       ),
-
-                                      // 🔹 Actual TextField
-                                      TextField(
-                                        controller: _searchController,
-                                        focusNode: _searchFocusNode,
-                                        textAlign: TextAlign.start,
-                                        style: AppStyle.textStyleReemKufi.copyWith(
-                                          fontWeight: FontWeight.normal,
-                                          fontSize: fontSize.clamp(14, 20),
-                                          color: AppColor.blackColor,
+                                      IconButton(
+                                        icon: Icon(
+                                          _isListening ? Icons.mic : Icons.mic_none,
+                                          color: _isListening ? AppColor.primaryColor : Colors.grey,
                                         ),
-                                        decoration: const InputDecoration(
-                                          border: InputBorder.none,
-                                          isDense: true,
-                                          contentPadding: EdgeInsets.zero,
-                                          hintText: '', // remove static hint
-                                        ),
-                                        onChanged: (value) {
-                                          if (_debounce?.isActive ?? false) _debounce!.cancel();
-                                          _debounce = Timer(const Duration(milliseconds: 600), () {
-                                            final provider = Provider.of<DashboardProvider>(
-                                              context,
-                                              listen: false,
-                                            );
-                                            provider.getSearchProduct(context, value, null);
-                                          });
+                                        onPressed: () {
+                                          if (_isListening) {
+                                            _stopListening();
+                                          } else {
+                                            _startListening();
+                                          }
                                         },
                                       ),
                                     ],
                                   ),
                                 )
-
-
                               ],
                             ),
                           ),
@@ -1273,6 +1315,44 @@ class _HomeScreenState extends State<HomeScreen> {
             )),
       ),
     );
+  }
+
+  void _startListening() async {
+    bool available = await _speech.initialize(
+      onStatus: (status) {
+        if (status == 'done' || status == 'notListening') {
+          setState(() => _isListening = false);
+        }
+      },
+      onError: (error) {
+        print('Speech error: $error');
+        setState(() => _isListening = false);
+      },
+    );
+
+    if (available) {
+      setState(() => _isListening = true);
+      _speech.listen(
+        onResult: (result) {
+          setState(() {
+            _searchController.text = result.recognizedWords; // updates TextField
+            _searchController.selection = TextSelection.fromPosition(
+              TextPosition(offset: _searchController.text.length),
+            );
+
+            // ✅ Call API immediately after speech result
+            final provider = Provider.of<DashboardProvider>(context, listen: false);
+            provider.bugOneGetOneOfferSearch(context, _searchController.text);
+          });
+        },
+      );
+
+    }
+  }
+
+  void _stopListening() {
+    _speech.stop();
+    setState(() => _isListening = false);
   }
 
   Widget _buildPromoCard({
@@ -2654,7 +2734,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 snackBar.customSnackBar(
                                                   context: context,
                                                   type: "1",
-                                                  strMessage: 'Item Added',
+                                                  strMessage: 'Item(s) Added',
                                                 );// Close the dialog
                                               } else {
                                                 FloatingMessage.show(
@@ -2696,7 +2776,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       bounds.width,
                                                       bounds.height)),
                                               child: Text(
-                                                'Add To Cart',
+                                                'Add To Order',
                                                 style: AppStyle
                                                     .textStyleReemKufi
                                                     .copyWith(
@@ -3065,11 +3145,14 @@ class _HomeScreenState extends State<HomeScreen> {
         divisions: 2,
         label: heatLabels[heatProvider.selectedHeatLevel],
         onChanged: (double value) {
-          heatProvider.setHeatLevel(value.round());
+          final level = value.round();
+          heatProvider.setHeatLevel(level);
+          print("Selected Heat Level: ${heatLabels[level]}"); // ✅ print here
         },
       ),
     );
   }
+
 
 // when click on the ctagoey that item scroingthe list  then set the first  item
 // Widget buildCategoryList({

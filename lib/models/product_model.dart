@@ -137,9 +137,10 @@ class ComboProductModel {
           : [],
       spicy: (json['spicy_level'] != null && json['spicy_level'] is List)
           ? List<String>.from(
-          (json['spicy_level'] as List).where((e) => e != null).map((e) => e.toString())
+        (json['spicy_level'] as List).map((e) => e?.toString() ?? '1'),
       )
           : [],
+
 
 
       addOns: parsedAddOns, childCategory: [], categoryIds: json['category_id'] != null
@@ -313,6 +314,8 @@ extension CartItemModelCopy on CartItemModel {
     List<String>? addOnNames,
     List<double>? addOnPrices,
     String? cartKey,
+    List<String>? spicyLevel,
+    List<String>? categoryIds,
   }) {
     return CartItemModel(
       id: id ?? this.id,
@@ -344,6 +347,8 @@ extension CartItemModelCopy on CartItemModel {
       addOnNames: addOnNames ?? this.addOnNames,
       addOnPrices: addOnPrices ?? this.addOnPrices,
       cartKey: cartKey ?? this.cartKey,
+      categoryIds: categoryIds ?? this.categoryIds,
+      spicyLevel:  spicyLevel ?? this.spicyLevel,
     );
   }
 }
